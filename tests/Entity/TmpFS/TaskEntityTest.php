@@ -60,6 +60,8 @@ class TaskEntityTest extends \PHPUnit\Framework\TestCase
     public function propertyProvider()
     {
         return [
+            ['Class', self::class],
+            ['Name', 'Job\\Task name'],
             ['Num', $this->taskNum],
             ['CurrentStepNum', 2],
             ['StepsNum', 3],

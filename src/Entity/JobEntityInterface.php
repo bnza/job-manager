@@ -16,13 +16,13 @@ interface JobEntityInterface extends JobManagerEntityInterface
 
     public function setStatus($status): JobEntityInterface;
 
-    public function getTasksNum(): int;
+    public function setName(string $name): JobEntityInterface;
 
-    public function setTasksNum($num): JobEntityInterface;
+    public function setClass(string $class): JobEntityInterface;
 
-    public function getCurrentTaskNum(): int;
+    public function setStepsNum($num): JobEntityInterface;
 
-    public function setCurrentTaskNum($num): JobEntityInterface;
+    public function setCurrentStepNum($num): JobEntityInterface;
 
     public function addTask(TaskEntityInterface $task): JobEntityInterface;
 
@@ -31,4 +31,8 @@ interface JobEntityInterface extends JobManagerEntityInterface
     public function getTask(int $num): TaskEntityInterface;
 
     public function clearTasks(): JobEntityInterface;
+
+    public function getError(): string;
+
+    public function setError(string $class): JobEntityInterface;
 }

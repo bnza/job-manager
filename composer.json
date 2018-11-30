@@ -26,6 +26,7 @@
     "symfony/dependency-injection": "^4.1",
     "symfony/config": "^4.1",
     "symfony/yaml": "^4.1",
-    "symfony/framework-bundle": "^4.1"
+    "symfony/framework-bundle": "^4.1",
+    "doctrine/inflector": "^1.3"
   }
 }

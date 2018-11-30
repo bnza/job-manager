@@ -23,16 +23,6 @@ class TaskEntity extends AbstractJobManagerEntity implements TaskEntityInterface
      */
     private $num;
 
-    /**
-     * @var int
-     */
-    private $currentStepNum = 0;
-
-    /**
-     * @var int
-     */
-    private $stepsNum = 0;
-
     public function __construct($job, int $num = -1)
     {
         if ($job) {
@@ -74,6 +64,20 @@ class TaskEntity extends AbstractJobManagerEntity implements TaskEntityInterface
         return $this;
     }
 
+    public function setName(string $name): TaskEntityInterface
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function setClass(string $class): TaskEntityInterface
+    {
+        $this->class = $class;
+
+        return $this;
+    }
+
     public function setCurrentStepNum($num): TaskEntityInterface
     {
         $this->currentStepNum = (int) $num;
@@ -81,20 +85,10 @@ class TaskEntity extends AbstractJobManagerEntity implements TaskEntityInterface
         return $this;
     }
 
-    public function getCurrentStepNum(): int
-    {
-        return $this->currentStepNum;
-    }
-
     public function setStepsNum($num): TaskEntityInterface
     {
         $this->stepsNum = (int) $num;
 
         return $this;
-    }
-
-    public function getStepsNum(): int
-    {
-        return $this->stepsNum;
     }
 }

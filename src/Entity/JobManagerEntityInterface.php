@@ -12,9 +12,9 @@ interface JobManagerEntityInterface
 {
     public function getClass(): string;
 
-    public function setClass(string $class): JobManagerEntityInterface;
-
     public function getName(): string;
 
-    public function setName(string $name): JobManagerEntityInterface;
+    public function getCurrentStepNum(): int;
+
+    public function getStepsNum(): int;
 }

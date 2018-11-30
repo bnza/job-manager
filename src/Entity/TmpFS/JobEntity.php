@@ -24,19 +24,14 @@ class JobEntity extends AbstractJobManagerEntity implements JobEntityInterface
     protected $status = 0;
 
     /**
-     * @var int
-     */
-    protected $tasksNum = -1;
-
-    /**
-     * @var int
-     */
-    protected $currentTaskNum = -1;
-
-    /**
      * @var \ArrayIterator
      */
     protected $tasks;
+
+    /**
+     * @var string
+     */
+    protected $error = '';
 
     /**
      * JobEntity constructor.
@@ -62,6 +57,20 @@ class JobEntity extends AbstractJobManagerEntity implements JobEntityInterface
         return $this->id;
     }
 
+    public function setClass(string $class): JobEntityInterface
+    {
+        $this->class = $class;
+
+        return $this;
+    }
+
+    public function setName(string $name): JobEntityInterface
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
     public function getStatus(): int
     {
         return $this->status;
@@ -74,14 +83,9 @@ class JobEntity extends AbstractJobManagerEntity implements JobEntityInterface
         return $this;
     }
 
-    public function getCurrentTaskNum(): int
+    public function setCurrentStepNum($num): JobEntityInterface
     {
-        return $this->currentTaskNum;
-    }
-
-    public function setCurrentTaskNum($num): JobEntityInterface
-    {
-        $this->currentTaskNum = (int) $num;
+        $this->currentStepNum = (int) $num;
 
         return $this;
     }
@@ -117,14 +121,21 @@ class JobEntity extends AbstractJobManagerEntity implements JobEntityInterface
         return $this;
     }
 
-    public function getTasksNum(): int
+    public function setStepsNum($num): JobEntityInterface
     {
-        return $this->tasksNum;
+        $this->stepsNum = (int) $num;
+
+        return $this;
     }
 
-    public function setTasksNum($num): JobEntityInterface
+    public function getError(): string
     {
-        $this->tasksNum = (int) $num;
+        return $this->error;
+    }
+
+    public function setError(string $error): JobEntityInterface
+    {
+        $this->error = $error;
 
         return $this;
     }

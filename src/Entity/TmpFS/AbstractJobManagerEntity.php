@@ -20,18 +20,21 @@ abstract class AbstractJobManagerEntity implements JobManagerEntityInterface
     /**
      * @var string
      */
-    private $name = '';
+    protected $name = '';
+
+    /**
+     * @var int
+     */
+    protected $currentStepNum = 0;
+
+    /**
+     * @var int
+     */
+    protected $stepsNum = 0;
 
     public function getClass(): string
     {
         return $this->class;
-    }
-
-    public function setClass(string $class): JobManagerEntityInterface
-    {
-        $this->class = $class;
-
-        return $this;
     }
 
     public function getName(): string
@@ -39,10 +42,13 @@ abstract class AbstractJobManagerEntity implements JobManagerEntityInterface
         return $this->name;
     }
 
-    public function setName(string $name): JobManagerEntityInterface
+    public function getCurrentStepNum(): int
     {
-        $this->name = $name;
+        return $this->currentStepNum;
+    }
 
-        return $this;
+    public function getStepsNum(): int
+    {
+        return $this->stepsNum;
     }
 }

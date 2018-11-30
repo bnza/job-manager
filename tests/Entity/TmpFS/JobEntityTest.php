@@ -41,9 +41,12 @@ class JobEntityTest extends \PHPUnit\Framework\TestCase
     public function propertyProvider()
     {
         return [
+            ['Class', self::class],
+            ['Name', 'Job\\Task name'],
             ['Status', 1],
-            ['CurrentTaskNum', 2],
-            ['TasksNum', 3]
+            ['CurrentStepNum', 2],
+            ['StepsNum', 3],
+            ['Error', 'Bad error']
         ];
     }
 
@@ -54,7 +57,7 @@ class JobEntityTest extends \PHPUnit\Framework\TestCase
      * @param $value
      * @param JobEntity $job
      */
-    public function testSetGetClass(string $prop, $value, JobEntity $job)
+    public function testSetGetProperties(string $prop, $value, JobEntity $job)
     {
         $job->{"set$prop"}($value);
         $this->assertEquals($value, $job->{"get$prop"}());
