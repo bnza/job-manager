@@ -7,10 +7,10 @@
  * For full license information see the README.md file
  */
 
-namespace Bnza\JobManagerBundle;
+namespace Bnza\JobManagerBundle\Job;
 
-use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class BnzaJobRunnerBundle extends Bundle
+class JobInfo
 {
+
 }

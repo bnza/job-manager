@@ -1,5 +1,13 @@
 <?php
 /**
+ * Copyright (c) 2018
+ *
+ * Author: Pietro Baldassarri
+ *
+ * For full license information see the README.md file
+ */
+
+/**
  * Created by PhpStorm.
  * User: petrux
  * Date: 26/11/18

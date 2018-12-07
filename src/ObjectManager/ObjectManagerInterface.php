@@ -1,9 +1,10 @@
 <?php
 /**
- * (c) 2018 - Pietro Baldassarri <pietro.baldassarri@gmail.com>.
+ * Copyright (c) 2018
  *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ * Author: Pietro Baldassarri
+ *
+ * For full license information see the README.md file
  */
 
 namespace Bnza\JobManagerBundle\ObjectManager;
