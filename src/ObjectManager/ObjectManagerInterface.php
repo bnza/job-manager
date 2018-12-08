@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2018
+ * Copyright (c) 2018.
  *
  * Author: Pietro Baldassarri
  *
@@ -10,6 +10,7 @@
 namespace Bnza\JobManagerBundle\ObjectManager;
 
 use Bnza\JobManagerBundle\Entity\JobManagerEntityInterface;
+use Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException;
 
 interface ObjectManagerInterface
 {
@@ -26,6 +27,19 @@ interface ObjectManagerInterface
      *
      * @param JobManagerEntityInterface $entity
      * @param string                    $property
+     *
+     * @throws JobManagerEntityNotFoundException
      */
     public function refresh(JobManagerEntityInterface $entity, string $property = ''): void;
+
+    /**
+     * Finds and return a JobManagerEntityInterface with the given id.
+     *
+     * @param string $class
+     * @param string $jobId
+     * @param int    $taskNum
+     *
+     * @return JobManagerEntityInterface
+     */
+    public function find(string $class, string $jobId, int $taskNum = -1): JobManagerEntityInterface;
 }

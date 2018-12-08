@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2018
+ * Copyright (c) 2018.
  *
  * Author: Pietro Baldassarri
  *
@@ -18,6 +18,7 @@ namespace Bnza\JobManagerBundle\Tests\Entity\TmpFS;
 
 use Bnza\JobManagerBundle\Entity\TmpFS\JobEntity;
 use Bnza\JobManagerBundle\Entity\TmpFS\TaskEntity;
+use Bnza\JobManagerBundle\Job\Status;
 
 class TaskEntityTest extends \PHPUnit\Framework\TestCase
 {
@@ -43,6 +44,7 @@ class TaskEntityTest extends \PHPUnit\Framework\TestCase
     {
         $entity = new TaskEntity(false, $this->taskNum);
         $this->assertNull($entity->getJob());
+
         return $entity;
     }
 
@@ -51,7 +53,7 @@ class TaskEntityTest extends \PHPUnit\Framework\TestCase
         return [
           [1],
           [true],
-          [['wrong']]
+          [['wrong']],
         ];
     }
 
@@ -72,7 +74,7 @@ class TaskEntityTest extends \PHPUnit\Framework\TestCase
             ['Name', 'Job\\Task name'],
             ['Num', $this->taskNum],
             ['CurrentStepNum', 2],
-            ['StepsNum', 3],
+            ['StepsNum', 3]
         ];
     }
 
@@ -88,6 +90,62 @@ class TaskEntityTest extends \PHPUnit\Framework\TestCase
     {
         $task->{"set$prop"}($value);
         $this->assertEquals($value, $task->{"get$prop"}());
+    }
+
+    /**
+     * @depends      testIdConstructor
+     * @param TaskEntity $task
+     */
+    public function testGetId(TaskEntity $task)
+    {
+        $this->assertEquals("$this->jobId.$this->taskNum", $task->getId());
+    }
+
+    public function getJobIdPropertyProvider()
+    {
+        return [
+            ['Id']
+        ];
+    }
+
+    public function getJobPropertyProvider()
+    {
+        return [
+            ['Error', 'Bad error'],
+            ['Status', new Status()]
+        ];
+    }
+
+    /**
+     * @dataProvider getJobIdPropertyProvider
+     * @dataProvider getJobPropertyProvider
+     * @param string $prop
+     */
+    public function testGetJobProps(string $prop)
+    {
+        $job = $this->createMock(JobEntity::class);
+        $method = "get$prop";
+        $job->expects($spy = $this->once())
+            ->method($method);
+        $task = new TaskEntity($job, $this->taskNum);
+        $task->$method();
+        $this->assertCount(1, $spy->getInvocations());
+    }
+
+    /**
+     * @dataProvider getJobPropertyProvider
+     * @param string $prop
+     * @param $value
+     */
+    public function testSetJobProps(string $prop, $value)
+    {
+        $job = $this->createMock(JobEntity::class);
+        $method = "set$prop";
+        $job->expects($spy = $this->once())
+            ->method($method);
+        $task = new TaskEntity($job, $this->taskNum);
+        $task->$method($value);
+        $this->assertCount(1, $spy->getInvocations());
     }
 
 

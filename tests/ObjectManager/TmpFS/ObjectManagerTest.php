@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2018
+ * Copyright (c) 2018.
  *
  * Author: Pietro Baldassarri
  *
@@ -16,15 +16,16 @@
 
 namespace Bnza\JobManagerBundle\Tests\ObjectManager\TmpFS;
 
-use Bnza\JobManagerBundle\Entity\JobManagerEntityInterface;
 use Bnza\JobManagerBundle\Entity\TmpFS\JobEntity;
 use Bnza\JobManagerBundle\Entity\TmpFS\TaskEntity;
 use Bnza\JobManagerBundle\ObjectManager\TmpFS\ObjectManager;
-use Doctrine\Common\Inflector\Inflector;
 use Symfony\Component\Filesystem\Filesystem;
+use Bnza\JobManagerBundle\Tests\EntityPropertyHandlerTrait;
 
 class ObjectManagerTest extends \PHPUnit\Framework\TestCase
 {
+    use EntityPropertyHandlerTrait;
+
     private $jobId = 'ae4f281df5a5d0ff3cad6371f76d5c29b6d953ec';
     private $taskNum = 83;
     /**
@@ -35,18 +36,6 @@ class ObjectManagerTest extends \PHPUnit\Framework\TestCase
     public function setUp()
     {
         $this->om = new ObjectManager('test');
-    }
-
-    private function handleEntityProp(JobManagerEntityInterface $entity, string $action, string $prop, $value = false)
-    {
-        $inflector = new Inflector();
-        $method = $action.$inflector->classify($prop);
-        if ($action == 'set') {
-            $entity->$method($value);
-        } else if ($action == 'get') {
-            return $entity->$method();
-        }
-
     }
 
     public function testEmptyConstructor()
@@ -159,6 +148,8 @@ class ObjectManagerTest extends \PHPUnit\Framework\TestCase
      * @depends testGetEntityJobPath
      *
      * @param ObjectManager $om
+     *
+     * @throws \Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException
      */
     public function testRefreshJobNonExistentPropertiesThrowsInvalidArgumentException(ObjectManager $om)
     {
@@ -210,6 +201,7 @@ class ObjectManagerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @depends testGetEntityJobPath
+     *
      * @param ObjectManager $om
      */
     public function testPersistJob(ObjectManager $om)
@@ -240,6 +232,7 @@ class ObjectManagerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @depends testGetEntityJobPath
+     *
      * @param ObjectManager $om
      */
     public function testPersistTask(ObjectManager $om)
@@ -250,9 +243,38 @@ class ObjectManagerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @depends testGetEntityJobPath
+     * @expectedException \Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException
+     * @expectedExceptionMessageRegExp /.+ job entity not found/
+     * @depends testEnvConstructor
+     *
+     * @param ObjectManager $om
+     */
+    public function testRefreshNonExistentJobThrowsJobManagerEntityNotFoundException(ObjectManager $om)
+    {
+        $entity = new JobEntity(sha1('B'));
+        $om->refresh($entity);
+    }
+
+    /**
+     * @expectedException \Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException
+     * @expectedExceptionMessageRegExp /.+ task entity not found/
+     * @depends testEnvConstructor
+     *
+     * @param ObjectManager $om
+     */
+    public function testRefreshNonExistentTaskThrowsJobManagerEntityNotFoundException(ObjectManager $om)
+    {
+        $entity = new TaskEntity(sha1('B'), 2);
+        $om->refresh($entity);
+    }
+
+    /**
+     * @depends      testGetEntityJobPath
+     *
      * @param ObjectManager $om
      * @dataProvider jobPropertiesProvider
+     *
+     * @throws \Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException
      */
     public function testRefreshJob(string $prop, $value, ObjectManager $om)
     {
@@ -267,24 +289,30 @@ class ObjectManagerTest extends \PHPUnit\Framework\TestCase
     /**
      * @depends      testGetEntityJobPath
      * @dataProvider taskPropertiesProvider
+     *
      * @param string $prop
      * @param $value
      * @param ObjectManager $om
+     *
+     * @throws \Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException
      */
     public function testRefreshJobProperty(string $prop, $value, ObjectManager $om)
     {
         $entity = new JobEntity($this->jobId);
         $path = $om->getEntityPath($entity);
-        mkdir($path,0700, true);
+        mkdir($path, 0700, true);
         file_put_contents($path.DIRECTORY_SEPARATOR.$prop, $value);
         $om->refresh($entity, $prop);
         $this->assertEquals((string) $value, $this->handleEntityProp($entity, 'get', $prop));
     }
 
     /**
-     * @depends testGetEntityTaskPath
+     * @depends      testGetEntityTaskPath
+     *
      * @param ObjectManager $om
      * @dataProvider taskPropertiesProvider
+     *
+     * @throws \Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException
      */
     public function testRefreshTask(string $prop, $value, ObjectManager $om)
     {
@@ -299,20 +327,22 @@ class ObjectManagerTest extends \PHPUnit\Framework\TestCase
     /**
      * @depends      testGetEntityJobPath
      * @dataProvider taskPropertiesProvider
+     *
      * @param string $prop
      * @param $value
      * @param ObjectManager $om
+     *
+     * @throws \Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException
      */
     public function testRefreshTaskProperty(string $prop, $value, ObjectManager $om)
     {
         $entity = new TaskEntity($this->jobId, $this->taskNum);
         $path = $om->getEntityPath($entity);
-        mkdir($path,0700, true);
+        mkdir($path, 0700, true);
         file_put_contents($path.DIRECTORY_SEPARATOR.$prop, $value);
         $om->refresh($entity, $prop);
         $this->assertEquals((string) $value, $this->handleEntityProp($entity, 'get', $prop));
     }
-
 
     public function tearDown()
     {
@@ -321,5 +351,30 @@ class ObjectManagerTest extends \PHPUnit\Framework\TestCase
             $fs = new Filesystem();
             $fs->remove($path);
         }
+    }
+
+    public function testFindJob()
+    {
+        $job = new JobEntity(sha1(microtime()));
+        $this->om->persist($job);
+        $job2 = $this->om->find(get_class($job), $job->getId());
+        $this->assertEquals($job, $job2);
+    }
+
+    public function testFindTask()
+    {
+        $task = new TaskEntity(sha1(microtime()), (int) rand(0, 100));
+        $this->om->persist($task);
+        $task2 = $this->om->find(get_class($task), $task->getjob()->getId(), $task->getNum());
+        $this->assertEquals($task, $task2);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessageRegExp /Invalid entity class "\w+"/
+     */
+    public function testFindWrongClassThrowsException()
+    {
+        $this->om->find(\Exception::class, sha1(microtime()));
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2018
+ * Copyright (c) 2018.
  *
  * Author: Pietro Baldassarri
  *
@@ -9,8 +9,10 @@
 
 namespace Bnza\JobManagerBundle\Entity\TmpFS;
 
+use Bnza\JobManagerBundle\Entity\JobManagerEntityInterface;
 use Bnza\JobManagerBundle\Entity\JobEntityInterface;
 use Bnza\JobManagerBundle\Entity\TaskEntityInterface;
+use Bnza\JobManagerBundle\Job\Status;
 
 class JobEntity extends AbstractJobManagerEntity implements JobEntityInterface
 {
@@ -22,7 +24,7 @@ class JobEntity extends AbstractJobManagerEntity implements JobEntityInterface
     /**
      * @var int
      */
-    protected $status = 0;
+    protected $status;
 
     /**
      * @var \ArrayIterator
@@ -51,6 +53,7 @@ class JobEntity extends AbstractJobManagerEntity implements JobEntityInterface
             $this->id = sha1(microtime());
         }
         $this->tasks = new \ArrayIterator();
+        $this->status = new Status();
     }
 
     public function getId(): string
@@ -72,14 +75,18 @@ class JobEntity extends AbstractJobManagerEntity implements JobEntityInterface
         return $this;
     }
 
-    public function getStatus(): int
+    public function getStatus(): Status
     {
         return $this->status;
     }
 
-    public function setStatus($status): JobEntityInterface
+    public function setStatus($status): JobManagerEntityInterface
     {
-        $this->status = (int) $status;
+        if ($status instanceof Status) {
+            $this->status = $status;
+        } else {
+            $this->status = new Status((int) $status);
+        }
 
         return $this;
     }
@@ -134,9 +141,9 @@ class JobEntity extends AbstractJobManagerEntity implements JobEntityInterface
         return $this->error;
     }
 
-    public function setError(string $error): JobEntityInterface
+    public function setError($error): JobManagerEntityInterface
     {
-        $this->error = $error;
+        $this->error = (string) $error;
 
         return $this;
     }

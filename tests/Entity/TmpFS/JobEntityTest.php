@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2018
+ * Copyright (c) 2018.
  *
  * Author: Pietro Baldassarri
  *
@@ -11,6 +11,7 @@ namespace Bnza\JobManagerBundle\Tests\Entity\TmpFS;
 
 use Bnza\JobManagerBundle\Entity\TmpFS\JobEntity;
 use Bnza\JobManagerBundle\Entity\TaskEntityInterface;
+use Bnza\JobManagerBundle\Job\Status;
 
 class JobEntityTest extends \PHPUnit\Framework\TestCase
 {
@@ -27,6 +28,7 @@ class JobEntityTest extends \PHPUnit\Framework\TestCase
     {
         $entity = new JobEntity($this->id);
         $this->assertEquals($this->id, $entity->getId());
+
         return $entity;
     }
 
@@ -44,16 +46,17 @@ class JobEntityTest extends \PHPUnit\Framework\TestCase
         return [
             ['Class', self::class],
             ['Name', 'Job\\Task name'],
-            ['Status', 1],
+            ['Status', new Status(1)],
             ['CurrentStepNum', 2],
             ['StepsNum', 3],
-            ['Error', 'Bad error']
+            ['Error', 'Bad error'],
         ];
     }
 
     /**
      * @depends testIdConstructor
      * @dataProvider propertyProvider
+     *
      * @param string $prop
      * @param $value
      * @param JobEntity $job
@@ -66,6 +69,9 @@ class JobEntityTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @depends testIdConstructor
+     * @param JobEntity $job
+     * @return JobEntity
+     * @throws \ReflectionException
      */
     public function testAddTask(JobEntity $job)
     {
@@ -76,16 +82,20 @@ class JobEntityTest extends \PHPUnit\Framework\TestCase
         $this->assertCount(0, $job->getTasks());
         $job->addTask($task);
         $this->assertCount(1, $job->getTasks());
+
         return $job;
     }
 
     /**
      * @depends testAddTask
+     * @param JobEntity $job
+     * @return JobEntity
      */
     public function testGetTask(JobEntity $job)
     {
         $task = $job->getTask(1);
         $this->assertInstanceOf(TaskEntityInterface::class, $task);
+
         return $job;
     }
 
@@ -93,7 +103,7 @@ class JobEntityTest extends \PHPUnit\Framework\TestCase
      * @depends testGetTask
      * @expectedException              \LogicException
      * @expectedExceptionMessage Cannot replace existing task
-     *
+     * @param JobEntity $job
      */
     public function testAddTaskThrowsExceptionOnDuplicateTaskNum(JobEntity $job)
     {
@@ -105,7 +115,7 @@ class JobEntityTest extends \PHPUnit\Framework\TestCase
      * @depends testAddTask
      * @expectedException              \RuntimeException
      * @expectedExceptionMessageRegExp /No tasks at index \d+/
-     *
+     * @param JobEntity $job
      */
     public function testGetTaskThrowsExceptionOnWrongIndex(JobEntity $job)
     {
@@ -114,6 +124,7 @@ class JobEntityTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @depends testAddTask
+     * @param JobEntity $job
      */
     public function testClearTask(JobEntity $job)
     {
@@ -123,10 +134,11 @@ class JobEntityTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @depends testIdConstructor
+     * @param JobEntity $job
+     * @throws \ReflectionException
      */
     public function testAddTaskWillCallTaskSetJob(JobEntity $job)
     {
-
         $task = $this->getMockForAbstractClass(TaskEntityInterface::class);
 
         $task
@@ -136,6 +148,5 @@ class JobEntityTest extends \PHPUnit\Framework\TestCase
         $job->addTask($task);
 
         $this->assertCount(1, $spy->getInvocations());
-
     }
 }

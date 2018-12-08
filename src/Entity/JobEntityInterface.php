@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2018
+ * Copyright (c) 2018.
  *
  * Author: Pietro Baldassarri
  *
@@ -9,13 +9,11 @@
 
 namespace Bnza\JobManagerBundle\Entity;
 
+use Bnza\JobManagerBundle\Job\Status;
+
 interface JobEntityInterface extends JobManagerEntityInterface
 {
-    public function getId(): string;
-
-    public function getStatus(): int;
-
-    public function setStatus($status): JobEntityInterface;
+    // public function setStatus($status): JobEntityInterface;
 
     public function setName(string $name): JobEntityInterface;
 
@@ -32,8 +30,4 @@ interface JobEntityInterface extends JobManagerEntityInterface
     public function getTask(int $num): TaskEntityInterface;
 
     public function clearTasks(): JobEntityInterface;
-
-    public function getError(): string;
-
-    public function setError(string $class): JobEntityInterface;
 }

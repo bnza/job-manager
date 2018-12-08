@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2018
+ * Copyright (c) 2018.
  *
  * Author: Pietro Baldassarri
  *
@@ -10,7 +10,9 @@
 namespace Bnza\JobManagerBundle\Entity\TmpFS;
 
 use Bnza\JobManagerBundle\Entity\JobEntityInterface;
+use Bnza\JobManagerBundle\Entity\JobManagerEntityInterface;
 use Bnza\JobManagerBundle\Entity\TaskEntityInterface;
+use Bnza\JobManagerBundle\Job\Status;
 
 class TaskEntity extends AbstractJobManagerEntity implements TaskEntityInterface
 {
@@ -89,6 +91,35 @@ class TaskEntity extends AbstractJobManagerEntity implements TaskEntityInterface
     public function setStepsNum($num): TaskEntityInterface
     {
         $this->stepsNum = (int) $num;
+
+        return $this;
+    }
+
+    public function getId(): string
+    {
+        return $this->getJob()->getId().'.'.$this->getNum();
+    }
+
+    public function getStatus(): Status
+    {
+        return $this->getJob()->getStatus();
+    }
+
+    public function getError(): string
+    {
+        return $this->getJob()->getError();
+    }
+
+    public function setError($error): JobManagerEntityInterface
+    {
+        $this->getJob()->setError($error);
+
+        return $this;
+    }
+
+    public function setStatus($status): JobManagerEntityInterface
+    {
+        $this->getJob()->setStatus($status);
 
         return $this;
     }

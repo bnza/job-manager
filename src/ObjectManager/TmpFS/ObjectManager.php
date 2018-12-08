@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2018
+ * Copyright (c) 2018.
  *
  * Author: Pietro Baldassarri
  *
@@ -19,6 +19,7 @@ namespace Bnza\JobManagerBundle\ObjectManager\TmpFS;
 use Bnza\JobManagerBundle\Entity\JobManagerEntityInterface;
 use Bnza\JobManagerBundle\Entity\JobEntityInterface;
 use Bnza\JobManagerBundle\Entity\TaskEntityInterface;
+use Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 use Doctrine\Common\Inflector\Inflector;
 use Symfony\Component\Filesystem\Filesystem;
@@ -54,7 +55,7 @@ class ObjectManager implements ObjectManagerInterface
         'class',
         'steps_num',
         'name',
-        'current_step_num'
+        'current_step_num',
     ];
 
     public function __construct(string $env = 'dev', string $tempDir = '')
@@ -130,7 +131,7 @@ class ObjectManager implements ObjectManagerInterface
 
     /**
      * @param JobManagerEntityInterface $entity
-     * @param string $property
+     * @param string                    $property
      */
     public function persist(JobManagerEntityInterface $entity, string $property = ''): void
     {
@@ -163,7 +164,7 @@ class ObjectManager implements ObjectManagerInterface
             }
         } else {
             if (!\file_exists($path)) {
-                $id = $type == 'job'
+                $id = 'job' == $type
                     ? $entity->getId()
                     : $entity->getJob()->getId().'/'.$entity->getNum();
                 throw new \LogicException("[$id] $type not found. You must persist it before single property");
@@ -198,7 +199,21 @@ class ObjectManager implements ObjectManagerInterface
                 $this->refresh($entity, $prop);
             }
         } else {
-            // Persist the given property
+            if (!\file_exists($path)) {
+                if ('job' === $type) {
+                    $ids = [
+                        $entity->getId(),
+                    ];
+                } else {
+                    $ids = [
+                        $entity->getJob()->getId(),
+                        $entity->getNum(),
+                    ];
+                }
+                throw new JobManagerEntityNotFoundException($ids);
+            }
+
+            // Refresh the given property
             $property = strtolower($property);
             if (!\in_array($property, $props)) {
                 throw new \InvalidArgumentException("\"$property\" is not a valid $type property)");
@@ -208,5 +223,30 @@ class ObjectManager implements ObjectManagerInterface
             $method = 'set'.$this->getInflector()->classify($property);
             $entity->$method($value);
         }
+    }
+
+    /**
+     * @param string $class
+     * @param string $jobId
+     * @param int    $taskNum
+     *
+     * @return JobManagerEntityInterface
+     *
+     * @throws JobManagerEntityNotFoundException
+     */
+    public function find(string $class, string $jobId, int $taskNum = -1): JobManagerEntityInterface
+    {
+        $interfaces = \class_implements($class);
+
+        if (\in_array(JobEntityInterface::class, $interfaces)) {
+            $entity = new $class($jobId);
+        } elseif (\in_array(TaskEntityInterface::class, $interfaces)) {
+            $entity = new $class($jobId, $taskNum);
+        } else {
+            throw new \InvalidArgumentException("Invalid entity class \"$class\"");
+        }
+        $this->refresh($entity);
+
+        return $entity;
     }
 }

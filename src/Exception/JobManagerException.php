@@ -7,10 +7,8 @@
  * For full license information see the README.md file
  */
 
-namespace Bnza\JobManagerBundle;
+namespace Bnza\JobManagerBundle\Exception;
 
-use Symfony\Component\HttpKernel\Bundle\Bundle;
-
-class BnzaJobRunnerBundle extends Bundle
+class JobManagerException extends \Exception
 {
 }
