@@ -74,7 +74,7 @@ class TaskEntityTest extends \PHPUnit\Framework\TestCase
             ['Name', 'Job\\Task name'],
             ['Num', $this->taskNum],
             ['CurrentStepNum', 2],
-            ['StepsNum', 3]
+            ['StepsNum', 3],
         ];
     }
 
@@ -94,6 +94,7 @@ class TaskEntityTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @depends      testIdConstructor
+     *
      * @param TaskEntity $task
      */
     public function testGetId(TaskEntity $task)
@@ -104,7 +105,7 @@ class TaskEntityTest extends \PHPUnit\Framework\TestCase
     public function getJobIdPropertyProvider()
     {
         return [
-            ['Id']
+            ['Id'],
         ];
     }
 
@@ -112,13 +113,14 @@ class TaskEntityTest extends \PHPUnit\Framework\TestCase
     {
         return [
             ['Error', 'Bad error'],
-            ['Status', new Status()]
+            ['Status', new Status()],
         ];
     }
 
     /**
      * @dataProvider getJobIdPropertyProvider
      * @dataProvider getJobPropertyProvider
+     *
      * @param string $prop
      */
     public function testGetJobProps(string $prop)
@@ -134,6 +136,7 @@ class TaskEntityTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider getJobPropertyProvider
+     *
      * @param string $prop
      * @param $value
      */
@@ -147,7 +150,6 @@ class TaskEntityTest extends \PHPUnit\Framework\TestCase
         $task->$method($value);
         $this->assertCount(1, $spy->getInvocations());
     }
-
 
     /**
      * @depends testNoJobConstructor

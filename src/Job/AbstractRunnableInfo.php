@@ -13,7 +13,7 @@ use Bnza\JobManagerBundle\ObjectManager\TmpFS\ObjectManager;
 use Bnza\JobManagerBundle\Entity\JobManagerEntityInterface;
 use Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException;
 
-abstract class AbstractInfoGetter implements InfoGetterInterface
+abstract class AbstractRunnableInfo implements RunnableInfoInterface
 {
     /**
      * @var ObjectManager;
@@ -26,7 +26,7 @@ abstract class AbstractInfoGetter implements InfoGetterInterface
     protected $entity;
 
     /**
-     * AbstractInfoGetter constructor.
+     * AbstractRunnableInfo constructor.
      *
      * @param ObjectManager $om
      * @param string        $class
@@ -63,11 +63,11 @@ abstract class AbstractInfoGetter implements InfoGetterInterface
     /**
      * @param string $prop
      *
-     * @return InfoGetterInterface
+     * @return RunnableInfoInterface
      *
      * @throws \Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException
      */
-    public function refresh(string $prop = ''): InfoGetterInterface
+    public function refresh(string $prop = ''): RunnableInfoInterface
     {
         $this->getObjectManager()->refresh($this->getEntity(), $prop);
 

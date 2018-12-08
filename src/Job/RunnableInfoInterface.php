@@ -9,9 +9,9 @@
 
 namespace Bnza\JobManagerBundle\Job;
 
-interface InfoGetterInterface
+interface RunnableInfoInterface
 {
-    public function refresh(string $prop = ''): InfoGetterInterface;
+    public function refresh(string $prop = ''): RunnableInfoInterface;
 
     public function getId(): string;
 

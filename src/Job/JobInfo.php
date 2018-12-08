@@ -14,7 +14,7 @@ use Bnza\JobManagerBundle\Exception\JobManagerCancelledJobException;
 use Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException;
 use Bnza\JobManagerBundle\ObjectManager\TmpFS\ObjectManager;
 
-class JobInfo extends AbstractInfoGetter
+class JobInfo extends AbstractRunnableInfo
 {
     /**
      * @var TaskInfo[]

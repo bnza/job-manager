@@ -69,8 +69,11 @@ class JobEntityTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @depends testIdConstructor
+     *
      * @param JobEntity $job
+     *
      * @return JobEntity
+     *
      * @throws \ReflectionException
      */
     public function testAddTask(JobEntity $job)
@@ -88,7 +91,9 @@ class JobEntityTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @depends testAddTask
+     *
      * @param JobEntity $job
+     *
      * @return JobEntity
      */
     public function testGetTask(JobEntity $job)
@@ -103,6 +108,7 @@ class JobEntityTest extends \PHPUnit\Framework\TestCase
      * @depends testGetTask
      * @expectedException              \LogicException
      * @expectedExceptionMessage Cannot replace existing task
+     *
      * @param JobEntity $job
      */
     public function testAddTaskThrowsExceptionOnDuplicateTaskNum(JobEntity $job)
@@ -115,6 +121,7 @@ class JobEntityTest extends \PHPUnit\Framework\TestCase
      * @depends testAddTask
      * @expectedException              \RuntimeException
      * @expectedExceptionMessageRegExp /No tasks at index \d+/
+     *
      * @param JobEntity $job
      */
     public function testGetTaskThrowsExceptionOnWrongIndex(JobEntity $job)
@@ -124,6 +131,7 @@ class JobEntityTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @depends testAddTask
+     *
      * @param JobEntity $job
      */
     public function testClearTask(JobEntity $job)
@@ -134,7 +142,9 @@ class JobEntityTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @depends testIdConstructor
+     *
      * @param JobEntity $job
+     *
      * @throws \ReflectionException
      */
     public function testAddTaskWillCallTaskSetJob(JobEntity $job)

@@ -105,14 +105,13 @@ class JobInfoTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($info->isRunning());
 
         $this->assertTrue($info->isSuccessful());
-
     }
 
     public function testGetTask()
     {
         $entity = new JobEntity();
 
-        $task = new TaskEntity('', (int) rand(0,100));
+        $task = new TaskEntity('', (int) rand(0, 100));
 
         $entity->addTask($task);
 

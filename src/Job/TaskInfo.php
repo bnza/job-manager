@@ -12,7 +12,7 @@ namespace Bnza\JobManagerBundle\Job;
 use Bnza\JobManagerBundle\Entity\TaskEntityInterface;
 use Bnza\JobManagerBundle\ObjectManager\TmpFS\ObjectManager;
 
-class TaskInfo extends AbstractInfoGetter
+class TaskInfo extends AbstractRunnableInfo
 {
     /**
      * @var TaskEntityInterface

@@ -12,11 +12,11 @@ namespace Bnza\JobManagerBundle\Tests\Job;
 use Bnza\JobManagerBundle\Entity\JobManagerEntityInterface;
 use Bnza\JobManagerBundle\Entity\TmpFS\JobEntity;
 use Bnza\JobManagerBundle\Entity\TmpFS\TaskEntity;
-use Bnza\JobManagerBundle\Job\AbstractInfoGetter;
+use Bnza\JobManagerBundle\Job\AbstractRunnableInfo;
 use Bnza\JobManagerBundle\ObjectManager\TmpFS\ObjectManager;
 use Bnza\JobManagerBundle\Tests\EntityPropertyHandlerTrait;
 
-class AbstractInfoGetterTest extends \PHPUnit\Framework\TestCase
+class AbstractRunnableInfoTest extends \PHPUnit\Framework\TestCase
 {
     use EntityPropertyHandlerTrait;
 
@@ -52,7 +52,7 @@ class AbstractInfoGetterTest extends \PHPUnit\Framework\TestCase
         }
 
         $info = $this->getMockForAbstractClass(
-            AbstractInfoGetter::class,
+            AbstractRunnableInfo::class,
             [
                 $om,
                 get_class($entity),
