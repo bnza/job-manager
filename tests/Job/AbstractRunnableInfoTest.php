@@ -110,11 +110,7 @@ class AbstractRunnableInfoTest extends \PHPUnit\Framework\TestCase
         $om->expects($spy = $this->once())
             ->method('refresh');
         $info = $this->getAbstractInfoMock($entity, $om);
-        if ('' == $prop) {
-            $info->refresh();
-        } else {
-            $info->refresh($prop);
-        }
+        $info->refresh($prop);
         $invocations = $spy->getInvocations();
         $this->assertCount(1, $invocations);
         $this->assertEquals($prop, $invocations[0]->getParameters()[1]);
