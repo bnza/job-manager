@@ -9,12 +9,12 @@
 
 namespace Bnza\JobManagerBundle\Entity\TmpFS;
 
-use Bnza\JobManagerBundle\Entity\JobManagerEntityInterface;
+use Bnza\JobManagerBundle\Entity\RunnableEntityInterface;
 use Bnza\JobManagerBundle\Entity\JobEntityInterface;
 use Bnza\JobManagerBundle\Entity\TaskEntityInterface;
 use Bnza\JobManagerBundle\Job\Status;
 
-class JobEntity extends AbstractJobManagerEntity implements JobEntityInterface
+class JobEntity extends AbstractRunnableEntity implements JobEntityInterface
 {
     /**
      * @var string
@@ -61,14 +61,14 @@ class JobEntity extends AbstractJobManagerEntity implements JobEntityInterface
         return $this->id;
     }
 
-    public function setClass(string $class): JobEntityInterface
+    public function setClass(string $class): RunnableEntityInterface
     {
         $this->class = $class;
 
         return $this;
     }
 
-    public function setName(string $name): JobEntityInterface
+    public function setName(string $name): RunnableEntityInterface
     {
         $this->name = $name;
 
@@ -80,7 +80,7 @@ class JobEntity extends AbstractJobManagerEntity implements JobEntityInterface
         return $this->status;
     }
 
-    public function setStatus($status): JobManagerEntityInterface
+    public function setStatus($status): RunnableEntityInterface
     {
         if ($status instanceof Status) {
             $this->status = $status;
@@ -91,7 +91,7 @@ class JobEntity extends AbstractJobManagerEntity implements JobEntityInterface
         return $this;
     }
 
-    public function setCurrentStepNum($num): JobEntityInterface
+    public function setCurrentStepNum($num): RunnableEntityInterface
     {
         $this->currentStepNum = (int) $num;
 
@@ -129,7 +129,7 @@ class JobEntity extends AbstractJobManagerEntity implements JobEntityInterface
         return $this;
     }
 
-    public function setStepsNum($num): JobEntityInterface
+    public function setStepsNum($num): RunnableEntityInterface
     {
         $this->stepsNum = (int) $num;
 
@@ -141,7 +141,7 @@ class JobEntity extends AbstractJobManagerEntity implements JobEntityInterface
         return $this->error;
     }
 
-    public function setError($error): JobManagerEntityInterface
+    public function setError($error): RunnableEntityInterface
     {
         $this->error = (string) $error;
 

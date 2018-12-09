@@ -11,7 +11,7 @@ namespace Bnza\JobManagerBundle\Entity;
 
 use Bnza\JobManagerBundle\Job\Status;
 
-interface JobManagerEntityInterface
+interface RunnableEntityInterface
 {
     public function getId(): string;
 
@@ -30,4 +30,12 @@ interface JobManagerEntityInterface
     public function getError(): string;
 
     public function setError($error): self;
+
+    public function setName(string $name): self;
+
+    public function setClass(string $class): self;
+
+    public function setStepsNum($num): self;
+
+    public function setCurrentStepNum($num): self;
 }

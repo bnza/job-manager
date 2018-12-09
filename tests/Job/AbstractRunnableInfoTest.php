@@ -9,21 +9,21 @@
 
 namespace Bnza\JobManagerBundle\Tests\Job;
 
-use Bnza\JobManagerBundle\Entity\JobManagerEntityInterface;
+use Bnza\JobManagerBundle\Entity\RunnableEntityInterface;
 use Bnza\JobManagerBundle\Entity\TmpFS\JobEntity;
 use Bnza\JobManagerBundle\Entity\TmpFS\TaskEntity;
 use Bnza\JobManagerBundle\Job\AbstractRunnableInfo;
 use Bnza\JobManagerBundle\ObjectManager\TmpFS\ObjectManager;
-use Bnza\JobManagerBundle\Tests\EntityPropertyHandlerTrait;
+use Bnza\JobManagerBundle\Tests\UtilTrait;
 
 class AbstractRunnableInfoTest extends \PHPUnit\Framework\TestCase
 {
-    use EntityPropertyHandlerTrait;
+    use UtilTrait;
 
     private $jobId = 'ae4f281df5a5d0ff3cad6371f76d5c29b6d953ec';
     private $taskNum = 83;
 
-    private function getObjectManagerMock(JobManagerEntityInterface $entity)
+    private function getObjectManagerMock(RunnableEntityInterface $entity)
     {
         $om = $this
             ->getMockBuilder(ObjectManager::class)
@@ -37,7 +37,7 @@ class AbstractRunnableInfoTest extends \PHPUnit\Framework\TestCase
         return $om;
     }
 
-    private function getAbstractInfoMock(JobManagerEntityInterface $entity, ObjectManager $om = null)
+    private function getAbstractInfoMock(RunnableEntityInterface $entity, ObjectManager $om = null)
     {
         if (!$om) {
             $om = $this->getObjectManagerMock($entity);
@@ -104,7 +104,7 @@ class AbstractRunnableInfoTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($entity->$method(), $info->$method());
     }
 
-    private function _testRefresh(JobManagerEntityInterface $entity, string $prop = '')
+    private function _testRefresh(RunnableEntityInterface $entity, string $prop = '')
     {
         $om = $this->getObjectManagerMock($entity);
         $om->expects($spy = $this->once())
@@ -147,7 +147,6 @@ class AbstractRunnableInfoTest extends \PHPUnit\Framework\TestCase
      * @dataProvider propertiesProvider
      *
      * @param string $prop
-     * @param $value
      */
     public function testRefreshTaskProperty(string $prop)
     {

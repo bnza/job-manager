@@ -9,33 +9,33 @@
 
 namespace Bnza\JobManagerBundle\Job;
 
-use Bnza\JobManagerBundle\ObjectManager\TmpFS\ObjectManager;
-use Bnza\JobManagerBundle\Entity\JobManagerEntityInterface;
+use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
+use Bnza\JobManagerBundle\Entity\RunnableEntityInterface;
 use Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException;
 
 abstract class AbstractRunnableInfo implements RunnableInfoInterface
 {
     /**
-     * @var ObjectManager;
+     * @var ObjectManagerInterface;
      */
     protected $om;
 
     /**
-     * @var JobManagerEntityInterface
+     * @var RunnableEntityInterface
      */
     protected $entity;
 
     /**
      * AbstractRunnableInfo constructor.
      *
-     * @param ObjectManager $om
-     * @param string        $class
+     * @param ObjectManagerInterface $om
+     * @param string                 $class
      * @param $jobId
      * @param int $taskNum
      *
      * @throws JobManagerEntityNotFoundException
      */
-    public function __construct(ObjectManager $om, string $class = '', $jobId = '', $taskNum = -1)
+    public function __construct(ObjectManagerInterface $om, string $class = '', $jobId = '', $taskNum = -1)
     {
         $this->om = $om;
 
@@ -48,14 +48,14 @@ abstract class AbstractRunnableInfo implements RunnableInfoInterface
     }
 
     /**
-     * @return JobManagerEntityInterface
+     * @return RunnableEntityInterface
      */
-    public function getEntity()
+    protected function getEntity()
     {
         return $this->entity;
     }
 
-    protected function getObjectManager(): ObjectManager
+    protected function getObjectManager(): ObjectManagerInterface
     {
         return $this->om;
     }

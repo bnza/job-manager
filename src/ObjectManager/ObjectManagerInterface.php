@@ -9,7 +9,7 @@
 
 namespace Bnza\JobManagerBundle\ObjectManager;
 
-use Bnza\JobManagerBundle\Entity\JobManagerEntityInterface;
+use Bnza\JobManagerBundle\Entity\RunnableEntityInterface;
 use Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException;
 
 interface ObjectManagerInterface
@@ -17,29 +17,29 @@ interface ObjectManagerInterface
     /**
      * Persists the entity (or just the given property).
      *
-     * @param JobManagerEntityInterface $entity
-     * @param string                    $property
+     * @param RunnableEntityInterface $entity
+     * @param string                  $property
      */
-    public function persist(JobManagerEntityInterface $entity, string $property = ''): void;
+    public function persist(RunnableEntityInterface $entity, string $property = ''): void;
 
     /**
      * Refresh the entity (or just the given property) from the persistence layer.
      *
-     * @param JobManagerEntityInterface $entity
-     * @param string                    $property
+     * @param RunnableEntityInterface $entity
+     * @param string                  $property
      *
      * @throws JobManagerEntityNotFoundException
      */
-    public function refresh(JobManagerEntityInterface $entity, string $property = ''): void;
+    public function refresh(RunnableEntityInterface $entity, string $property = ''): void;
 
     /**
-     * Finds and return a JobManagerEntityInterface with the given id.
+     * Finds and return a RunnableEntityInterface with the given id.
      *
      * @param string $class
      * @param string $jobId
      * @param int    $taskNum
      *
-     * @return JobManagerEntityInterface
+     * @return RunnableEntityInterface
      */
-    public function find(string $class, string $jobId, int $taskNum = -1): JobManagerEntityInterface;
+    public function find(string $class, string $jobId, int $taskNum = -1): RunnableEntityInterface;
 }

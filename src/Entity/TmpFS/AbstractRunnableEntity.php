@@ -9,9 +9,9 @@
 
 namespace Bnza\JobManagerBundle\Entity\TmpFS;
 
-use Bnza\JobManagerBundle\Entity\JobManagerEntityInterface;
+use Bnza\JobManagerBundle\Entity\RunnableEntityInterface;
 
-abstract class AbstractJobManagerEntity implements JobManagerEntityInterface
+abstract class AbstractRunnableEntity implements RunnableEntityInterface
 {
     /**
      * @var string

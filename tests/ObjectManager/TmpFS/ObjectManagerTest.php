@@ -20,11 +20,11 @@ use Bnza\JobManagerBundle\Entity\TmpFS\JobEntity;
 use Bnza\JobManagerBundle\Entity\TmpFS\TaskEntity;
 use Bnza\JobManagerBundle\ObjectManager\TmpFS\ObjectManager;
 use Symfony\Component\Filesystem\Filesystem;
-use Bnza\JobManagerBundle\Tests\EntityPropertyHandlerTrait;
+use Bnza\JobManagerBundle\Tests\UtilTrait;
 
 class ObjectManagerTest extends \PHPUnit\Framework\TestCase
 {
-    use EntityPropertyHandlerTrait;
+    use UtilTrait;
 
     private $jobId = 'ae4f281df5a5d0ff3cad6371f76d5c29b6d953ec';
     private $taskNum = 83;

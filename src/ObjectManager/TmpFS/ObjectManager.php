@@ -16,7 +16,7 @@
 
 namespace Bnza\JobManagerBundle\ObjectManager\TmpFS;
 
-use Bnza\JobManagerBundle\Entity\JobManagerEntityInterface;
+use Bnza\JobManagerBundle\Entity\RunnableEntityInterface;
 use Bnza\JobManagerBundle\Entity\JobEntityInterface;
 use Bnza\JobManagerBundle\Entity\TaskEntityInterface;
 use Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException;
@@ -112,7 +112,7 @@ class ObjectManager implements ObjectManagerInterface
         return $this->inflector;
     }
 
-    public function getEntityPath(JobManagerEntityInterface $entity): string
+    public function getEntityPath(RunnableEntityInterface $entity): string
     {
         if ($entity instanceof JobEntityInterface) {
             return $this->getBasePath()
@@ -130,10 +130,10 @@ class ObjectManager implements ObjectManagerInterface
     }
 
     /**
-     * @param JobManagerEntityInterface $entity
-     * @param string                    $property
+     * @param RunnableEntityInterface $entity
+     * @param string                  $property
      */
-    public function persist(JobManagerEntityInterface $entity, string $property = ''): void
+    public function persist(RunnableEntityInterface $entity, string $property = ''): void
     {
         if ($entity instanceof JobEntityInterface) {
             $type = 'job';
@@ -181,7 +181,7 @@ class ObjectManager implements ObjectManagerInterface
         }
     }
 
-    public function refresh(JobManagerEntityInterface $entity, string $property = ''): void
+    public function refresh(RunnableEntityInterface $entity, string $property = ''): void
     {
         if ($entity instanceof JobEntityInterface) {
             $type = 'job';
@@ -230,11 +230,11 @@ class ObjectManager implements ObjectManagerInterface
      * @param string $jobId
      * @param int    $taskNum
      *
-     * @return JobManagerEntityInterface
+     * @return RunnableEntityInterface
      *
      * @throws JobManagerEntityNotFoundException
      */
-    public function find(string $class, string $jobId, int $taskNum = -1): JobManagerEntityInterface
+    public function find(string $class, string $jobId, int $taskNum = -1): RunnableEntityInterface
     {
         $interfaces = \class_implements($class);
 

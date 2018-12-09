@@ -10,11 +10,11 @@
 namespace Bnza\JobManagerBundle\Entity\TmpFS;
 
 use Bnza\JobManagerBundle\Entity\JobEntityInterface;
-use Bnza\JobManagerBundle\Entity\JobManagerEntityInterface;
+use Bnza\JobManagerBundle\Entity\RunnableEntityInterface;
 use Bnza\JobManagerBundle\Entity\TaskEntityInterface;
 use Bnza\JobManagerBundle\Job\Status;
 
-class TaskEntity extends AbstractJobManagerEntity implements TaskEntityInterface
+class TaskEntity extends AbstractRunnableEntity implements TaskEntityInterface
 {
     /**
      * @var JobEntity
@@ -67,28 +67,28 @@ class TaskEntity extends AbstractJobManagerEntity implements TaskEntityInterface
         return $this;
     }
 
-    public function setName(string $name): TaskEntityInterface
+    public function setName(string $name): RunnableEntityInterface
     {
         $this->name = $name;
 
         return $this;
     }
 
-    public function setClass(string $class): TaskEntityInterface
+    public function setClass(string $class): RunnableEntityInterface
     {
         $this->class = $class;
 
         return $this;
     }
 
-    public function setCurrentStepNum($num): TaskEntityInterface
+    public function setCurrentStepNum($num): RunnableEntityInterface
     {
         $this->currentStepNum = (int) $num;
 
         return $this;
     }
 
-    public function setStepsNum($num): TaskEntityInterface
+    public function setStepsNum($num): RunnableEntityInterface
     {
         $this->stepsNum = (int) $num;
 
@@ -110,14 +110,14 @@ class TaskEntity extends AbstractJobManagerEntity implements TaskEntityInterface
         return $this->getJob()->getError();
     }
 
-    public function setError($error): JobManagerEntityInterface
+    public function setError($error): RunnableEntityInterface
     {
         $this->getJob()->setError($error);
 
         return $this;
     }
 
-    public function setStatus($status): JobManagerEntityInterface
+    public function setStatus($status): RunnableEntityInterface
     {
         $this->getJob()->setStatus($status);
 

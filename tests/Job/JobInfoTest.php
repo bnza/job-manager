@@ -14,12 +14,12 @@ use Bnza\JobManagerBundle\Exception\JobManagerCancelledJobException;
 use Bnza\JobManagerBundle\ObjectManager\TmpFS\ObjectManager;
 use Bnza\JobManagerBundle\Job\JobInfo;
 use Bnza\JobManagerBundle\Job\TaskInfo;
-use Bnza\JobManagerBundle\Entity\JobManagerEntityInterface;
+use Bnza\JobManagerBundle\Entity\RunnableEntityInterface;
 use Bnza\JobManagerBundle\Entity\TmpFS\JobEntity;
 
 class JobInfoTest extends \PHPUnit\Framework\TestCase
 {
-    private function getObjectManagerMock(JobManagerEntityInterface $entity)
+    private function getObjectManagerMock(RunnableEntityInterface $entity)
     {
         $om = $this
             ->getMockBuilder(ObjectManager::class)

@@ -9,11 +9,11 @@
 
 namespace Bnza\JobManagerBundle\Entity;
 
-interface TaskEntityInterface extends JobManagerEntityInterface
+interface TaskEntityInterface extends RunnableEntityInterface
 {
-    public function setName(string $name): TaskEntityInterface;
+    /*public function setName(string $name): TaskEntityInterface;
 
-    public function setClass(string $class): TaskEntityInterface;
+    public function setClass(string $class): TaskEntityInterface;*/
 
     public function getJob(): ?JobEntityInterface;
 
@@ -23,7 +23,7 @@ interface TaskEntityInterface extends JobManagerEntityInterface
 
     public function getNum(): int;
 
-    public function setStepsNum($num): TaskEntityInterface;
+    public function setStepsNum($num): RunnableEntityInterface;
 
-    public function setCurrentStepNum($num): TaskEntityInterface;
+    public function setCurrentStepNum($num): RunnableEntityInterface;
 }
