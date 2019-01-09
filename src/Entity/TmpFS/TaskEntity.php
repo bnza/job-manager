@@ -29,7 +29,7 @@ class TaskEntity extends AbstractRunnableEntity implements TaskEntityInterface
     public function __construct($job, int $num = -1)
     {
         if ($job) {
-            if ($job instanceof JobEntity) {
+            if ($job instanceof JobEntityInterface) {
                 $this->job = $job;
             } elseif (is_string($job)) {
                 $this->job = new JobEntity($job);

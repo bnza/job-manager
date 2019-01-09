@@ -24,12 +24,25 @@ abstract class AbstractRunnable extends AbstractRunnableInfo implements Runnable
      *
      * @return int
      */
-    abstract protected function countStepsNum(): int;
+    protected function countStepsNum(): int
+    {
+        $steps = $this->getSteps();
+        if (\is_array($steps)) {
+            return \count($steps);
+        } else {
+            $count = 0;
+            foreach ($steps as $task) {
+                ++$count;
+            }
+
+            return $count;
+        }
+    }
 
     /**
      * AbstractRunnable constructor.
      *
-     * @param ObjectManager           $om
+     * @param ObjectManagerInterface  $om
      * @param RunnableEntityInterface $entity
      *
      * @throws \Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException
@@ -105,5 +118,34 @@ abstract class AbstractRunnable extends AbstractRunnableInfo implements Runnable
             ->setStepsNum($this->getStepsNum());
 
         return $entity;
+    }
+
+    protected function setCurrentStepNum(int $num)
+    {
+        $entity = $this->getEntity();
+
+        $entity->setCurrentStepNum($num);
+
+        $this->persist('current_step_num');
+    }
+
+    protected function next()
+    {
+        $num = $this->getEntity()->getCurrentStepNum() + 1;
+
+        $this->setCurrentStepNum($num);
+    }
+
+    public function error(\Throwable $e): void
+    {
+        $this->getEntity()->setError($e);
+        $this->getEntity()->getStatus()->error();
+        $this->persist();
+    }
+
+    public function success(): void
+    {
+        $this->getEntity()->getStatus()->success();
+        $this->persist('status');
     }
 }

@@ -13,7 +13,13 @@ interface RunnableInterface extends RunnableInfoInterface
 {
     public function persist(string $prop = ''): RunnableInterface;
 
+    public function getSteps(): iterable;
+
     public function run(): void;
+
+    public function error(\Throwable $e): void;
+
+    public function success(): void;
 
     public function rollback(): void;
 }

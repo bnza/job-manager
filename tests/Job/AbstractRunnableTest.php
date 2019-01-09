@@ -7,13 +7,6 @@
  * For full license information see the README.md file
  */
 
-/**
- * Created by PhpStorm.
- * User: petrux
- * Date: 08/12/18
- * Time: 18.10.
- */
-
 namespace Bnza\JobManagerBundle\Tests\Job;
 
 use Bnza\JobManagerBundle\Entity\TmpFS\JobEntity;
@@ -38,6 +31,15 @@ class AbstractRunnableTest extends \PHPUnit\Framework\TestCase
         );
     }
 
+    public function callConstructor($runnable, $om = null, $entity = null)
+    {
+        $om = $om ?: $this->createMock(ObjectManagerInterface::class);
+        $entity = $entity ?: new JobEntity();
+        $reflectedClass = new \ReflectionClass(AbstractRunnable::class);
+        $constructor = $reflectedClass->getConstructor();
+        $constructor->invokeArgs($runnable, [$om, $entity]);
+    }
+
     public function testGetClass()
     {
         $runnable = $this->getAbstractRunnableMock();
@@ -47,7 +49,7 @@ class AbstractRunnableTest extends \PHPUnit\Framework\TestCase
 
     public function testConstructor()
     {
-        $runnable = $this->getAbstractRunnableMock(['getName']);
+        $runnable = $this->getAbstractRunnableMock(['getName', 'countStepsNum']);
 
         $name = 'Dummy job/task name';
 
@@ -55,7 +57,7 @@ class AbstractRunnableTest extends \PHPUnit\Framework\TestCase
             ->method('getName')
             ->willReturn($name);
 
-        $stepsNum = (int) rand(0, 100);
+        $stepsNum = (int)rand(0, 100);
 
         $runnable
             ->method('countStepsNum')
@@ -68,9 +70,8 @@ class AbstractRunnableTest extends \PHPUnit\Framework\TestCase
 
         $entity = new JobEntity();
 
-        $reflectedClass = new \ReflectionClass(AbstractRunnable::class);
-        $constructor = $reflectedClass->getConstructor();
-        $constructor->invokeArgs($runnable, [$om, $entity]);
+        $this->callConstructor($runnable, $om, $entity);
+
         $this->assertEquals(\get_class($runnable), $entity->getClass());
         $this->assertEquals($name, $entity->getName());
         $this->assertEquals($stepsNum, $entity->getStepsNum());
@@ -83,6 +84,37 @@ class AbstractRunnableTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
+    public function testCountStepsNumArray()
+    {
+        $runnable = $this->getAbstractRunnableMock(['getName', 'getSteps']);
+
+        $runnable
+            ->method('getSteps')
+            ->willReturn(['a', 'b', 'c']);
+
+        $this->callConstructor($runnable);
+        $this->assertEquals(3, $runnable->getStepsNum());
+    }
+
+    public function testCountStepsNumGenerator()
+    {
+        $runnable = $this->getAbstractRunnableMock(['getName', 'getSteps']);
+
+        $runnable
+            ->method('getSteps')
+            ->will($this->returnCallback(
+                function () {
+                    yield 'a';
+                    yield 'b';
+                    yield 'c';
+                }
+            ));
+
+        $this->callConstructor($runnable);
+        $this->assertEquals(3, $runnable->getStepsNum());
+    }
+
+
     public function propertiesProvider()
     {
         return [
@@ -93,10 +125,10 @@ class AbstractRunnableTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @depends testConstructor
+     * @depends      testConstructor
      * @dataProvider propertiesProvider
      *
-     * @param array  $data
+     * @param array $data
      * @param string $prop
      */
     public function testUpdateEntity(string $prop, array $data)
