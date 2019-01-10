@@ -17,9 +17,5 @@ interface RunnableInterface extends RunnableInfoInterface
 
     public function run(): void;
 
-    public function error(\Throwable $e): void;
-
-    public function success(): void;
-
     public function rollback(): void;
 }

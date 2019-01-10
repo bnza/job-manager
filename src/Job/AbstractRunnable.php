@@ -135,17 +135,4 @@ abstract class AbstractRunnable extends AbstractRunnableInfo implements Runnable
 
         $this->setCurrentStepNum($num);
     }
-
-    public function error(\Throwable $e): void
-    {
-        $this->getEntity()->setError($e);
-        $this->getEntity()->getStatus()->error();
-        $this->persist();
-    }
-
-    public function success(): void
-    {
-        $this->getEntity()->getStatus()->success();
-        $this->persist('status');
-    }
 }

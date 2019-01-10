@@ -9,16 +9,21 @@
 
 namespace Bnza\JobManagerBundle\Tests\Job;
 
-use Bnza\JobManagerBundle\Entity\TmpFS\TaskEntity;
+use Bnza\JobManagerBundle\Job\JobInterface;
 use Bnza\JobManagerBundle\Job\AbstractTask;
-use Bnza\JobManagerBundle\Entity\JobEntityInterface;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class AbstractTaskTest extends \PHPUnit\Framework\TestCase
 {
     public function testRun()
     {
-        $mockEntity = $this->createMock(JobEntityInterface::class);
+        $mockDispatcher = $this->createMock(EventDispatcher::class);
+        $mockJob = $this->createMock(JobInterface::class);
+
+        $mockJob
+            ->method('getDispatcher')
+            ->willReturn($mockDispatcher);
 
         $mockTask = $this->getMockForAbstractClass(
             AbstractTask::class,
@@ -27,7 +32,7 @@ class AbstractTaskTest extends \PHPUnit\Framework\TestCase
             false,
             true,
             true,
-            ['configure', 'terminate', 'getSteps', 'next', 'mockCallable']
+            ['configure', 'terminate', 'getSteps', 'next', 'mockCallable', 'getJob']
         );
 
         $mockTask->expects($this->once())
@@ -38,6 +43,9 @@ class AbstractTaskTest extends \PHPUnit\Framework\TestCase
 
         $mockTask->expects($this->once())
             ->method('next');
+
+        $mockTask->method('getJob')
+            ->willReturn($mockJob);
 
         $mockTask->expects($this->once())
             ->method('mockCallable')
@@ -61,8 +69,12 @@ class AbstractTaskTest extends \PHPUnit\Framework\TestCase
     public function testConstructor()
     {
         $num = (int) rand(0, 100);
+        $jobId = sha1(microtime());
         $mockOm = $this->createMock(ObjectManagerInterface::class);
-        $mockEntity = $this->createMock(JobEntityInterface::class);
+        $mockJob = $this->createMock(JobInterface::class);
+        $mockJob
+            ->method('getId')
+            ->willReturn($jobId);
         $mockTask = $this->getMockForAbstractClass(
             AbstractTask::class,
             [],
@@ -87,7 +99,7 @@ class AbstractTaskTest extends \PHPUnit\Framework\TestCase
 
         $reflectedClass = new \ReflectionClass(AbstractTask::class);
         $constructor = $reflectedClass->getConstructor();
-        $constructor->invokeArgs($mockTask, [$mockOm, $mockEntity, $num]);
+        $constructor->invokeArgs($mockTask, [$mockOm, $mockJob, $num]);
         $this->assertEquals($num, $mockTask->getNum());
     }
 }

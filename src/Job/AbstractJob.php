@@ -10,10 +10,15 @@
 
 namespace Bnza\JobManagerBundle\Job;
 
-
+use Bnza\JobManagerBundle\Event\JobEndedEvent;
+use Bnza\JobManagerBundle\Event\JobStartedEvent;
 use Bnza\JobManagerBundle\Entity\JobEntityInterface;
+use Bnza\JobManagerBundle\Entity\TmpFS\JobEntity;
+use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\HttpFoundation\ParameterBag;
 
-abstract class AbstractJob extends AbstractRunnable
+abstract class AbstractJob extends AbstractRunnable implements JobInterface
 {
 
     /**
@@ -26,6 +31,48 @@ abstract class AbstractJob extends AbstractRunnable
      * @var JobEntityInterface
      */
     protected $entity;
+
+    /**
+     * @var EventDispatcher
+     */
+    protected $dispatcher;
+
+    /**
+     * @var ParameterBag
+     */
+    protected $parameters;
+
+    public function __construct(ObjectManagerInterface $om, EventDispatcher $dispatcher, $entity, array $parameters = [])
+    {
+        $this->parameters = new ParameterBag($parameters);
+        $this->dispatcher = $dispatcher;
+        if (!$entity || is_string($entity)) {
+            $entity = new JobEntity($entity);
+        }
+        parent::__construct($om, $entity);
+    }
+
+    public function getParameters(): ParameterBag
+    {
+        return $this->parameters;
+    }
+
+    public function getParameter(string $key, bool $throw = true)
+    {
+        $pb = $this->getParameters();
+        if ($pb->has($key))
+        {
+            return $pb->get($key);
+        }
+        if ($throw) {
+            throw new \LogicException("Parameter \"$key\" is not set");
+        }
+    }
+
+    public function getDispatcher(): EventDispatcher
+    {
+        return $this->dispatcher;
+    }
 
     /**
      * @return JobEntityInterface
@@ -43,22 +90,14 @@ abstract class AbstractJob extends AbstractRunnable
 
     final public function run(): void
     {
-        $entity = $this->getEntity();
-
-        $entity->getStatus()->run();
-        $this->persist('status');
-
-        $tasks = $this->getSteps();
-
+        $this->running();
         try {
-            foreach ($tasks as $num => $taskData) {
-                $task = $this->initTask($num, $taskData);
-                $task->run();
+            foreach ($this->getSteps() as $num => $taskData) {
+                $this->runTask($num, $taskData);
             }
         } catch (\Throwable $e) {
             $this->error($e);
-            $this->rollback();
-            throw $e;
+            return;
         }
         $this->success();
     }
@@ -87,11 +126,40 @@ abstract class AbstractJob extends AbstractRunnable
         $class = $taskData[0];
         if (in_array(AbstractTask::class, \class_parents($class))) {
             $this->setCurrentStepNum($num);
-            $task = new $class($this->getObjectManager(), $this->getEntity(), $num);
+            $task = new $class($this->getObjectManager(), $this, $num);
             $this->tasks[$num] = $task;
 
             return $task;
         }
         throw new \InvalidArgumentException("Task class must implement TaskInterface: \"$class\" does not");
+    }
+
+    public function error(\Throwable $e): void
+    {
+        $this->getEntity()->setError($e);
+        $this->getEntity()->getStatus()->error();
+        $this->persist();
+        $this->rollback();
+        $this->getDispatcher()->dispatch(JobEndedEvent::NAME, new JobEndedEvent($this));
+    }
+
+    public function success(): void
+    {
+        $this->getEntity()->getStatus()->success();
+        $this->persist('status');
+        $this->getDispatcher()->dispatch(JobEndedEvent::NAME, new JobEndedEvent($this));
+    }
+
+    protected function running(): void
+    {
+        $this->getEntity()->getStatus()->run();
+        $this->persist('status');
+        $this->getDispatcher()->dispatch(JobStartedEvent::NAME, new JobStartedEvent($this));
+    }
+
+    protected function runTask(int $num, array $taskData)
+    {
+        $task = $this->initTask($num, $taskData);
+        $task->run();
     }
 }
