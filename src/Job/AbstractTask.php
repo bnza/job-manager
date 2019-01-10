@@ -9,16 +9,24 @@
 
 namespace Bnza\JobManagerBundle\Job;
 
-
-use Bnza\JobManagerBundle\Entity\JobEntityInterface;
+use Bnza\JobManagerBundle\Event\TaskStartedEvent;
+use Bnza\JobManagerBundle\Event\TaskEndedEvent;
+use Bnza\JobManagerBundle\Event\TaskStepEndedEvent;
+use Bnza\JobManagerBundle\Event\TaskStepStartedEvent;
 use Bnza\JobManagerBundle\Entity\TmpFS\TaskEntity;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 
-abstract class AbstractTask extends AbstractRunnable
+abstract class AbstractTask extends AbstractRunnable implements TaskInterface
 {
-    public function __construct(ObjectManagerInterface $om, JobEntityInterface $jobEntity, int $num)
+    /**
+     * @var JobInterface
+     */
+    protected $job;
+
+    public function __construct(ObjectManagerInterface $om, JobInterface $job, int $num)
     {
-        $entity = new TaskEntity($jobEntity, $num);
+        $this->job = $job;
+        $entity = new TaskEntity($job->getId(), $num);
         parent::__construct($om, $entity);
     }
 
@@ -43,12 +51,19 @@ abstract class AbstractTask extends AbstractRunnable
 
     public function run(): void
     {
+        $dispatcher = $this->getJob()->getDispatcher();
+        $dispatcher->dispatch(TaskStartedEvent::NAME, new TaskStartedEvent($this));
         $this->configure();
+        $stepStartedEvent = new TaskStepStartedEvent($this);
+        $stepEndedEvent = new TaskStepEndedEvent($this);
         foreach ($this->getSteps() as $step) {
+            $dispatcher->dispatch(TaskStepStartedEvent::NAME, $stepStartedEvent);
             call_user_func_array($step[0], $step[1]);
             $this->next();
+            $dispatcher->dispatch(TaskStepEndedEvent::NAME, $stepEndedEvent);
         }
         $this->terminate();
+        $dispatcher->dispatch(TaskEndedEvent::NAME, new TaskEndedEvent($this));
     }
 
     /**
@@ -57,4 +72,9 @@ abstract class AbstractTask extends AbstractRunnable
      */
     public function rollback(): void
     {}
+
+    public function getJob(): JobInterface
+    {
+        return $this->job;
+    }
 }
