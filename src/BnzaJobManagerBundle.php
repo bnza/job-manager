@@ -11,6 +11,6 @@ namespace Bnza\JobManagerBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class BnzaJobRunnerBundle extends Bundle
+class BnzaJobManagerBundle extends Bundle
 {
 }
