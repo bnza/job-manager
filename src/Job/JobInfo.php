@@ -11,11 +11,12 @@ namespace Bnza\JobManagerBundle\Job;
 
 use Bnza\JobManagerBundle\Entity\JobEntityInterface;
 use Bnza\JobManagerBundle\Exception\JobManagerCancelledJobException;
-use Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException;
-use Bnza\JobManagerBundle\ObjectManager\TmpFS\ObjectManager;
+use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 
-class JobInfo extends AbstractRunnableInfo
+class JobInfo extends AbstractRunnableInfo implements JobInfoInterface
 {
+    use JobInfoTrait;
+
     /**
      * @var TaskInfo[]
      */
@@ -39,7 +40,7 @@ class JobInfo extends AbstractRunnableInfo
         return $this->getEntity()->getError();
     }
 
-    public function __construct(ObjectManager $om, $entity, $jobId = '')
+    public function __construct(ObjectManagerInterface $om, $entity, $jobId = '')
     {
         if ($entity instanceof JobEntityInterface) {
             $this->entity = $entity;
@@ -63,20 +64,25 @@ class JobInfo extends AbstractRunnableInfo
         $this->getObjectManager()->persist($this->getEntity());
     }
 
-    /**
-     * @param int $num
-     *
-     * @return TaskInfo
-     *
-     * @throws \RuntimeException
-     * @throws JobManagerEntityNotFoundException
-     */
-    public function getTask(int $num)
-    {
-        if (!\array_key_exists($num, $this->tasks)) {
-            $this->tasks[$num] = new TaskInfo($this->getObjectManager(), $this->getEntity()->getTask($num));
-        }
-
-        return $this->tasks[$num];
-    }
+//    /**
+//     * @param int $num
+//     *
+//     * @return TaskInfo
+//     *
+//     * @throws \RuntimeException
+//     * @throws JobManagerEntityNotFoundException
+//     */
+//    public function getTask(int $num): RunnableInfoInterface
+//    {
+//        if (!\array_key_exists($num, $this->tasks)) {
+//            $this->tasks[$num] = new TaskInfo($this->getObjectManager(), $this->getEntity()->getTask($num));
+//        }
+//
+//        return $this->tasks[$num];
+//    }
+//
+//    public function getCurrentTask(): RunnableInfoInterface
+//    {
+//        return $this->getTask($this->getCurrentStepNum());
+//    }
 }

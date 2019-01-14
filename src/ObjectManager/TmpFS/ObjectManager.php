@@ -19,6 +19,8 @@ namespace Bnza\JobManagerBundle\ObjectManager\TmpFS;
 use Bnza\JobManagerBundle\Entity\RunnableEntityInterface;
 use Bnza\JobManagerBundle\Entity\JobEntityInterface;
 use Bnza\JobManagerBundle\Entity\TaskEntityInterface;
+use Bnza\JobManagerBundle\Entity\TmpFS\JobEntity;
+use Bnza\JobManagerBundle\Entity\TmpFS\TaskEntity;
 use Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 use Doctrine\Common\Inflector\Inflector;
@@ -236,6 +238,10 @@ class ObjectManager implements ObjectManagerInterface
      */
     public function find(string $class, string $jobId, int $taskNum = -1): RunnableEntityInterface
     {
+        if (\in_array($class, ['job', 'task'])) {
+            $class = $this->getEntityClass($class);
+        }
+
         $interfaces = \class_implements($class);
 
         if (\in_array(JobEntityInterface::class, $interfaces)) {
@@ -248,5 +254,15 @@ class ObjectManager implements ObjectManagerInterface
         $this->refresh($entity);
 
         return $entity;
+    }
+
+    public function getEntityClass(string $type): string
+    {
+        if ($type === 'job') {
+            return JobEntity::class;
+        } else if ($type === 'class') {
+            return TaskEntity::class;
+        }
+        throw new \InvalidArgumentException("Invalid entity type \"$type\" valid values are \"job\" and \"task\"");
     }
 }

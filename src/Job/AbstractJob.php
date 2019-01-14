@@ -18,14 +18,15 @@ use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
-abstract class AbstractJob extends AbstractRunnable implements JobInterface
+abstract class AbstractJob extends AbstractRunnable implements JobInterface, JobInfoInterface
 {
+    use JobInfoTrait;
 
-    /**
-     * Registered and instantiated tasks. Used il rollback operations
-     * @var AbstractTask[]
-     */
-    protected $tasks = [];
+//    /**
+//     * Registered and instantiated tasks. Used il rollback operations
+//     * @var AbstractTask[]
+//     */
+//    protected $tasks = [];
 
     /**
      * @var JobEntityInterface

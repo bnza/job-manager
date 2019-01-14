@@ -23,6 +23,7 @@
     </filter>
 
     <php>
+        <server name="KERNEL_CLASS" value="\Bnza\JobManagerBundle\Tests\TestKernel" />
         <env name="APP_ENV" value="test" />
     </php>
 </phpunit>

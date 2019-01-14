@@ -10,7 +10,7 @@
 namespace Bnza\JobManagerBundle\Job;
 
 use Bnza\JobManagerBundle\Entity\TaskEntityInterface;
-use Bnza\JobManagerBundle\ObjectManager\TmpFS\ObjectManager;
+use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 
 class TaskInfo extends AbstractRunnableInfo
 {
@@ -19,7 +19,7 @@ class TaskInfo extends AbstractRunnableInfo
      */
     protected $entity;
 
-    public function __construct(ObjectManager $om, $entity, $jobId = '', $taskNum = -1)
+    public function __construct(ObjectManagerInterface $om, $entity, $jobId = '', $taskNum = -1)
     {
         if ($entity instanceof TaskEntityInterface) {
             $this->entity = $entity;

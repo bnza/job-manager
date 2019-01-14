@@ -42,4 +42,12 @@ interface ObjectManagerInterface
      * @return RunnableEntityInterface
      */
     public function find(string $class, string $jobId, int $taskNum = -1): RunnableEntityInterface;
+
+    /**
+     * Return the right entity class for the current ObjectManager
+     * @param string $type valid values are 'job', 'task'
+     * @return string
+     * @throws \InvalidArgumentException
+     */
+    public function getEntityClass(string $type): string;
 }
