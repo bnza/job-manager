@@ -22,12 +22,6 @@ abstract class AbstractJob extends AbstractRunnable implements JobInterface, Job
 {
     use JobInfoTrait;
 
-//    /**
-//     * Registered and instantiated tasks. Used il rollback operations
-//     * @var AbstractTask[]
-//     */
-//    protected $tasks = [];
-
     /**
      * @var JobEntityInterface
      */
@@ -113,8 +107,9 @@ abstract class AbstractJob extends AbstractRunnable implements JobInterface, Job
     /**
      * Initializes a new TaskInterface instance using $taskData array which is in the form
      * array(3) {
-     *  [0]=>
-     *  string(*) The fully qualified Task class name (MUST implements TaskInterface)
+     *  [0]=>string(*) The fully qualified Task class name (MUST implements TaskInterface) (required)
+     *  [1]=>array The Task* subclass arguments, the AbstractTask ones are provided by the function (optional)
+     *  [2]=>string The name of the function used for set task's run() return value in the current job
      *}.
      *
      * @param int   $num
@@ -126,13 +121,27 @@ abstract class AbstractJob extends AbstractRunnable implements JobInterface, Job
     {
         $class = $taskData[0];
         if (in_array(AbstractTask::class, \class_parents($class))) {
+            $arguments = [];
+            if (isset($taskData[1])) {
+                if (\is_array($taskData[1]))
+                {
+                    $arguments = $taskData[1];
+                } else {
+                    $arguments[] = $taskData[1];
+                }
+            }
             $this->setCurrentStepNum($num);
-            $task = new $class($this->getObjectManager(), $this, $num);
+            $task = $this->createTask($class, $num, $arguments);
             $this->tasks[$num] = $task;
 
             return $task;
         }
         throw new \InvalidArgumentException("Task class must implement TaskInterface: \"$class\" does not");
+    }
+
+    protected function createTask(string $class, $num, $arguments): AbstractTask
+    {
+        return new $class($this->getObjectManager(), $this, $num, ...$arguments);
     }
 
     public function error(\Throwable $e): void
@@ -161,6 +170,14 @@ abstract class AbstractJob extends AbstractRunnable implements JobInterface, Job
     protected function runTask(int $num, array $taskData)
     {
         $task = $this->initTask($num, $taskData);
-        $task->run();
+        $returnValue = $task->run();
+        if (isset($taskData[2])) {
+            call_user_func([$this, $taskData[2]], $returnValue);
+        }
+    }
+
+    public function getTask(int $num): TaskInfoInterface
+    {
+        return $this->tasks[$num];
     }
 }

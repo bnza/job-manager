@@ -49,7 +49,7 @@ abstract class AbstractTask extends AbstractRunnable implements TaskInterface
     protected function terminate(): void
     {}
 
-    public function run(): void
+    public function run()
     {
         $dispatcher = $this->getJob()->getDispatcher();
         $dispatcher->dispatch(TaskStartedEvent::NAME, new TaskStartedEvent($this));
@@ -64,6 +64,7 @@ abstract class AbstractTask extends AbstractRunnable implements TaskInterface
         }
         $this->terminate();
         $dispatcher->dispatch(TaskEndedEvent::NAME, new TaskEndedEvent($this));
+        return $this->getReturnValue();
     }
 
     /**
@@ -72,6 +73,14 @@ abstract class AbstractTask extends AbstractRunnable implements TaskInterface
      */
     public function rollback(): void
     {}
+
+    /**
+     * getReturnValue function, just an empty placeholder.
+     * MUST be implemented when needed
+     */
+    public function getReturnValue()
+    {
+    }
 
     public function getJob(): JobInterface
     {

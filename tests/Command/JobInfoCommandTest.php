@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2019
+ * Copyright (c) 2019.
  *
  * Author: Pietro Baldassarri
  *
@@ -12,6 +12,7 @@ namespace Bnza\JobManagerBundle\Tests\Command;
 use Bnza\JobManagerBundle\Entity\JobEntityInterface;
 use Bnza\JobManagerBundle\Entity\TaskEntityInterface;
 use Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException;
+use Bnza\JobManagerBundle\Job\JobInfo;
 use Bnza\JobManagerBundle\Job\Status;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 use Bnza\JobManagerBundle\Command\JobInfoCommand;
@@ -22,22 +23,21 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 class JobInfoCommandTest extends KernelTestCase
 {
-
     public function jobEntityStatusDataProvider()
     {
         return [
             [
                 new Status(Status::RUNNING),
-                'Running...'
+                'Running...',
             ],
             [
                 new Status(Status::SUCCESS),
-                'Success'
+                'Success',
             ],
             [
                 new Status(Status::ERROR),
-                'Error'
-            ]
+                'Error',
+            ],
         ];
     }
 
@@ -45,14 +45,16 @@ class JobInfoCommandTest extends KernelTestCase
     {
         $om = $this->createMock(ObjectManagerInterface::class);
         $om->method('find')->willReturn($entity);
+
         return $om;
     }
 
     /**
-     *
      * Command class "XXX" is not correctly initialized. You probably forgot to call the parent constructor.
+     *
      * @param Command $command
-     * @param array $arguments
+     * @param array   $arguments
+     *
      * @throws \ReflectionException
      */
     public function invokeCommandConstructor(Command $command, array $arguments = [])
@@ -61,29 +63,30 @@ class JobInfoCommandTest extends KernelTestCase
         $reflectedClass->getConstructor()->invokeArgs($command, $arguments);
     }
 
-//    public function executeCommandTester(Command $mockCommand, array $input = [], array $options = []): CommandTester
-//    {
-//        $this->invokeCommandConstructor($mockCommand);
-//        $defaultInput = [
-//            'command' => $mockCommand->getName(),
-//        ];
-//        // Force ConsoleOutput
-//        $defaultOptions = [
-//            'capture_stderr_separately' => true
-//        ];
-//
-//        $input = \array_merge($input, $defaultInput);
-//        $options = \array_merge($options, $defaultOptions);
-//
-//        $kernel = static::createKernel();
-//        $application = new Application($kernel);
-//        $application->add($mockCommand);
-//
-//        $command = $application->find($mockCommand->getName());
-//        $commandTester = new CommandTester($command);
-//        $commandTester->execute($input, $options);
-//        return $commandTester;
-//    }
+    public function executeCommandTesterOnMock(Command $mockCommand, array $input = [], array $options = []): CommandTester
+    {
+        $this->invokeCommandConstructor($mockCommand);
+        $defaultInput = [
+            'command' => $mockCommand->getName(),
+        ];
+        // Force ConsoleOutput
+        $defaultOptions = [
+            'capture_stderr_separately' => true,
+        ];
+
+        $input = \array_merge($input, $defaultInput);
+        $options = \array_merge($options, $defaultOptions);
+
+        $kernel = static::createKernel();
+        $application = new Application($kernel);
+        $application->add($mockCommand);
+
+        $command = $application->find($mockCommand->getName());
+        $commandTester = new CommandTester($command);
+        $commandTester->execute($input, $options);
+
+        return $commandTester;
+    }
 
     public function executeCommandTester(Command $command, array $input = [], array $options = []): CommandTester
     {
@@ -92,7 +95,7 @@ class JobInfoCommandTest extends KernelTestCase
         ];
         // Force ConsoleOutput
         $defaultOptions = [
-            'capture_stderr_separately' => true
+            'capture_stderr_separately' => true,
         ];
 
         $input = \array_merge($input, $defaultInput);
@@ -105,6 +108,7 @@ class JobInfoCommandTest extends KernelTestCase
         $appCommand = $application->find($command->getName());
         $commandTester = new CommandTester($appCommand);
         $commandTester->execute($input, $options);
+
         return $commandTester;
     }
 
@@ -117,9 +121,9 @@ class JobInfoCommandTest extends KernelTestCase
         $jobCommand = new JobInfoCommand($om);
 
         $commandTester = $this->executeCommandTester($jobCommand, ['job_id' => $id]);
-        $this->assertTrue(!!$commandTester->getStatusCode());
+        $this->assertTrue((bool) $commandTester->getStatusCode());
         $output = $commandTester->getDisplay();
-        $this->assertContains('No job with ID ' . $id . ' found', $output);
+        $this->assertContains('No job with ID '.$id.' found', $output);
     }
 
     public function testDisplayJobHeader()
@@ -135,12 +139,13 @@ class JobInfoCommandTest extends KernelTestCase
 
         $commandTester = $this->executeCommandTester($jobCommand, ['job_id' => $id]);
         $output = $commandTester->getDisplay();
-        $this->assertContains('Job: ' . $id, $output);
-        $this->assertContains('Name: ' . JobInfoCommand::getDefaultName(), $output);
+        $this->assertContains('Job: '.$id, $output);
+        $this->assertContains('Name: '.JobInfoCommand::getDefaultName(), $output);
     }
 
     /**
      * @dataProvider jobEntityStatusDataProvider
+     *
      * @param Status $status
      * @param string $display
      */
@@ -181,4 +186,65 @@ class JobInfoCommandTest extends KernelTestCase
         $this->assertContains(' 2/3: Dummy task', $output);
     }
 
+    public function getMockJobInfoCommandForFollow(): JobInfoCommand
+    {
+        $info = $this->createMock(JobInfo::class);
+        $info
+            ->method('isRunning')
+            ->will($this->onConsecutiveCalls(
+                true,
+                true,
+                false
+            ));
+
+        // Configure mock command
+        $mockCommand = $this->createPartialMock(
+            JobInfoCommand::class,
+            [
+                'getInfo',
+                'getName',
+                'updateDisplay',
+            ]
+        );
+        $mockCommand->method('getName')->willReturn(JobInfoCommand::getDefaultName());
+        $mockCommand
+            ->expects($this->once())
+            ->method('getInfo')
+            ->willReturn($info);
+
+        $mockCommand
+            ->expects($this->exactly(3))
+            ->method('updateDisplay')
+            ->willReturn($info);
+
+        return $mockCommand;
+    }
+
+    public function testFollowOption()
+    {
+        $id = sha1(microtime());
+        $mockCommand = $this->getMockJobInfoCommandForFollow();
+        $this->executeCommandTesterOnMock($mockCommand, ['job_id' => $id, '--follow' => true]);
+    }
+
+    public function testFollowIntervalDefault()
+    {
+        $id = sha1(microtime());
+        $mockCommand = $this->getMockJobInfoCommandForFollow();
+        $start = microtime(true);
+        $this->executeCommandTesterOnMock($mockCommand, ['job_id' => $id, '--follow' => true]);
+        $stop = microtime(true);
+        $this->assertEquals(JobInfoCommand::DEFAULT_INTERVAL*2/1000, $stop-$start, '', 0.1);
+    }
+
+    public function testFollowInterval()
+    {
+        $interval = 100;
+        $id = sha1(microtime());
+        $mockCommand = $this->getMockJobInfoCommandForFollow();
+        $start = microtime(true);
+        $this->executeCommandTesterOnMock($mockCommand, ['job_id' => $id, '--follow' => true, '--interval' => $interval]);
+        $stop = microtime(true);
+        $this->assertEquals($interval*2/1000, $stop-$start, '', 0.1);
+    }
 }

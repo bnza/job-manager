@@ -12,7 +12,7 @@ namespace Bnza\JobManagerBundle\Job;
 
 interface JobInfoInterface extends RunnableInfoInterface
 {
-    public function getTask(int $num): RunnableInfoInterface;
+    public function getTask(int $num): TaskInfoInterface;
 
-    public function getCurrentTask(): RunnableInfoInterface;
+    public function getCurrentTask(): TaskInfoInterface;
 }

@@ -28,7 +28,7 @@ trait JobInfoTrait
      * @throws \RuntimeException
      * @throws JobManagerEntityNotFoundException
      */
-    public function getTask(int $num): RunnableInfoInterface
+    public function getTask(int $num): TaskInfoInterface
     {
         if (!\array_key_exists($num, $this->tasks)) {
             $this->tasks[$num] = new TaskInfo($this->getObjectManager(), $this->getEntity()->getTask($num));
@@ -37,7 +37,7 @@ trait JobInfoTrait
         return $this->tasks[$num];
     }
 
-    public function getCurrentTask(): RunnableInfoInterface
+    public function getCurrentTask(): TaskInfoInterface
     {
         return $this->getTask($this->getCurrentStepNum());
     }

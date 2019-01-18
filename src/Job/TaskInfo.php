@@ -12,7 +12,7 @@ namespace Bnza\JobManagerBundle\Job;
 use Bnza\JobManagerBundle\Entity\TaskEntityInterface;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 
-class TaskInfo extends AbstractRunnableInfo
+class TaskInfo extends AbstractRunnableInfo implements TaskInfoInterface
 {
     /**
      * @var TaskEntityInterface
@@ -37,7 +37,7 @@ class TaskInfo extends AbstractRunnableInfo
         return $this->entity;
     }
 
-    public function getNum()
+    public function getNum(): int
     {
         return $this->getEntity()->getNum();
     }

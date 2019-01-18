@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2019
+ * Copyright (c) 2019.
  *
  * Author: Pietro Baldassarri
  *
@@ -13,12 +13,23 @@ use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 use Bnza\JobManagerBundle\Job\AbstractJob;
 use Bnza\JobManagerBundle\Job\AbstractTask;
 use Bnza\JobManagerBundle\Entity\JobEntityInterface;
+use Bnza\JobManagerBundle\Job\JobInterface;
 use Bnza\JobManagerBundle\Job\Status;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 class DummyTask extends AbstractTask
 {
+    public $prop1;
+    public $prop2;
+
+    public function __construct(ObjectManagerInterface $om, JobInterface $job, int $num, string $param1, int $param2 = 2)
+    {
+        parent::__construct($om, $job, $num);
+        $this->prop1 = $param1;
+        $this->prop2 = $param2;
+    }
+
     public function getName(): string
     {
         return 'DummyTask name';
@@ -27,7 +38,7 @@ class DummyTask extends AbstractTask
     public function getSteps(): iterable
     {
         return [
-            [$this, 'runMethod'], ['arg0', 'arg1']
+            [$this, 'runMethod'], ['arg0', 'arg1'],
         ];
     }
 
@@ -38,13 +49,10 @@ class DummyTask extends AbstractTask
 
 class DummyNonTask
 {
-
 }
-
 
 class AbstractJobTest extends \PHPUnit\Framework\TestCase
 {
-
     public function initAbstractJobMockConstructor(
         Status $mockStatus = null,
         JobEntityInterface $mockEntity = null,
@@ -52,8 +60,7 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
         EventDispatcher $mockDispatcher = null,
         AbstractTask $mockTask = null,
         AbstractJob $mockJob = null
-    )
-    {
+    ) {
         if (!$mockStatus) {
             $mockStatus = $this->createMock(Status::class);
         }
@@ -107,14 +114,13 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
             'mockTask',
             'mockJob'
         );
-
     }
 
     public function testConstructor()
     {
         $context = $this->initAbstractJobMockConstructor();
 
-        /**
+        /*
          * @var $mockJob AbstractJob
          * @var $mockDispatcher
          * @var $mockTask
@@ -127,15 +133,14 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
             ->method('getSteps')
             ->willReturn([
                 ['TaskClass1'],
-                ['TaskClass2']
+                ['TaskClass2'],
             ]);
 
         $mockJob->method('initTask')
             ->with($this->onConsecutiveCalls([
                 [0, ['TaskClass1']],
-                [1, ['TaskClass2']]
+                [1, ['TaskClass2']],
             ]));
-
 
         $mockJob->run();
 
@@ -154,10 +159,8 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
         $this->assertInstanceOf(ParameterBag::class, $mockJob->getParameters());
     }
 
-
     public function testRunCallMethods()
     {
-
         $mockJob = $this->getMockForAbstractClass(
             AbstractJob::class,
             [],
@@ -178,7 +181,7 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
             ->method('getSteps')
             ->willReturn([
                 ['TaskClass1'],
-                ['TaskClass2']
+                ['TaskClass2'],
             ]);
 
         $mockJob->expects($this->exactly(2))
@@ -191,7 +194,24 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
         $mockJob->run();
     }
 
-    public function testInitTask()
+    public function initTaskDataProvider()
+    {
+        $arg2 = (int) rand(1, 100);
+        $arg1 = "Dummy string $arg2";
+
+        return [
+            [
+                [DummyTask::class, $arg1],
+                [$arg1],
+            ],
+            [
+                [DummyTask::class, [$arg1, $arg2]],
+                [$arg1, $arg2],
+            ],
+        ];
+    }
+
+    public function initMockJob(array $taskData, array $mockedMethods = [])
     {
         $mockEntity = $this->getMockBuilder(JobEntityInterface::class)
             ->disableOriginalConstructor()
@@ -204,6 +224,11 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
 
         $mockOm = $this->createMock(ObjectManagerInterface::class);
 
+        $methods = array_merge(
+            ['getObjectManager', 'getEntity', 'getSteps', 'success', 'running'],
+            $mockedMethods
+        );
+
         $mockJob = $this->getMockForAbstractClass(
             AbstractJob::class,
             [],
@@ -211,7 +236,7 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
             false,
             true,
             true,
-            ['getObjectManager', 'getEntity', 'getSteps', 'success', 'running']
+            $methods
         );
 
         $mockJob->expects($this->any())
@@ -225,13 +250,49 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
         $mockJob->expects($this->once())
             ->method('getSteps')
             ->willReturn([
-                [DummyTask::class]
+                $taskData,
             ]);
 
         $mockJob->expects($this->once())
             ->method('success');
 
+        return $mockJob;
+    }
+
+    /**
+     * @param array $taskData
+     * @param array $expectedArgs
+     *
+     * @dataProvider initTaskDataProvider
+     */
+    public function testInitTask(array $taskData, array $expectedArgs)
+    {
+        $mockJob = $this->initMockJob($taskData, ['createTask']);
+
+        $mockJob->expects($this->once())
+            ->method('createTask')
+            ->with(
+                $this->equalTo(DummyTask::class),
+                $this->equalTo(0),
+                $this->equalTo($expectedArgs)
+            );
+
         $mockJob->run();
+    }
+
+    /**
+     * @param array $taskData
+     * @param array $expectedArgs
+     *
+     * @dataProvider initTaskDataProvider
+     */
+    public function testCreateTask(array $taskData, array $expectedArgs)
+    {
+        $mockJob = $this->initMockJob($taskData);
+        $mockJob->run();
+        $task = $mockJob->getTask(0);
+        $this->assertEquals($expectedArgs[0], $task->prop1);
+        $this->assertEquals(isset($expectedArgs[1]) ? $expectedArgs[1] : 2, $task->prop2);
     }
 
     public function testInitTaskException()
@@ -270,7 +331,7 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
         $mockJob->expects($this->once())
             ->method('getSteps')
             ->willReturn([
-                [DummyNonTask::class]
+                [DummyNonTask::class],
             ]);
 
         $mockJob->expects($this->once())
@@ -323,7 +384,7 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
             ->method('getSteps')
             ->willReturn([
                 ['TaskClass1'],
-                ['TaskClass2']
+                ['TaskClass2'],
             ]);
 
         $mockJob->expects($this->exactly(2))

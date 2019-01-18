@@ -17,4 +17,6 @@ interface JobInterface extends RunnableInterface
     public function success(): void;
 
     public function getDispatcher(): EventDispatcher;
+
+    public function run(): void;
 }

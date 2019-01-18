@@ -19,7 +19,31 @@ use Symfony\Component\Console\Input\InputArgument;
 
 class JobInfoCommand extends AbstractJobCommand
 {
+    /**
+     * Default refresh interval in millisecond
+     */
+    const DEFAULT_INTERVAL = 250;
+
     protected static $defaultName = 'bnza:job-manager:info';
+
+    /**
+     * @var JobInfo
+     */
+    protected $info;
+
+    /**
+     * @param string $id
+     * @return JobInfo
+     * @throws JobManagerEntityNotFoundException
+     */
+    protected function getInfo(string $id = ''): JobInfo
+    {
+        if (!$this->info) {
+            $om = $this->getObjectManager();
+            $this->info =  new JobInfo($om, $om->find('job', $id));
+        }
+        return $this->info;
+    }
 
     protected function configure()
     {
@@ -40,13 +64,24 @@ class JobInfoCommand extends AbstractJobCommand
             );
     }
 
+    protected function getRefreshInterval(InputInterface $input)
+    {
+        $interval = $interval = $input->getOption('interval');
+
+        if (!$interval) {
+            $interval = self::DEFAULT_INTERVAL;
+        }
+
+        return $interval * 1000;
+    }
+
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $om = $this->getObjectManager();
+
         $id = $input->getArgument('job_id');
 
         try {
-            $info = new JobInfo($om, $om->find('job', $id));
+            $info = $this->getInfo($id);
             $this->displayJobHeader($output, $info);
             $this->updateDisplay($info);
         } catch (JobManagerEntityNotFoundException $e) {
@@ -55,9 +90,10 @@ class JobInfoCommand extends AbstractJobCommand
         }
 
         if ($input->getOption('follow')) {
-            $interval = ($input->getOption('follow') || 250) * 1000;
+            $interval = $this->getRefreshInterval($input);
             while ($info->isRunning()) {
-                sleep($interval);
+                \usleep($interval);
+                $info->refresh();
                 $this->updateDisplay($info);
             }
         }

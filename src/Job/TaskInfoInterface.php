@@ -10,9 +10,7 @@
 namespace Bnza\JobManagerBundle\Job;
 
 
-interface TaskInterface extends RunnableInterface, TaskInfoInterface
+interface TaskInfoInterface extends RunnableInfoInterface
 {
-    public function getReturnValue();
-
-    public function run();
+    public function getNum(): int;
 }
