@@ -15,7 +15,7 @@ use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 
 class JobInfo extends AbstractRunnableInfo implements JobInfoInterface
 {
-    use JobInfoTrait;
+    use Traits\Job\JobInfoTrait;
 
     /**
      * @var TaskInfo[]
@@ -63,26 +63,4 @@ class JobInfo extends AbstractRunnableInfo implements JobInfoInterface
 
         $this->getObjectManager()->persist($this->getEntity());
     }
-
-//    /**
-//     * @param int $num
-//     *
-//     * @return TaskInfo
-//     *
-//     * @throws \RuntimeException
-//     * @throws JobManagerEntityNotFoundException
-//     */
-//    public function getTask(int $num): RunnableInfoInterface
-//    {
-//        if (!\array_key_exists($num, $this->tasks)) {
-//            $this->tasks[$num] = new TaskInfo($this->getObjectManager(), $this->getEntity()->getTask($num));
-//        }
-//
-//        return $this->tasks[$num];
-//    }
-//
-//    public function getCurrentTask(): RunnableInfoInterface
-//    {
-//        return $this->getTask($this->getCurrentStepNum());
-//    }
 }

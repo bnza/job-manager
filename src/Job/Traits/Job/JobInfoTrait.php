@@ -7,9 +7,13 @@
  * For full license information see the README.md file
  */
 
-namespace Bnza\JobManagerBundle\Job;
+namespace Bnza\JobManagerBundle\Job\Traits\Job;
 
 use Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException;
+use Bnza\JobManagerBundle\Job\TaskInfoInterface;
+use Bnza\JobManagerBundle\Job\AbstractTask;
+use Bnza\JobManagerBundle\Job\TaskInfo;
+
 
 
 trait JobInfoTrait
@@ -23,7 +27,7 @@ trait JobInfoTrait
     /**
      * @param int $num
      *
-     * @return TaskInfo
+     * @return TaskInfoInterface
      *
      * @throws \RuntimeException
      * @throws JobManagerEntityNotFoundException

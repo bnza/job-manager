@@ -20,7 +20,8 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 
 abstract class AbstractJob extends AbstractRunnable implements JobInterface, JobInfoInterface
 {
-    use JobInfoTrait;
+    use Traits\Job\ParameterBagTrait;
+    use Traits\Job\JobInfoTrait;
 
     /**
      * @var JobEntityInterface
@@ -32,11 +33,6 @@ abstract class AbstractJob extends AbstractRunnable implements JobInterface, Job
      */
     protected $dispatcher;
 
-    /**
-     * @var ParameterBag
-     */
-    protected $parameters;
-
     public function __construct(ObjectManagerInterface $om, EventDispatcher $dispatcher, $entity, array $parameters = [])
     {
         $this->parameters = new ParameterBag($parameters);
@@ -45,23 +41,6 @@ abstract class AbstractJob extends AbstractRunnable implements JobInterface, Job
             $entity = new JobEntity($entity);
         }
         parent::__construct($om, $entity);
-    }
-
-    public function getParameters(): ParameterBag
-    {
-        return $this->parameters;
-    }
-
-    public function getParameter(string $key, bool $throw = true)
-    {
-        $pb = $this->getParameters();
-        if ($pb->has($key))
-        {
-            return $pb->get($key);
-        }
-        if ($throw) {
-            throw new \LogicException("Parameter \"$key\" is not set");
-        }
     }
 
     public function getDispatcher(): EventDispatcher
