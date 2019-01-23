@@ -10,6 +10,8 @@
 
 namespace Bnza\JobManagerBundle\Job;
 
+use Bnza\JobManagerBundle\Task\AbstractTask;
+use Bnza\JobManagerBundle\Task\TaskInfoInterface;
 use Bnza\JobManagerBundle\Event\JobEndedEvent;
 use Bnza\JobManagerBundle\Event\JobStartedEvent;
 use Bnza\JobManagerBundle\Entity\JobEntityInterface;

@@ -11,7 +11,7 @@ namespace Bnza\JobManagerBundle\Tests\Job;
 
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 use Bnza\JobManagerBundle\Job\AbstractJob;
-use Bnza\JobManagerBundle\Job\AbstractTask;
+use Bnza\JobManagerBundle\Task\AbstractTask;
 use Bnza\JobManagerBundle\Entity\JobEntityInterface;
 use Bnza\JobManagerBundle\Job\JobInterface;
 use Bnza\JobManagerBundle\Job\Status;

@@ -7,8 +7,9 @@
  * For full license information see the README.md file
  */
 
-namespace Bnza\JobManagerBundle\Job;
+namespace Bnza\JobManagerBundle\Task;
 
+use Bnza\JobManagerBundle\Job\RunnableInfoInterface;
 
 interface TaskInfoInterface extends RunnableInfoInterface
 {

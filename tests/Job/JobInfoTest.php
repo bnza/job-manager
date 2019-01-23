@@ -13,7 +13,7 @@ use Bnza\JobManagerBundle\Entity\TmpFS\TaskEntity;
 use Bnza\JobManagerBundle\Exception\JobManagerCancelledJobException;
 use Bnza\JobManagerBundle\ObjectManager\TmpFS\ObjectManager;
 use Bnza\JobManagerBundle\Job\JobInfo;
-use Bnza\JobManagerBundle\Job\TaskInfo;
+use Bnza\JobManagerBundle\Task\TaskInfo;
 use Bnza\JobManagerBundle\Entity\RunnableEntityInterface;
 use Bnza\JobManagerBundle\Entity\TmpFS\JobEntity;
 

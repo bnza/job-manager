@@ -10,11 +10,9 @@
 namespace Bnza\JobManagerBundle\Job\Traits\Job;
 
 use Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException;
-use Bnza\JobManagerBundle\Job\TaskInfoInterface;
-use Bnza\JobManagerBundle\Job\AbstractTask;
-use Bnza\JobManagerBundle\Job\TaskInfo;
-
-
+use Bnza\JobManagerBundle\Task\TaskInfoInterface;
+use Bnza\JobManagerBundle\Task\AbstractTask;
+use Bnza\JobManagerBundle\Task\TaskInfo;
 
 trait JobInfoTrait
 {

@@ -1,14 +1,16 @@
 <?php
 /**
- * Copyright (c) 2018
+ * Copyright (c) 2019
  *
  * Author: Pietro Baldassarri
  *
  * For full license information see the README.md file
  */
 
-namespace Bnza\JobManagerBundle\Job;
+namespace Bnza\JobManagerBundle\Task;
 
+use Bnza\JobManagerBundle\Job\JobInterface;
+use Bnza\JobManagerBundle\Job\AbstractRunnable;
 use Bnza\JobManagerBundle\Event\TaskStartedEvent;
 use Bnza\JobManagerBundle\Event\TaskEndedEvent;
 use Bnza\JobManagerBundle\Event\TaskStepEndedEvent;

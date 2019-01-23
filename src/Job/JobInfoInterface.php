@@ -9,6 +9,7 @@
 
 namespace Bnza\JobManagerBundle\Job;
 
+use Bnza\JobManagerBundle\Task\TaskInfoInterface;
 
 interface JobInfoInterface extends RunnableInfoInterface
 {

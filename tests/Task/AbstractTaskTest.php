@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2019.
+ * Copyright (c) 2019
  *
  * Author: Pietro Baldassarri
  *
@@ -10,7 +10,7 @@
 namespace Bnza\JobManagerBundle\Tests\Job;
 
 use Bnza\JobManagerBundle\Job\JobInterface;
-use Bnza\JobManagerBundle\Job\AbstractTask;
+use Bnza\JobManagerBundle\Task\AbstractTask;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
