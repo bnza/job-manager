@@ -10,6 +10,11 @@
 namespace Bnza\JobManagerBundle\Task\FileSystem;
 use Symfony\Component\Filesystem\Filesystem;
 
+/**
+ * Trait FileSystemTrait
+ * Trait used by tasks which need Symfony\Component\Filesystem\Filesystem
+ * @package Bnza\JobManagerBundle\Task\FileSystem
+ */
 trait FileSystemTrait
 {
     /**
@@ -17,6 +22,9 @@ trait FileSystemTrait
      */
     protected $fs;
 
+    /**
+     * @return Filesystem
+     */
     protected function getFileSystem(): Filesystem
     {
         if (!$this->fs) {

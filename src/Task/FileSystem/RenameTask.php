@@ -37,6 +37,9 @@ class RenameTask extends AbstractTask
         return 'bnza:task:filesystem:rename';
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getSteps(): iterable
     {
         $overwrite = $this->isOverwrite();
@@ -44,19 +47,56 @@ class RenameTask extends AbstractTask
         if (count($origins) > 1 && !\is_dir($this->getTarget())) {
             throw new \InvalidArgumentException("When you provide multiple origins target must be a directory");
         }
-        foreach ($this->getOrigin() as $origin) {
-            yield [
-                [$this, 'rename'],
-                [$origin, $this->getTarget($origin), $overwrite],
-            ];
+        $generator = function () use ($origins, $overwrite){
+            foreach ($origins as $origin) {
+                yield [
+                    [$this, 'rename'],
+                    [$origin, $this->getTarget($origin), $overwrite],
+                ];
+            }
+        };
+
+        return $generator();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function rollback(): void
+    {
+        $origins = $this->getOrigin();
+        if (count($origins) > 1) {
+            if (\is_dir($target = $this->getTarget())) {
+                foreach ($origins as $origin) {
+                    $this->rename($this->getTarget().DIRECTORY_SEPARATOR.basename($origin), $origin, false);
+                }
+            }
+        } else {
+            $this->rename($this->getTarget($origins[0]), $origins[0], false);
         }
     }
 
+    /**
+     * Renames/moves files/directories using Symfony/FileSystem
+     * @param string $origin
+     * @param string $target
+     * @param bool $overwrite
+     */
     public function rename(string $origin, string $target, bool $overwrite = false)
     {
         $this->getFileSystem()->rename($origin, $target, $overwrite);
     }
 
+    /**
+     * RenameTask constructor.
+     * @param ObjectManagerInterface $om
+     * @param JobInterface $job
+     * @param int $num
+     * @param $source
+     * @param string $target
+     * @param bool $overwrite
+     * @throws \Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException
+     */
     public function __construct(
         ObjectManagerInterface $om,
         JobInterface $job,

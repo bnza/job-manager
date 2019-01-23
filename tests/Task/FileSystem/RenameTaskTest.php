@@ -9,12 +9,13 @@
 
 namespace Bnza\JobManagerBundle\Tests\Task\FileSystem;
 
+use Bnza\JobManagerBundle\Task\FileSystem\FileSystemTrait;
 use Bnza\JobManagerBundle\Task\FileSystem\RenameTask;
 use Bnza\JobManagerBundle\Tests\Task\MockJobUtilsTrait;
-use Symfony\Component\Filesystem\Filesystem;
 
 class RenameTaskTest extends \PHPUnit\Framework\TestCase
 {
+    use FileSystemTrait;
     use MockJobUtilsTrait;
 
     /**
@@ -28,22 +29,27 @@ class RenameTaskTest extends \PHPUnit\Framework\TestCase
     private $targetDir;
 
     /**
-     * @var Filesystem
+     * @var string|string[]
      */
-    private $fs;
+    private $origin;
 
-    protected function getRandomFileName(string $dir) {
-        return $dir.DIRECTORY_SEPARATOR.substr(md5(microtime()),0,8);
-    }
+    /**
+     * @var string
+     */
+    private $target;
+
+    /**
+     * @var RenameTask
+     */
+    private $mockTask;
 
     public function setUp()
     {
-        $this->fs = new Filesystem();
         $this->originDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'test-origin-dir';
         $this->targetDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'test-target-dir';
         foreach ([$this->originDir, $this->targetDir] as $dir) {
             if (file_exists($dir)) {
-                $this->fs->remove($dir);
+                $this->getFileSystem()->remove($dir);
             }
             \mkdir($dir);
         }
@@ -53,7 +59,7 @@ class RenameTaskTest extends \PHPUnit\Framework\TestCase
     {
         foreach ([$this->originDir, $this->targetDir] as $dir) {
             if (file_exists($dir)) {
-                $this->fs->remove($dir);
+                $this->getFileSystem()->remove($dir);
             }
         }
     }
@@ -66,24 +72,10 @@ class RenameTaskTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    protected function assertSingleFileOriginWillBeRenamed($origin, $target, RenameTask $mockTask)
-    {
-        $this->assertFileExists($origin);
-        if ($target !== $this->targetDir) {
-            $this->assertFileNotExists($target);
-        }
-        $mockTask->run();
-        $this->assertFileNotExists($origin);
-        $this->assertFileExists($target);
-    }
-
     public function testSingleFileOriginWillBeRenamedToFullPathTarget()
     {
-        $origin = $this->getRandomFileName($this->originDir);
-        $target = $this->targetDir.DIRECTORY_SEPARATOR.'target-file';
-        \touch($origin);
-        $mockTask = $this->getMockTaskAndInvokeConstructor(RenameTask::class, [$origin, $target], [], ['next']);
-        $this->assertSingleFileOriginWillBeRenamed($origin, $target, $mockTask);
+        $this->renameSingleFileOriginToFullPathTarget();
+        $this->assertSingleFileOriginWillBeRenamed($this->origin, $this->target, $this->mockTask);
     }
 
     public function testSingleFileOriginWillBeRenamedToDirectoryTarget()
@@ -96,18 +88,10 @@ class RenameTaskTest extends \PHPUnit\Framework\TestCase
 
     public function testMultipleFileOriginWillBeRenamedToDirectoryTarget()
     {
-        $origins = [];
+        $this->renameMultipleFileOriginToDirectoryTarget();
         for ($i = 0; $i < 3; $i++) {
-            $origins[] = $this->getRandomFileName($this->originDir);
-            \touch($origins[$i]);
-            $this->assertFileExists($origins[$i]);
-        }
-
-        $mockTask = $this->getMockTaskAndInvokeConstructor(RenameTask::class, [$origins, $this->targetDir], [], ['next']);
-        $mockTask->run();
-        for ($i = 0; $i < 3; $i++) {
-            $this->assertFileNotExists($origins[$i]);
-            $this->assertFileExists($this->targetDir.DIRECTORY_SEPARATOR.basename($origins[$i]));
+            $this->assertFileNotExists($this->origin[$i]);
+            $this->assertFileExists($this->targetDir.DIRECTORY_SEPARATOR.basename($this->origin[$i]));
         }
     }
 
@@ -138,5 +122,65 @@ class RenameTaskTest extends \PHPUnit\Framework\TestCase
         $mockTask->run();
     }
 
+    /**
+     * @requires testSingleFileOriginWillBeRenamedToFullPathTarget
+     */
+    public function testSingleFileOriginRenamedToFullPathTargetWillRollback()
+    {
+        $this->renameSingleFileOriginToFullPathTarget();
+        $this->mockTask->run();
+        $this->mockTask->rollback();
+        $this->assertFileNotExists($this->target);
+        $this->assertFileExists($this->origin);
+    }
+
+    /**
+     * @requires testMultipleFileOriginWillBeRenamedToDirectoryTarget
+     */
+    public function testMultipleFileOriginRenamedToDirectoryTargetWillRollback()
+    {
+        $this->renameMultipleFileOriginToDirectoryTarget();
+        $this->mockTask->rollback();
+        for ($i = 0; $i < 3; $i++) {
+            $this->assertFileExists($this->origin[$i]);
+            $this->assertFileNotExists($this->targetDir.DIRECTORY_SEPARATOR.basename($this->origin[$i]));
+        }
+    }
+
+    protected function getRandomFileName(string $dir) {
+        return $dir.DIRECTORY_SEPARATOR.substr(md5(microtime()),0,8);
+    }
+
+    protected function assertSingleFileOriginWillBeRenamed($origin, $target, RenameTask $mockTask)
+    {
+        $this->assertFileExists($origin);
+        if ($target !== $this->targetDir) {
+            $this->assertFileNotExists($target);
+        }
+        $mockTask->run();
+        $this->assertFileNotExists($origin);
+        $this->assertFileExists($target);
+    }
+
+    protected function renameSingleFileOriginToFullPathTarget()
+    {
+        $origin = $this->origin = $this->getRandomFileName($this->originDir);
+        $target = $this->target = $this->targetDir.DIRECTORY_SEPARATOR.'target-file';
+        \touch($origin);
+        $this->mockTask = $this->getMockTaskAndInvokeConstructor(RenameTask::class, [$origin, $target], [], ['next']);
+    }
+
+    protected function renameMultipleFileOriginToDirectoryTarget()
+    {
+        $origins = [];
+        for ($i = 0; $i < 3; $i++) {
+            $origins[] = $this->getRandomFileName($this->originDir);
+            \touch($origins[$i]);
+            $this->assertFileExists($origins[$i]);
+        }
+        $this->origin = $origins;
+        $this->mockTask = $this->getMockTaskAndInvokeConstructor(RenameTask::class, [$origins, $this->targetDir], [], ['next']);
+        $this->mockTask->run();
+    }
 
 }
