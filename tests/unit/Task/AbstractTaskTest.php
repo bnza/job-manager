@@ -82,17 +82,8 @@ class AbstractTaskTest extends \PHPUnit\Framework\TestCase
             false,
             true,
             true,
-            ['getSteps', 'getName']
+            ['getName']
         );
-        $mockTask
-            ->expects($this->once())
-            ->method('getSteps')
-            ->willReturn([
-                [
-                    [$mockTask, 'mockCallable'],
-                    ['arg0', 'arg1'],
-                ],
-            ]);
         $mockTask
             ->method('getName')
             ->willReturn('Dummy task name');

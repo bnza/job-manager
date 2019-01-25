@@ -11,7 +11,11 @@ namespace Bnza\JobManagerBundle\Job;
 
 interface RunnableInterface extends RunnableInfoInterface
 {
-    public function persist(string $prop = ''): RunnableInterface;
+    /**
+     * @param string $prop
+     * @return RunnableInterface
+     */
+    public function persist(string $prop = '');
 
     public function getSteps(): iterable;
 

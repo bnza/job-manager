@@ -10,16 +10,18 @@
 namespace Bnza\JobManagerBundle\Task;
 
 use Bnza\JobManagerBundle\Job\JobInterface;
-use Bnza\JobManagerBundle\Job\AbstractRunnable;
 use Bnza\JobManagerBundle\Event\TaskStartedEvent;
 use Bnza\JobManagerBundle\Event\TaskEndedEvent;
 use Bnza\JobManagerBundle\Event\TaskStepEndedEvent;
 use Bnza\JobManagerBundle\Event\TaskStepStartedEvent;
 use Bnza\JobManagerBundle\Entity\TmpFS\TaskEntity;
+use Bnza\JobManagerBundle\Job\Traits\Job\RunnableTrait;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 
-abstract class AbstractTask extends AbstractRunnable implements TaskInterface
+abstract class AbstractTask implements TaskInterface
 {
+    use RunnableTrait;
+
     /**
      * @var JobInterface
      */
@@ -29,7 +31,7 @@ abstract class AbstractTask extends AbstractRunnable implements TaskInterface
     {
         $this->job = $job;
         $entity = new TaskEntity($job->getId(), $num);
-        parent::__construct($om, $entity);
+        $this->setUpRunnableInfo($om, $entity);
     }
 
     public function getNum(): int

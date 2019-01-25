@@ -13,8 +13,9 @@ use Bnza\JobManagerBundle\Entity\JobEntityInterface;
 use Bnza\JobManagerBundle\Exception\JobManagerCancelledJobException;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 
-class JobInfo extends AbstractRunnableInfo implements JobInfoInterface
+class JobInfo implements JobInfoInterface
 {
+    use Traits\Job\RunnableInfoTrait;
     use Traits\Job\JobInfoTrait;
 
     /**
@@ -42,12 +43,13 @@ class JobInfo extends AbstractRunnableInfo implements JobInfoInterface
 
     public function __construct(ObjectManagerInterface $om, $entity, $jobId = '')
     {
-        if ($entity instanceof JobEntityInterface) {
+        $this->setUpRunnableInfo($om, $entity, $jobId);
+/*        if ($entity instanceof JobEntityInterface) {
             $this->entity = $entity;
             parent::__construct($om);
         } elseif (is_string($entity)) {
             parent::__construct($om, $entity, $jobId);
-        }
+        }*/
     }
 
     /**

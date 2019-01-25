@@ -11,7 +11,11 @@ namespace Bnza\JobManagerBundle\Job;
 
 interface RunnableInfoInterface
 {
-    public function refresh(string $prop = ''): RunnableInfoInterface;
+    /**
+     * @param string $prop
+     * @return RunnableInfoInterface
+     */
+    public function refresh(string $prop = '');
 
     public function getId(): string;
 

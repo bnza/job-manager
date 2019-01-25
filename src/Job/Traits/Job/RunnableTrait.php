@@ -1,23 +1,26 @@
 <?php
 /**
- * Copyright (c) 2018.
+ * Copyright (c) 2019
  *
  * Author: Pietro Baldassarri
  *
  * For full license information see the README.md file
  */
 
-namespace Bnza\JobManagerBundle\Job;
+namespace Bnza\JobManagerBundle\Job\Traits\Job;
 
-use Bnza\JobManagerBundle\Entity\RunnableEntityInterface;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 
-abstract class AbstractRunnable extends AbstractRunnableInfo implements RunnableInterface
+trait RunnableTrait
 {
+    use RunnableInfoTrait;
+
     /**
      * @var int
      */
     protected $stepsNum = 0;
+
+    abstract public function getSteps(): iterable;
 
     /**
      * Counts the job/task's steps.
@@ -39,29 +42,36 @@ abstract class AbstractRunnable extends AbstractRunnableInfo implements Runnable
         }
     }
 
-    /**
-     * AbstractRunnable constructor.
-     *
-     * @param ObjectManagerInterface  $om
-     * @param RunnableEntityInterface $entity
-     *
-     * @throws \Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException
-     */
-    public function __construct(ObjectManagerInterface $om, RunnableEntityInterface $entity)
+    protected function setUpRunnable(ObjectManagerInterface $om, $entity, string $jobId = '', int $taskNum = -1): self
     {
-        $this->entity = $this->updateEntity($entity);
-        parent::__construct($om);
-        $this->persist();
+        return $this
+            ->setUpRunnableInfo($om, $entity, $jobId, $taskNum)
+            ->updateEntity();
     }
+
+//    /**
+//     * RunnableTrait constructor.
+//     *
+//     * @param ObjectManagerInterface  $om
+//     * @param RunnableEntityInterface $entity
+//     *
+//     * @throws \Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException
+//     */
+//    public function __construct(ObjectManagerInterface $om, RunnableEntityInterface $entity)
+//    {
+//        $this->entity = $this->updateEntity($entity);
+//        parent::__construct($om);
+//        $this->persist();
+//    }
 
     /**
      * Persist the entity.
      *
      * @param string $prop
      *
-     * @return RunnableInterface
+     * @return self
      */
-    public function persist(string $prop = ''): RunnableInterface
+    public function persist(string $prop = ''): self
     {
         $this->getObjectManager()->persist($this->getEntity(), $prop);
 
@@ -105,19 +115,25 @@ abstract class AbstractRunnable extends AbstractRunnableInfo implements Runnable
 
     /**
      * Update the entity with the class specific data.
-     *
-     * @param RunnableEntityInterface $entity
-     *
-     * @return RunnableEntityInterface
      */
-    protected function updateEntity(RunnableEntityInterface $entity): RunnableEntityInterface
+//    protected function updateEntity(RunnableEntityInterface $entity): RunnableEntityInterface
+//    {
+//        $entity
+//            ->setClass($this->getClass())
+//            ->setName($this->getName())
+//            ->setStepsNum($this->getStepsNum());
+//
+//        return $entity;
+//    }
+    protected function updateEntity(): self
     {
-        $entity
-            ->setClass($this->getClass())
-            ->setName($this->getName())
-            ->setStepsNum($this->getStepsNum());
+        $entity = $this->getEntity();
 
-        return $entity;
+        $entity->setClass($this->getClass());
+        $entity->setName($this->getName());
+        $entity->setStepsNum($this->getStepsNum());
+
+        return $this;
     }
 
     protected function setCurrentStepNum(int $num)

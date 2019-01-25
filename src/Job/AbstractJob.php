@@ -15,13 +15,13 @@ use Bnza\JobManagerBundle\Task\TaskInfoInterface;
 use Bnza\JobManagerBundle\Event\JobEndedEvent;
 use Bnza\JobManagerBundle\Event\JobStartedEvent;
 use Bnza\JobManagerBundle\Entity\JobEntityInterface;
-use Bnza\JobManagerBundle\Entity\TmpFS\JobEntity;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
-abstract class AbstractJob extends AbstractRunnable implements JobInterface, JobInfoInterface
+abstract class AbstractJob implements JobInterface, JobInfoInterface
 {
+    use Traits\Job\RunnableTrait;
     use Traits\Job\ParameterBagTrait;
     use Traits\Job\JobInfoTrait;
 
@@ -39,10 +39,13 @@ abstract class AbstractJob extends AbstractRunnable implements JobInterface, Job
     {
         $this->parameters = new ParameterBag($parameters);
         $this->dispatcher = $dispatcher;
-        if (!$entity || is_string($entity)) {
-            $entity = new JobEntity($entity);
+        $jobId = '';
+        if (!$entity instanceof JobEntityInterface) {
+            // jobId provided
+            $jobId = $entity;
+            $entity = $om->getEntityClass('job');
         }
-        parent::__construct($om, $entity);
+        $this->setUpRunnable($om, $entity, $jobId);
     }
 
     public function getDispatcher(): EventDispatcher
