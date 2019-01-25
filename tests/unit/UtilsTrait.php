@@ -11,7 +11,7 @@ namespace Bnza\JobManagerBundle\Tests;
 
 use Doctrine\Common\Inflector\Inflector;
 use Bnza\JobManagerBundle\Entity\RunnableEntityInterface;
-use Bnza\JobManagerBundle\Task\FileSystem\FileSystemTrait;
+use Bnza\JobManagerBundle\Runnable\Task\FileSystem\FileSystemTrait;
 
 trait UtilsTrait
 {

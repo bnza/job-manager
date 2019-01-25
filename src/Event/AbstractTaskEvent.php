@@ -10,7 +10,7 @@
 namespace Bnza\JobManagerBundle\Event;
 
 use Symfony\Component\EventDispatcher\Event;
-use Bnza\JobManagerBundle\Task\TaskInterface;
+use Bnza\JobManagerBundle\Runnable\Task\TaskInterface;
 
 abstract class AbstractTaskEvent extends Event
 {

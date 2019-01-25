@@ -12,7 +12,7 @@ namespace Bnza\JobManagerBundle\Entity\TmpFS;
 use Bnza\JobManagerBundle\Entity\RunnableEntityInterface;
 use Bnza\JobManagerBundle\Entity\JobEntityInterface;
 use Bnza\JobManagerBundle\Entity\TaskEntityInterface;
-use Bnza\JobManagerBundle\Job\Status;
+use Bnza\JobManagerBundle\Runnable\Status;
 
 class JobEntity extends AbstractRunnableEntity implements JobEntityInterface
 {

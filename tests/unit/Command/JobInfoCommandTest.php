@@ -12,8 +12,8 @@ namespace Bnza\JobManagerBundle\Tests\Command;
 use Bnza\JobManagerBundle\Entity\JobEntityInterface;
 use Bnza\JobManagerBundle\Entity\TaskEntityInterface;
 use Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException;
-use Bnza\JobManagerBundle\Job\JobInfo;
-use Bnza\JobManagerBundle\Job\Status;
+use Bnza\JobManagerBundle\Runnable\Job\JobInfo;
+use Bnza\JobManagerBundle\Runnable\Status;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 use Bnza\JobManagerBundle\Command\JobInfoCommand;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -139,7 +139,7 @@ class JobInfoCommandTest extends KernelTestCase
 
         $commandTester = $this->executeCommandTester($jobCommand, ['job_id' => $id]);
         $output = $commandTester->getDisplay();
-        $this->assertContains('Job: '.$id, $output);
+        $this->assertContains('Runnable: '.$id, $output);
         $this->assertContains('Name: '.JobInfoCommand::getDefaultName(), $output);
     }
 

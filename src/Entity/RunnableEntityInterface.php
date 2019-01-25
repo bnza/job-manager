@@ -9,7 +9,7 @@
 
 namespace Bnza\JobManagerBundle\Entity;
 
-use Bnza\JobManagerBundle\Job\Status;
+use Bnza\JobManagerBundle\Runnable\Status;
 
 interface RunnableEntityInterface
 {
