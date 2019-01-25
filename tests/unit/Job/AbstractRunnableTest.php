@@ -12,11 +12,11 @@ namespace Bnza\JobManagerBundle\Tests\Job;
 use Bnza\JobManagerBundle\Entity\TmpFS\JobEntity;
 use Bnza\JobManagerBundle\Job\AbstractRunnable;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
-use Bnza\JobManagerBundle\Tests\UtilTrait;
+use Bnza\JobManagerBundle\Tests\UtilsTrait;
 
 class AbstractRunnableTest extends \PHPUnit\Framework\TestCase
 {
-    use UtilTrait;
+    use UtilsTrait;
 
     public function getAbstractRunnableMock($methods = [])
     {

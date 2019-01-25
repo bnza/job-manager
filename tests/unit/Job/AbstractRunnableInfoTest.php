@@ -14,11 +14,11 @@ use Bnza\JobManagerBundle\Entity\TmpFS\JobEntity;
 use Bnza\JobManagerBundle\Entity\TmpFS\TaskEntity;
 use Bnza\JobManagerBundle\Job\AbstractRunnableInfo;
 use Bnza\JobManagerBundle\ObjectManager\TmpFS\ObjectManager;
-use Bnza\JobManagerBundle\Tests\UtilTrait;
+use Bnza\JobManagerBundle\Tests\UtilsTrait;
 
 class AbstractRunnableInfoTest extends \PHPUnit\Framework\TestCase
 {
-    use UtilTrait;
+    use UtilsTrait;
 
     private $jobId = 'ae4f281df5a5d0ff3cad6371f76d5c29b6d953ec';
     private $taskNum = 83;

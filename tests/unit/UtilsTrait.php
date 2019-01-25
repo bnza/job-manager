@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2018.
+ * Copyright (c) 2019
  *
  * Author: Pietro Baldassarri
  *
@@ -11,13 +11,26 @@ namespace Bnza\JobManagerBundle\Tests;
 
 use Doctrine\Common\Inflector\Inflector;
 use Bnza\JobManagerBundle\Entity\RunnableEntityInterface;
+use Bnza\JobManagerBundle\Task\FileSystem\FileSystemTrait;
 
-trait UtilTrait
+trait UtilsTrait
 {
+    use FileSystemTrait;
+
     /**
      * @var Inflector
      */
     private $inflector;
+
+    /**
+     * @var string
+     */
+    private $originDir;
+
+    /**
+     * @var string
+     */
+    private $targetDir;
 
     /**
      * @return Inflector
@@ -75,5 +88,58 @@ trait UtilTrait
         $method->setAccessible(true);
 
         return $method;
+    }
+
+    public function setUpTestDirectories()
+    {
+        $this->originDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'test-origin-dir';
+        $this->targetDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'test-target-dir';
+        foreach ([$this->originDir, $this->targetDir] as $dir) {
+            if (file_exists($dir)) {
+                $this->getFileSystem()->remove($dir);
+            }
+            \mkdir($dir);
+        }
+    }
+
+    public function tearDownTestDirectories()
+    {
+        foreach ([$this->originDir, $this->targetDir] as $dir) {
+            if (file_exists($dir)) {
+                $this->getFileSystem()->remove($dir);
+            }
+        }
+    }
+
+    public function assertTestDirectoriesAreEmpty()
+    {
+        foreach ([$this->originDir, $this->targetDir] as $dir) {
+            $this->fileExists($dir);
+            $this->assertEquals(0, count(glob("$dir/*")));
+        }
+    }
+
+    public function getAssetsDir(): string
+    {
+        $dir = __DIR__;
+        $path = realpath($dir.'/../assets/');
+        return $path;
+    }
+
+    protected function copyZipFromAssetsToOriginDir(string $basename): string
+    {
+        $destination = $this->originDir.DIRECTORY_SEPARATOR.$basename;
+        \copy(
+            \implode(
+                DIRECTORY_SEPARATOR,
+                [
+                    $this->getAssetsDir(),
+                    'zip',
+                    $basename
+                ]
+            ),
+            $destination
+        );
+        return $destination;
     }
 }

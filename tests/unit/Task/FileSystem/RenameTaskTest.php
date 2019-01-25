@@ -9,24 +9,14 @@
 
 namespace Bnza\JobManagerBundle\Tests\Task\FileSystem;
 
-use Bnza\JobManagerBundle\Task\FileSystem\FileSystemTrait;
 use Bnza\JobManagerBundle\Task\FileSystem\RenameTask;
 use Bnza\JobManagerBundle\Tests\Task\MockJobUtilsTrait;
+use Bnza\JobManagerBundle\Tests\UtilsTrait;
 
 class RenameTaskTest extends \PHPUnit\Framework\TestCase
 {
-    use FileSystemTrait;
     use MockJobUtilsTrait;
-
-    /**
-     * @var string
-     */
-    private $originDir;
-
-    /**
-     * @var string
-     */
-    private $targetDir;
+    use UtilsTrait;
 
     /**
      * @var string|string[]
@@ -45,31 +35,17 @@ class RenameTaskTest extends \PHPUnit\Framework\TestCase
 
     public function setUp()
     {
-        $this->originDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'test-origin-dir';
-        $this->targetDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'test-target-dir';
-        foreach ([$this->originDir, $this->targetDir] as $dir) {
-            if (file_exists($dir)) {
-                $this->getFileSystem()->remove($dir);
-            }
-            \mkdir($dir);
-        }
+        $this->setUpTestDirectories();
     }
 
     public function tearDown()
     {
-        foreach ([$this->originDir, $this->targetDir] as $dir) {
-            if (file_exists($dir)) {
-                $this->getFileSystem()->remove($dir);
-            }
-        }
+        $this->tearDownTestDirectories();
     }
 
     public function assertPreConditions()
     {
-        foreach ([$this->originDir, $this->targetDir] as $dir) {
-            $this->fileExists($dir);
-            $this->assertEquals(0, count(glob("$dir/*")));
-        }
+        $this->assertTestDirectoriesAreEmpty();
     }
 
     public function testSingleFileOriginWillBeRenamedToFullPathTarget()
