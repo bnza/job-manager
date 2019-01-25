@@ -116,15 +116,6 @@ trait RunnableTrait
     /**
      * Update the entity with the class specific data.
      */
-//    protected function updateEntity(RunnableEntityInterface $entity): RunnableEntityInterface
-//    {
-//        $entity
-//            ->setClass($this->getClass())
-//            ->setName($this->getName())
-//            ->setStepsNum($this->getStepsNum());
-//
-//        return $entity;
-//    }
     protected function updateEntity(): self
     {
         $entity = $this->getEntity();
@@ -151,4 +142,18 @@ trait RunnableTrait
 
         $this->setCurrentStepNum($num);
     }
+
+    /**
+     * Setup function, just an empty placeholder.
+     * MUST be implemented when needed
+     */
+    protected function configure(): void
+    {}
+
+    /**
+     * Teardown function, just an empty placeholder.
+     * MUST be implemented when needed
+     */
+    protected function terminate(): void
+    {}
 }

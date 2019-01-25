@@ -39,21 +39,7 @@ abstract class AbstractTask implements TaskInterface
         return $this->getEntity()->getNum();
     }
 
-    /**
-     * Setup function, just an empty placeholder.
-     * MUST be implemented when needed
-     */
-    protected function configure(): void
-    {}
-
-    /**
-     * Teardown function, just an empty placeholder.
-     * MUST be implemented when needed
-     */
-    protected function terminate(): void
-    {}
-
-    public function run()
+    public function run(): void
     {
         $dispatcher = $this->getJob()->getDispatcher();
         $dispatcher->dispatch(TaskStartedEvent::NAME, new TaskStartedEvent($this));
@@ -68,7 +54,6 @@ abstract class AbstractTask implements TaskInterface
         }
         $this->terminate();
         $dispatcher->dispatch(TaskEndedEvent::NAME, new TaskEndedEvent($this));
-        return $this->getReturnValue();
     }
 
     /**
@@ -77,14 +62,6 @@ abstract class AbstractTask implements TaskInterface
      */
     public function rollback(): void
     {}
-
-    /**
-     * getReturnValue function, just an empty placeholder.
-     * MUST be implemented when needed
-     */
-    public function getReturnValue()
-    {
-    }
 
     public function getJob(): JobInterface
     {

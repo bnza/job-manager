@@ -12,8 +12,4 @@ namespace Bnza\JobManagerBundle\Runnable\Task;
 use Bnza\JobManagerBundle\Runnable\RunnableInterface;
 
 interface TaskInterface extends RunnableInterface, TaskInfoInterface
-{
-    public function getReturnValue();
-
-    public function run();
-}
+{}

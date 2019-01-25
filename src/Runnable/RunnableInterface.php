@@ -20,4 +20,6 @@ interface RunnableInterface extends RunnableInfoInterface
     public function getSteps(): iterable;
 
     public function rollback(): void;
+
+    public function run(): void;
 }

@@ -50,7 +50,6 @@ class ZipTraitTest extends \PHPUnit\Framework\TestCase
     {
         $trait = $this->getZipTraitMockAndSetZipArchivePath('test1.zip');
         $this->assertEquals(3, $trait->getZipArchiveNumFiles());
-
     }
 
     protected function getZipTraitMockAndSetZipArchivePath(string $basename)

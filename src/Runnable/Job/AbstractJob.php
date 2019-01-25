@@ -72,12 +72,15 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
     {
         $this->running();
         try {
+            $this->configure();
             foreach ($this->getSteps() as $num => $taskData) {
                 $this->runTask($num, $taskData);
             }
         } catch (\Throwable $e) {
             $this->error($e);
-            return;
+            throw $e;
+        } finally {
+            $this->terminate();
         }
         $this->success();
     }
@@ -92,27 +95,48 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
     /**
      * Initializes a new TaskInterface instance using $taskData array which is in the form
      * array(3) {
-     *  [0]=>string(*) The fully qualified Task class name (MUST implements TaskInterface) (required)
-     *  [1]=>array The Task* subclass arguments, the AbstractTask ones are provided by the function (optional)
-     *  [2]=>string The name of the function used for set task's run() return value in the current job
+     *  [class]=>string(*) The fully qualified Task class name (MUST implements TaskInterface) (required)
+     *  [arguments]=>array The Task* subclass arguments, the AbstractTask ones are provided by the function (optional)
+     *  [parameters]=>array Call the provided Task* setter methods with the relative Job* getter methods. It will called before Task*::configure() (optional)
+     *  [setters]=>string Call the provided Job* setter methods with the relative Task* getter methods. It will called after Task*::terminate() (optional)
      *}.
      *
-     * @param int   $num
+     * e.g.
+     *  [
+     *      'class' => DummyTask,
+     *      'arguments' => [ 'some value', $this->getArgument2 ],
+     *      'parameters' => [
+     *          ['setTaskParameter1', 'some parameter'],
+     *          ['setTaskParameter1', 'getJobParameter1']
+     *      ],
+     *      'setters' => [
+     *          ['setJobParameter1', 'some parameter'],
+     *          ['setJobParameter1', 'getTaskParameter1']
+     *      ]
+     *
+     *  ]
+     * @param int $num
      * @param array $taskData
      *
      * @return AbstractTask
      */
     protected function initTask(int $num, array $taskData): AbstractTask
     {
-        $class = $taskData[0];
+        if (!$class = $taskData['class']) {
+            throw new \InvalidArgumentException("Task class must be provided");
+        }
+
+        if (!\is_string($class)) {
+            throw new \InvalidArgumentException("Task class must be a string");
+        }
+
         if (in_array(AbstractTask::class, \class_parents($class))) {
             $arguments = [];
-            if (isset($taskData[1])) {
-                if (\is_array($taskData[1]))
-                {
-                    $arguments = $taskData[1];
+            if (isset($taskData['arguments'])) {
+                if (\is_array($taskData['arguments'])) {
+                    $arguments = $taskData['arguments'];
                 } else {
-                    $arguments[] = $taskData[1];
+                    $arguments[] = $taskData['arguments'];
                 }
             }
             $this->setCurrentStepNum($num);
@@ -123,6 +147,50 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
         }
         throw new \InvalidArgumentException("Task class must implement TaskInterface: \"$class\" does not");
     }
+
+    protected function setJobParameters(AbstractTask $task, array $taskData)
+    {
+        if (isset($taskData['setters'])) {
+            foreach ($taskData['setters'] as $setter) {
+                $argument = $setter[1];
+                $method = $setter[0];
+                if (\is_callable($argument)) {
+                    $argument = $argument();
+                } else if (\is_string($argument) && \method_exists($task, $argument)) {
+                    $argument = $task->$argument();
+                }
+
+                if (\is_callable($method)) {
+                    \call_user_func($method, $argument);
+                } else if (\is_string($method) && \method_exists($this, $method)) {
+                    $this->$method($argument);
+                } else {
+                    throw new \InvalidArgumentException("Invalid setter provided: " . gettype($method));
+                }
+            }
+        }
+    }
+
+    protected function setTaskParameters(AbstractTask $task, array $taskData)
+    {
+        if (isset($taskData['parameters'])) {
+            foreach ($taskData['parameters'] as $parameter) {
+                $argument = $parameter[1];
+                $method = $parameter[0];
+                if (\is_callable($argument)) {
+                    $argument = $argument();
+                }
+                if (\is_callable($method)) {
+                    \call_user_func($method, $argument);
+                } else if (\is_string($method) && \method_exists($task, $method)) {
+                    $task->$method($argument);
+                } else {
+                    throw new \InvalidArgumentException("Invalid provided: " . gettype($method));
+                }
+            }
+        }
+    }
+
 
     protected function createTask(string $class, $num, $arguments): AbstractTask
     {
@@ -155,10 +223,9 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
     protected function runTask(int $num, array $taskData)
     {
         $task = $this->initTask($num, $taskData);
-        $returnValue = $task->run();
-        if (isset($taskData[2])) {
-            call_user_func([$this, $taskData[2]], $returnValue);
-        }
+        $this->setTaskParameters($task, $taskData);
+        $task->run();
+        $this->setJobParameters($task, $taskData);
     }
 
     public function getTask(int $num): TaskInfoInterface
