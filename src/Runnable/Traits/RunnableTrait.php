@@ -96,7 +96,7 @@ trait RunnableTrait
      */
     public function getName(): string
     {
-        throw new \LogicException('You must must override this method in concrete class');
+        throw new \LogicException('You must must override "getName" method in concrete class');
     }
 
     /**

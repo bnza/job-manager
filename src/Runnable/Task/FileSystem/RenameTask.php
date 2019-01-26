@@ -49,10 +49,7 @@ class RenameTask extends AbstractTask
         }
         $generator = function () use ($origins, $overwrite){
             foreach ($origins as $origin) {
-                yield [
-                    [$this, 'rename'],
-                    [$origin, $this->getTarget($origin), $overwrite],
-                ];
+                yield [$origin, $this->getTarget($origin), $overwrite];
             }
         };
 
@@ -152,5 +149,10 @@ class RenameTask extends AbstractTask
     public function isOverwrite(): bool
     {
         return $this->overwrite;
+    }
+
+    protected function executeStep(array $arguments): void
+    {
+        $this->rename(...$arguments);
     }
 }

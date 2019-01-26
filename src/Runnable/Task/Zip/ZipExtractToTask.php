@@ -80,16 +80,6 @@ class ZipExtractToTask extends AbstractTask
         throw new \InvalidArgumentException("Entries must be a string or an array: ".gettype($entries). " given");
     }
 
-    public function configure(): void
-    {
-        $this->openZipArchive();
-    }
-
-    protected function terminate(): void
-    {
-        $this->closeZipArchive();
-    }
-
     public function getSteps(): iterable
     {
         $destination = $this->getDestination();
@@ -97,10 +87,7 @@ class ZipExtractToTask extends AbstractTask
             $generator = function ($destination) {
                 $entries = $this->getEntries();
                 foreach ($entries as $entry) {
-                    yield [
-                        [$this, 'zipArchiveSingleExtractTo'],
-                        [$destination, $entry],
-                    ];
+                    yield [$destination, $entry];
                 }
             };
         } else {
@@ -109,13 +96,16 @@ class ZipExtractToTask extends AbstractTask
                 $zip = $this->openZipArchive();
                 for($i = 0; $i < $num; $i++) {
                     $entry = $zip->getNameIndex($i);
-                    yield [
-                        [$this, 'zipArchiveSingleExtractTo'],
-                        [$destination, $entry],
-                    ];
+                    yield [$destination, $entry];
                 }
+                $this->closeZipArchive();
             };
         }
         return $generator($destination);
+    }
+
+    protected function executeStep(array $arguments): void
+    {
+        $this->zipArchiveSingleExtractTo(...$arguments);
     }
 }

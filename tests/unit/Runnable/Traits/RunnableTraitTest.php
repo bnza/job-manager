@@ -117,7 +117,7 @@ class RunnableTraitTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @expectedException \LogicException
-     * @expectedExceptionMessage You must must override this method in concrete class
+     * @expectedExceptionMessage You must must override "getName" method in concrete class
      */
     public function testGetNameFunctionThrowsException()
     {

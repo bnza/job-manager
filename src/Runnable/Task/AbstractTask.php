@@ -27,6 +27,11 @@ abstract class AbstractTask implements TaskInterface
      */
     protected $job;
 
+    /**
+     * @var int
+     */
+    protected $stepInterval = 1;
+
     public function __construct(ObjectManagerInterface $om, JobInterface $job, int $num)
     {
         $this->job = $job;
@@ -44,13 +49,32 @@ abstract class AbstractTask implements TaskInterface
         $dispatcher = $this->getJob()->getDispatcher();
         $dispatcher->dispatch(TaskStartedEvent::NAME, new TaskStartedEvent($this));
         $this->configure();
+        $stepInterval = $this->getStepInterval();
+        /**
+         * Check whether TaskStep*Event would be dispatched.
+         * @param int $i
+         * @return bool
+         */
+        $dispatchStep = function (int $i) use ($stepInterval) {
+          if ($stepInterval === 1) {
+              return true;
+          } else if ($stepInterval === 0) {
+              return false;
+          } else {
+              return !(bool) ($i % $stepInterval);
+          }
+        };
         $stepStartedEvent = new TaskStepStartedEvent($this);
         $stepEndedEvent = new TaskStepEndedEvent($this);
-        foreach ($this->getSteps() as $step) {
-            $dispatcher->dispatch(TaskStepStartedEvent::NAME, $stepStartedEvent);
-            call_user_func_array($step[0], $step[1]);
+        foreach ($this->getSteps() as $i => $arguments) {
+            if ($doDispatchStep = $dispatchStep($i)) {
+                $dispatcher->dispatch(TaskStepStartedEvent::NAME, $stepStartedEvent);
+            }
+            $this->executeStep($arguments);
             $this->next();
-            $dispatcher->dispatch(TaskStepEndedEvent::NAME, $stepEndedEvent);
+            if ($doDispatchStep) {
+                $dispatcher->dispatch(TaskStepEndedEvent::NAME, $stepEndedEvent);
+            }
         }
         $this->terminate();
         $dispatcher->dispatch(TaskEndedEvent::NAME, new TaskEndedEvent($this));
@@ -67,4 +91,26 @@ abstract class AbstractTask implements TaskInterface
     {
         return $this->job;
     }
+
+    /**
+     * @return int
+     */
+    public function getStepInterval(): int
+    {
+        return $this->stepInterval;
+    }
+
+    /**
+     * @param int $stepInterval
+     */
+    public function setStepInterval(int $stepInterval): void
+    {
+        $this->stepInterval = $stepInterval;
+    }
+
+    protected function executeStep(array $arguments): void
+    {
+        throw new \LogicException('You must must override "executeStep" method in concrete class');
+    }
+
 }

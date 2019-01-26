@@ -9,30 +9,28 @@
 
 namespace Bnza\JobManagerBundle\Tests\Runnable\Task;
 
-use Bnza\JobManagerBundle\Runnable\Job\JobInterface;
+use Bnza\JobManagerBundle\Event\TaskStepStartedEvent;
+use Bnza\JobManagerBundle\Event\TaskStepEndedEvent;
 use Bnza\JobManagerBundle\Runnable\Task\AbstractTask;
-use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcher;
-
+use Bnza\JobManagerBundle\Tests\MockUtilsTrait;
 class AbstractTaskTest extends \PHPUnit\Framework\TestCase
 {
-    public function testRun()
+    use MockUtilsTrait;
+
+
+    public function testMethodRunWillCallExpectedMethods()
     {
-        $mockDispatcher = $this->createMock(EventDispatcher::class);
-        $mockJob = $this->createMock(JobInterface::class);
 
-        $mockJob
+        $this->getMockDispatcher();
+        $this->getMockJob();
+
+        $this->mockJob
             ->method('getDispatcher')
-            ->willReturn($mockDispatcher);
+            ->willReturn($this->mockDispatcher);
 
-        $mockTask = $this->getMockForAbstractClass(
+        $mockTask = $this->getMockTask(
             AbstractTask::class,
-            [],
-            '',
-            false,
-            true,
-            true,
-            ['configure', 'terminate', 'getSteps', 'next', 'mockCallable', 'getJob']
+            ['configure', 'terminate', 'getSteps', 'next', 'executeStep', 'getJob']
         );
 
         $mockTask->expects($this->once())
@@ -45,52 +43,141 @@ class AbstractTaskTest extends \PHPUnit\Framework\TestCase
             ->method('next');
 
         $mockTask->method('getJob')
-            ->willReturn($mockJob);
+            ->willReturn($this->mockJob);
 
         $mockTask->expects($this->once())
-            ->method('mockCallable')
+            ->method('executeStep')
             ->with(
-                $this->equalTo('arg0'),
-                $this->equalTo('arg1')
+                $this->equalTo(['arg0', 'arg1'])
             );
 
         $mockTask
             ->method('getSteps')
-            ->willReturn([
-                [
-                    [$mockTask, 'mockCallable'],
-                    ['arg0', 'arg1'],
-                ],
-            ]);
+            ->willReturn([['arg0', 'arg1']]);
 
         $mockTask->run();
     }
 
-    public function testConstructor()
+    public function testMethodSetStepIntervalWillSetStepInterval()
     {
-        $num = (int) rand(0, 100);
+        $interval = (int) mt_rand(0, 100);
+        $mockTask = $this->getMockTask(AbstractTask::class);
+        $this->assertEquals(1, $mockTask->getStepInterval());
+        $mockTask->setStepInterval($interval);
+        $this->assertEquals($interval, $mockTask->getStepInterval());
+    }
+
+    /**
+     * @expectedException \LogicException
+     * @expectedExceptionMessage You must must override "executeStep" method in concrete class
+     */
+    public function testMethodExecuteStepWillThrowsException()
+    {
+        $this->getMockDispatcher();
+        $this->getMockJob();
+
+        $this->mockJob
+            ->method('getDispatcher')
+            ->willReturn($this->mockDispatcher);
+
+        $mockTask = $this->getMockTask(
+            AbstractTask::class,
+            ['getSteps', 'next', 'getJob']
+        );
+
+        $mockTask->method('getJob')->willReturn($this->mockJob);
+        $mockTask->method('getSteps')->willReturn([['arg0']]);
+        $mockTask->run();
+    }
+
+    /**
+     * @param int $interval
+     * @param int $expected
+     * @testWith    [0,0]
+     *              [1,33]
+     *              [3,11]
+     *              [10,4]
+     *              [11,3]
+     */
+    public function testMethodRunWillDispatchDependingOnStepInterval(int $interval, int $expected)
+    {
+        $this->getMockDispatcher();
+
+        $this->mockDispatcher
+            ->expects($spy = $this->any())
+            ->method('dispatch');
+
+        $this->getMockJob();
+
+        $this->mockJob
+            ->method('getDispatcher')
+            ->willReturn($this->mockDispatcher);
+
+        $mockTask = $this->getMockTask(
+            AbstractTask::class,
+            ['getSteps', 'next', 'executeStep', 'getJob', 'getStepInterval']
+        );
+
+        $mockTask->method('getJob')
+            ->willReturn($this->mockJob);
+
+        $mockTask->method('getStepInterval')
+            ->willReturn($interval);
+
+        $generator = function ($num) {
+            for ($i = 0; $i < $num; $i++) {
+                yield [$i];
+            }
+        };
+
+        $mockTask
+            ->method('getSteps')
+            ->willReturn($generator(33));
+
+        $mockTask->run();
+
+        $countStartEvents = 0;
+        $countEndEvents = 0;
+        $invocations = $spy->getInvocations();
+        foreach ($invocations as $invocation) {
+            $parameters = $invocation->getParameters();
+            $eventName = $parameters[0];
+            $event = $parameters[1];
+            if ($eventName === TaskStepStartedEvent::NAME) {
+                $this->assertInstanceOf(TaskStepStartedEvent::class, $event);
+                ++$countStartEvents;
+            } elseif ($eventName === TaskStepEndedEvent::NAME) {
+                $this->assertInstanceOf(TaskStepEndedEvent::class, $event);
+                ++$countEndEvents;
+            }
+        }
+        $this->assertEquals($expected, $countStartEvents);
+        $this->assertEquals($expected, $countEndEvents);
+    }
+
+    public function testConstructorWillSetTaskNum()
+    {
+        $num = (int)rand(0, 100);
         $jobId = sha1(microtime());
-        $mockOm = $this->createMock(ObjectManagerInterface::class);
-        $mockJob = $this->createMock(JobInterface::class);
-        $mockJob
+
+        $this->getMockObjectManager();
+        $this->getMockJob();
+
+        $this->mockJob
             ->method('getId')
             ->willReturn($jobId);
-        $mockTask = $this->getMockForAbstractClass(
+
+        $mockTask = $this->getMockTask(
             AbstractTask::class,
-            [],
-            '',
-            false,
-            true,
-            true,
             ['getName']
         );
+
         $mockTask
             ->method('getName')
             ->willReturn('Dummy task name');
 
-        $reflectedClass = new \ReflectionClass(AbstractTask::class);
-        $constructor = $reflectedClass->getConstructor();
-        $constructor->invokeArgs($mockTask, [$mockOm, $mockJob, $num]);
+        $this->invokeConstructor(AbstractTask::class, $mockTask, [$this->mockOm, $this->mockJob, $num]);
+
         $this->assertEquals($num, $mockTask->getNum());
     }
 }
