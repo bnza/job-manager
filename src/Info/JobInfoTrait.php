@@ -7,12 +7,10 @@
  * For full license information see the README.md file
  */
 
-namespace Bnza\JobManagerBundle\Runner\Job\Traits;
+namespace Bnza\JobManagerBundle\Info;
 
 use Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException;
-use Bnza\JobManagerBundle\Runner\Task\TaskInfoInterface;
 use Bnza\JobManagerBundle\Runner\Task\AbstractTask;
-use Bnza\JobManagerBundle\Runner\Task\TaskInfo;
 
 trait JobInfoTrait
 {

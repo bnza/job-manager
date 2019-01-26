@@ -10,6 +10,7 @@
 namespace Bnza\JobManagerBundle\Runner\Task;
 
 use Bnza\JobManagerBundle\Runner\RunnableInterface;
+use Bnza\JobManagerBundle\Info\TaskInfoInterface;
 
 interface TaskInterface extends RunnableInterface, TaskInfoInterface
 {

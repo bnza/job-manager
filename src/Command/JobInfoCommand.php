@@ -11,7 +11,7 @@ namespace Bnza\JobManagerBundle\Command;
 
 use Bnza\JobManagerBundle\Entity\JobEntityInterface;
 use Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException;
-use Bnza\JobManagerBundle\Runner\Job\JobInfo;
+use Bnza\JobManagerBundle\Info\JobInfo;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;

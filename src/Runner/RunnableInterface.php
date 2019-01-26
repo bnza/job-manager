@@ -9,11 +9,13 @@
 
 namespace Bnza\JobManagerBundle\Runner;
 
-interface RunnableInterface extends RunnableInfoInterface
+use Bnza\JobManagerBundle\Info\InfoInterface;
+
+interface RunnableInterface extends InfoInterface
 {
     /**
      * @param string $prop
-     * @return RunnableInterface
+     * @return Interface
      */
     public function persist(string $prop = '');
 

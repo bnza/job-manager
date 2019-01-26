@@ -7,18 +7,16 @@
  * For full license information see the README.md file
  */
 
-namespace Bnza\JobManagerBundle\Runner\Job;
+namespace Bnza\JobManagerBundle\Info;
 
 use Bnza\JobManagerBundle\Entity\JobEntityInterface;
 use Bnza\JobManagerBundle\Exception\JobManagerCancelledJobException;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
-use Bnza\JobManagerBundle\Runner\Traits\RunnableInfoTrait;
-use Bnza\JobManagerBundle\Runner\Task\TaskInfo;
 
 class JobInfo implements JobInfoInterface
 {
-    use RunnableInfoTrait;
-    use Traits\JobInfoTrait;
+    use InfoTrait;
+    use JobInfoTrait;
 
     /**
      * @var TaskInfo[]

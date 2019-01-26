@@ -11,7 +11,7 @@ namespace Bnza\JobManagerBundle\Tests\Runner\Task;
 
 use Bnza\JobManagerBundle\Entity\TmpFS\TaskEntity;
 use Bnza\JobManagerBundle\ObjectManager\TmpFS\ObjectManager;
-use Bnza\JobManagerBundle\Runner\Task\TaskInfo;
+use Bnza\JobManagerBundle\Info\TaskInfo;
 use Bnza\JobManagerBundle\Entity\RunnableEntityInterface;
 
 class TaskInfoTest extends \PHPUnit\Framework\TestCase

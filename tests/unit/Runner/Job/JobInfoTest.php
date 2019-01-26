@@ -12,8 +12,8 @@ namespace Bnza\JobManagerBundle\Tests\Runner\Job;
 use Bnza\JobManagerBundle\Entity\TmpFS\TaskEntity;
 use Bnza\JobManagerBundle\Exception\JobManagerCancelledJobException;
 use Bnza\JobManagerBundle\ObjectManager\TmpFS\ObjectManager;
-use Bnza\JobManagerBundle\Runner\Job\JobInfo;
-use Bnza\JobManagerBundle\Runner\Task\TaskInfo;
+use Bnza\JobManagerBundle\Info\JobInfo;
+use Bnza\JobManagerBundle\Info\TaskInfo;
 use Bnza\JobManagerBundle\Entity\RunnableEntityInterface;
 use Bnza\JobManagerBundle\Entity\TmpFS\JobEntity;
 

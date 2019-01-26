@@ -10,10 +10,11 @@
 namespace Bnza\JobManagerBundle\Runner\Traits;
 
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
+use Bnza\JobManagerBundle\Info\InfoTrait;
 
 trait RunnableTrait
 {
-    use RunnableInfoTrait;
+    use InfoTrait;
 
     /**
      * @var int

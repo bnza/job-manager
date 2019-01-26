@@ -7,12 +7,12 @@
  * For full license information see the README.md file
  */
 
-namespace Bnza\JobManagerBundle\Tests\Runner\Traits;
+namespace Bnza\JobManagerBundle\Tests\Info;
 
 use Bnza\JobManagerBundle\Entity\RunnableEntityInterface;
 use Bnza\JobManagerBundle\Entity\TmpFS\JobEntity;
 use Bnza\JobManagerBundle\Entity\TmpFS\TaskEntity;
-use Bnza\JobManagerBundle\Runner\Traits\RunnableInfoTrait;
+use Bnza\JobManagerBundle\Info\InfoTrait;
 use Bnza\JobManagerBundle\ObjectManager\TmpFS\ObjectManager;
 use Bnza\JobManagerBundle\Tests\UtilsTrait;
 
@@ -129,7 +129,7 @@ class RunnableInfoTraitTest extends \PHPUnit\Framework\TestCase
         }
 
         $info = $this->getMockForTrait(
-            RunnableInfoTrait::class,
+            InfoTrait::class,
             [],
             '',
             false,

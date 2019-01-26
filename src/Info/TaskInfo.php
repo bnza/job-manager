@@ -7,15 +7,14 @@
  * For full license information see the README.md file
  */
 
-namespace Bnza\JobManagerBundle\Runner\Task;
+namespace Bnza\JobManagerBundle\Info;
 
 use Bnza\JobManagerBundle\Entity\TaskEntityInterface;
-use Bnza\JobManagerBundle\Runner\Traits\RunnableInfoTrait;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 
 class TaskInfo implements TaskInfoInterface
 {
-    use RunnableInfoTrait;
+    use InfoTrait;
 
     /**
      * @var TaskEntityInterface
@@ -25,13 +24,6 @@ class TaskInfo implements TaskInfoInterface
     public function __construct(ObjectManagerInterface $om, $entity, $jobId = '', $taskNum = -1)
     {
         $this->setUpRunnableInfo($om, $entity, $jobId, $taskNum);
-
-/*        if ($entity instanceof TaskEntityInterface) {
-            $this->entity = $entity;
-            parent::__construct($om);
-        } elseif (is_string($entity)) {
-            parent::__construct($om, $entity, $jobId, $taskNum);
-        }*/
     }
 
     /**

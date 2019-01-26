@@ -7,12 +7,9 @@
  * For full license information see the README.md file
  */
 
-namespace Bnza\JobManagerBundle\Runner\Job;
+namespace Bnza\JobManagerBundle\Info;
 
-use Bnza\JobManagerBundle\Runner\Task\TaskInfoInterface;
-use Bnza\JobManagerBundle\Runner\RunnableInfoInterface;
-
-interface JobInfoInterface extends RunnableInfoInterface
+interface JobInfoInterface extends InfoInterface
 {
     public function getTask(int $num): TaskInfoInterface;
 

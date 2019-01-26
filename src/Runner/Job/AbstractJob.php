@@ -10,8 +10,10 @@
 
 namespace Bnza\JobManagerBundle\Runner\Job;
 
+use Bnza\JobManagerBundle\Info\JobInfoInterface;
+use Bnza\JobManagerBundle\Info\JobInfoTrait;
 use Bnza\JobManagerBundle\Runner\Task\AbstractTask;
-use Bnza\JobManagerBundle\Runner\Task\TaskInfoInterface;
+use Bnza\JobManagerBundle\Info\TaskInfoInterface;
 use Bnza\JobManagerBundle\Event\JobEndedEvent;
 use Bnza\JobManagerBundle\Event\JobStartedEvent;
 use Bnza\JobManagerBundle\Entity\JobEntityInterface;
@@ -24,7 +26,7 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
 {
     use RunnableTrait;
     use Traits\ParameterBagTrait;
-    use Traits\JobInfoTrait;
+    use JobInfoTrait;
 
     /**
      * @var JobEntityInterface

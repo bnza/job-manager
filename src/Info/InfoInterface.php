@@ -1,19 +1,19 @@
 <?php
 /**
- * Copyright (c) 2018.
+ * Copyright (c) 2019
  *
  * Author: Pietro Baldassarri
  *
  * For full license information see the README.md file
  */
 
-namespace Bnza\JobManagerBundle\Runner;
+namespace Bnza\JobManagerBundle\Info;
 
-interface RunnableInfoInterface
+interface InfoInterface
 {
     /**
      * @param string $prop
-     * @return RunnableInfoInterface
+     * @return InfoInterface
      */
     public function refresh(string $prop = '');
 

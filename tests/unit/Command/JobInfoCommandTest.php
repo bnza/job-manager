@@ -12,7 +12,7 @@ namespace Bnza\JobManagerBundle\Tests\Command;
 use Bnza\JobManagerBundle\Entity\JobEntityInterface;
 use Bnza\JobManagerBundle\Entity\TaskEntityInterface;
 use Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException;
-use Bnza\JobManagerBundle\Runner\Job\JobInfo;
+use Bnza\JobManagerBundle\Info\JobInfo;
 use Bnza\JobManagerBundle\Runner\Status;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 use Bnza\JobManagerBundle\Command\JobInfoCommand;

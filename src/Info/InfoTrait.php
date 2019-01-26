@@ -7,13 +7,13 @@
  * For full license information see the README.md file
  */
 
-namespace Bnza\JobManagerBundle\Runner\Traits;
+namespace Bnza\JobManagerBundle\Info;
 
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 use Bnza\JobManagerBundle\Entity\RunnableEntityInterface;
 use Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException;
 
-trait RunnableInfoTrait
+trait InfoTrait
 {
     /**
      * @var ObjectManagerInterface;
@@ -26,7 +26,7 @@ trait RunnableInfoTrait
     protected $entity;
 
 //    /**
-//     * RunnableInfoTrait constructor.
+//     * InfoTrait constructor.
 //     *
 //     * @param ObjectManagerInterface $om
 //     * @param string                 $class

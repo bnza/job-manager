@@ -11,7 +11,7 @@ namespace Bnza\JobManagerBundle\Command;
 
 
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
-use Bnza\JobManagerBundle\Runner\Job\JobInfoInterface;
+use Bnza\JobManagerBundle\Info\JobInfoInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
