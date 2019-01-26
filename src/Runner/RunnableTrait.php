@@ -7,7 +7,7 @@
  * For full license information see the README.md file
  */
 
-namespace Bnza\JobManagerBundle\Runner\Traits;
+namespace Bnza\JobManagerBundle\Runner;
 
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 use Bnza\JobManagerBundle\Info\InfoTrait;

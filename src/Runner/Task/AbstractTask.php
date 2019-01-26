@@ -15,7 +15,7 @@ use Bnza\JobManagerBundle\Event\TaskEndedEvent;
 use Bnza\JobManagerBundle\Event\TaskStepEndedEvent;
 use Bnza\JobManagerBundle\Event\TaskStepStartedEvent;
 use Bnza\JobManagerBundle\Entity\TmpFS\TaskEntity;
-use Bnza\JobManagerBundle\Runner\Traits\RunnableTrait;
+use Bnza\JobManagerBundle\Runner\RunnableTrait;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 
 abstract class AbstractTask implements TaskInterface

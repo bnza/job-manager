@@ -7,9 +7,9 @@
  * For full license information see the README.md file
  */
 
-namespace Bnza\JobManagerBundle\Tests\Runner\Job\Traits;
+namespace Bnza\JobManagerBundle\Tests\Runner\Job;
 
-use Bnza\JobManagerBundle\Runner\Job\Traits\WorkDirTrait;
+use Bnza\JobManagerBundle\Runner\Job\WorkDirTrait;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\ParameterBag;
 

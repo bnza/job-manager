@@ -11,7 +11,7 @@ namespace Bnza\JobManagerBundle\Tests\Runner\Traits;
 
 use Bnza\JobManagerBundle\Entity\RunnableEntityInterface;
 use Bnza\JobManagerBundle\Entity\TmpFS\JobEntity;
-use Bnza\JobManagerBundle\Runner\Traits\RunnableTrait;
+use Bnza\JobManagerBundle\Runner\RunnableTrait;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 use Bnza\JobManagerBundle\Tests\UtilsTrait;
 

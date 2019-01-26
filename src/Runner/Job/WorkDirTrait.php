@@ -7,7 +7,7 @@
  * For full license information see the README.md file
  */
 
-namespace Bnza\JobManagerBundle\Runner\Job\Traits;
+namespace Bnza\JobManagerBundle\Runner\Job;
 
 trait WorkDirTrait
 {

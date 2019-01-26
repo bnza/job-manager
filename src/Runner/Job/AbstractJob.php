@@ -18,14 +18,14 @@ use Bnza\JobManagerBundle\Event\JobEndedEvent;
 use Bnza\JobManagerBundle\Event\JobStartedEvent;
 use Bnza\JobManagerBundle\Entity\JobEntityInterface;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
-use Bnza\JobManagerBundle\Runner\Traits\RunnableTrait;
+use Bnza\JobManagerBundle\Runner\RunnableTrait;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 abstract class AbstractJob implements JobInterface, JobInfoInterface
 {
     use RunnableTrait;
-    use Traits\ParameterBagTrait;
+    use ParameterBagTrait;
     use JobInfoTrait;
 
     /**
