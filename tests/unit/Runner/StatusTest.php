@@ -182,4 +182,29 @@ class StatusTest extends \PHPUnit\Framework\TestCase
     {
         $this->assertFalse($status->isRunning());
     }
+
+    /**
+     * @depends testRun
+     *
+     * @param Status $status
+     *
+     * @return Status
+     */
+    public function testCancel(Status $status)
+    {
+        $status->cancel();
+        $this->assertTrue((bool) ($status->get() & Status::CANCELLED));
+
+        return $status;
+    }
+
+    /**
+     * @depends testCancel
+     *
+     * @param Status $status
+     */
+    public function testIsCancelled(Status $status)
+    {
+        $this->assertTrue($status->isCancelled());
+    }
 }

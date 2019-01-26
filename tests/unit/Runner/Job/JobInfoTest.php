@@ -55,23 +55,13 @@ class JobInfoTest extends \PHPUnit\Framework\TestCase
      */
     public function testCancelSetStatus(JobInfo $info)
     {
+        $this->assertFalse($info->isCancelled());
+
         $info->cancel();
 
-        $this->assertFalse($info->isRunning());
-
-        $this->assertTrue($info->isError());
+        $this->assertTrue($info->isCancelled());
 
         return $info;
-    }
-
-    /**
-     * @depends testCancelSetStatus
-     */
-    public function testCancel(JobInfo $info)
-    {
-        $e = new JobManagerCancelledJobException();
-
-        $this->assertRegExp("/{$e->getMessage()}/", $info->getError());
     }
 
     public function testCancelPersistsEntity()

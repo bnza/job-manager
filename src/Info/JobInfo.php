@@ -53,9 +53,8 @@ class JobInfo implements JobInfoInterface
     {
         $this
             ->getEntity()
-            ->setError(new JobManagerCancelledJobException())
             ->getStatus()
-            ->error();
+            ->cancel();
 
         $this->getObjectManager()->persist($this->getEntity());
     }

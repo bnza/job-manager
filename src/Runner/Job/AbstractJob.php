@@ -10,6 +10,7 @@
 
 namespace Bnza\JobManagerBundle\Runner\Job;
 
+use Bnza\JobManagerBundle\Exception\JobManagerCancelledJobException;
 use Bnza\JobManagerBundle\Info\JobInfoInterface;
 use Bnza\JobManagerBundle\Info\JobInfoTrait;
 use Bnza\JobManagerBundle\Runner\Task\AbstractTask;
@@ -76,6 +77,9 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
         try {
             $this->configure();
             foreach ($this->getSteps() as $num => $taskData) {
+                if ($this->isCancelled()) {
+                    throw new JobManagerCancelledJobException();
+                }
                 $this->runTask($num, $taskData);
             }
         } catch (\Throwable $e) {

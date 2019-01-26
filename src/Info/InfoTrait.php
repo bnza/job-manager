@@ -136,4 +136,9 @@ trait InfoTrait
     {
         return $this->getEntity()->getStatus()->isError();
     }
+
+    public function isCancelled(): bool
+    {
+        return $this->getEntity()->getStatus()->isCancelled();
+    }
 }

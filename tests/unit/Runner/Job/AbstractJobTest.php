@@ -9,6 +9,9 @@
 
 namespace Bnza\JobManagerBundle\Tests\Runner\Job;
 
+use Bnza\JobManagerBundle\Runner\Task\TaskInterface;
+use Bnza\JobManagerBundle\Tests\MockUtilsTrait;
+use Bnza\JobManagerBundle\Exception\JobManagerCancelledJobException;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 use Bnza\JobManagerBundle\Runner\Job\AbstractJob;
 use Bnza\JobManagerBundle\Runner\Task\AbstractTask;
@@ -47,47 +50,34 @@ class DummyTask extends AbstractTask
     }
 }
 
-class DummyNonTask
-{
-}
-
 class AbstractJobTest extends \PHPUnit\Framework\TestCase
 {
+    use MockUtilsTrait;
 
     public function testGetDispatcherWillReturnDispatcher()
     {
-        $context = $this->initAbstractJobMockConstructor();
+        $this->getMockAbstractJobWithConstructor();
 
-
-        $this->assertEquals($context['mockDispatcher'], $context['mockJob']->getDispatcher());
+        $this->assertEquals($this->mockDispatcher, $this->mockJob->getDispatcher());
     }
 
     public function testGetParametersWillReturnParameterBag()
     {
-        $context = $this->initAbstractJobMockConstructor();
+        $this->getMockAbstractJobWithConstructor();
 
-        /**
-         * @var AbstractJob
-         */
-        $mockJob = $context['mockJob'];
-        $this->assertInstanceOf(ParameterBag::class, $mockJob->getParameters());
+        $this->assertInstanceOf(ParameterBag::class, $this->mockJob->getParameters());
     }
 
     public function testMethodSuccessWillSetSuccessStatus()
     {
-        $context = $this->initAbstractJobMockConstructor();
+        $this->getMockAbstractJobWithConstructor();
 
-        $mockJob = $context['mockJob'];
-        $mockEntity = $context['mockEntity'];
-        $mockOm = $context['mockOm'];
-        $mockStatus = $context['mockStatus'];
+        $this->mockJob->method('getSteps')->willReturn([]);
+        $this->mockStatus[0]->expects($this->once())->method('run');
+        $this->mockStatus[0]->expects($this->once())->method('success');
+        $this->mockOm->method('persist')->with($this->mockJobEntity[0], 'status');
 
-        $mockJob->method('getSteps')->willReturn([]);
-        $mockStatus->expects($this->once())->method('run');
-        $mockStatus->expects($this->once())->method('success');
-        $mockOm->method('persist')->with($mockEntity, 'status');
-
-        $mockJob->run();
+        $this->mockJob->run();
     }
 
     /**
@@ -95,14 +85,9 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
      */
     public function testMethodRunCallRunTaskMethodWithRightArguments()
     {
-        $mockJob = $this->getMockForAbstractClass(
+        $mockJob = $this->getMockJob(
             AbstractJob::class,
-            [],
-            '',
-            false,
-            true,
-            true,
-            ['running', 'runTask', 'success', 'getSteps']
+            ['running', 'runTask', 'success', 'getSteps', 'isCancelled']
         );
 
         $mockJob->expects($this->once())
@@ -136,9 +121,9 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
      */
     public function testCreateTaskIsCalledWithRightArguments(array $taskData, array $expectedArgs)
     {
-        $mockJob = $this->initMockJob($taskData, ['createTask']);
+        $this->getMockJobWithGetStepsMockedMethod($taskData, ['createTask']);
 
-        $mockJob->expects($this->once())
+        $this->mockJob->expects($this->once())
             ->method('createTask')
             ->with(
                 $this->equalTo(DummyTask::class),
@@ -146,7 +131,7 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
                 $this->equalTo($expectedArgs)
             );
 
-        $mockJob->run();
+        $this->mockJob->run();
     }
 
     /**
@@ -160,20 +145,11 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
      */
     public function testMethodSetTaskParametersSetTaskParameters(array $taskData, string $mockedTaskSetter, array $expectedArgs)
     {
-
-        $mockTask = $this->getMockForAbstractClass(
-            AbstractTask::class,
-            [],
-            '',
-            false,
-            false,
-            true,
-            [$mockedTaskSetter, 'run', 'success']
-        );
+        $mockTask = $this->getMockTask(AbstractTask::class, [$mockedTaskSetter, 'run', 'success']);
 
         $mockTask->expects($this->once())->method($mockedTaskSetter)->with(...$expectedArgs);
 
-        $mockJob = $this->initMockJob($taskData, ['initTask', 'getDummyParameter']);
+        $mockJob = $this->getMockJobWithGetStepsMockedMethod($taskData, ['initTask', 'getDummyParameter']);
 
         $mockJob->expects($this->once())
             ->method('initTask')
@@ -200,22 +176,15 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
         if ($mockedTaskGetter) {
             $taskMockedMethods[] = $mockedTaskGetter;
         }
-        $mockTask = $this->getMockForAbstractClass(
-            AbstractTask::class,
-            [],
-            '',
-            false,
-            false,
-            true,
-            $taskMockedMethods
-        );
+
+        $mockTask = $this->getMockTask(AbstractTask::class, $taskMockedMethods);
 
         if ($mockedTaskGetter) {
             $mockTask->expects($this->once())->method($mockedTaskGetter)->willReturn($expectedArgs[0]);
             $taskData['setters'][0][] = [$mockTask, $mockedTaskGetter];
         }
 
-        $mockJob = $this->initMockJob($taskData, ['initTask', $mockedJobSetter]);
+        $mockJob = $this->getMockJobWithGetStepsMockedMethod($taskData, ['initTask', $mockedJobSetter]);
 
         $mockJob->expects($this->once())
             ->method('initTask')
@@ -246,19 +215,11 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
             [$par1],
         ];
 
-        $mockTask = $this->getMockForAbstractClass(
-            AbstractTask::class,
-            [],
-            '',
-            false,
-            false,
-            true,
-            [$mockedTaskSetter, 'run', 'success']
-        );
+        $mockTask = $this->getMockTask(AbstractTask::class, [$mockedTaskSetter, 'run', 'success']);
 
         $mockTask->expects($this->once())->method($mockedTaskSetter)->with($par1);
 
-        $mockJob = $this->initMockJob($taskData, ['initTask', 'getDummyParameter'], false);
+        $mockJob = $this->getMockJobWithGetStepsMockedMethod($taskData, ['initTask', 'getDummyParameter'], false);
 
         $taskData['parameters'] = [[$mockedTaskSetter, [$mockJob, 'getDummyParameter']]];
 
@@ -291,7 +252,7 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
      */
     public function testCreateTaskWillCreateTaskInstances(array $taskData, array $expectedArgs)
     {
-        $mockJob = $this->initMockJob($taskData);
+        $mockJob = $this->getMockJobWithGetStepsMockedMethod($taskData);
         $mockJob->run();
         $task = $mockJob->getTask(0);
         $this->assertEquals($expectedArgs[0], $task->prop1);
@@ -304,24 +265,17 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
      */
     public function testInitTaskWithWrongTaskInterfaceImplementationThrowException()
     {
-        $mockEntity = $this->getMockBuilder(JobEntityInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
 
-        $mockStatus = $this->createMock(Status::class);
+        $mockStatus = $this->getMockStatus();
 
-        $mockEntity->method('getStatus')
-            ->willReturn($mockStatus);
+        $mockEntity = $this->getMockJobEntity();
 
-        $mockOm = $this->createMock(ObjectManagerInterface::class);
+        $mockEntity->method('getStatus')->willReturn($mockStatus);
 
-        $mockJob = $this->getMockForAbstractClass(
+        $mockOm = $this->getMockObjectManager();
+
+        $mockJob = $this->getMockJob(
             AbstractJob::class,
-            [],
-            '',
-            false,
-            true,
-            true,
             ['getObjectManager', 'getEntity', 'getSteps', 'getDispatcher', 'error']
         );
 
@@ -336,8 +290,59 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
         $mockJob->expects($this->once())
             ->method('getSteps')
             ->willReturn([
-                ['class' => DummyNonTask::class],
+                ['class' => \ArrayIterator::class],
             ]);
+
+        $mockJob->run();
+    }
+
+    /**
+     * @expectedException \Bnza\JobManagerBundle\Exception\JobManagerCancelledJobException
+     * @expectedExceptionMessage Job cancelled by user input
+     */
+    public function testCancelledJobStatusWillThrowException()
+    {
+        $mockStatus = $this->getMockStatus();
+
+        $mockStatus->method('isCancelled')->will(
+            $this->onConsecutiveCalls(
+                false,
+                true
+            )
+        );
+
+        $mockEntity = $this->getMockJobEntity();
+
+        $mockEntity->method('getStatus')->willReturn($mockStatus);
+
+        $mockOm = $this->getMockObjectManager();
+
+        $mockJob = $this->getMockJob(
+            AbstractJob::class,
+            ['getObjectManager', 'getEntity', 'runTask', 'success', 'running', 'error']
+        );
+
+        $mockJob->expects($this->any())
+            ->method('getObjectManager')
+            ->willReturn($mockOm);
+
+        $mockJob->expects($this->any())
+            ->method('getEntity')
+            ->willReturn($mockEntity);
+
+        $mockJob
+            ->method('getSteps')
+            ->willReturn([
+                [],
+                []
+            ]);
+
+        $mockJob
+            ->expects($this->once())
+            ->method('error')
+            ->with(
+                $this->isInstanceOf(JobManagerCancelledJobException::class)
+            );
 
         $mockJob->run();
     }
@@ -348,20 +353,15 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
      */
     public function testRunTaskExceptionWillCallErrorAndThrowsException()
     {
-        $mockJob = $this->getMockForAbstractClass(
+        $mockJob = $this->getMockJob(
             AbstractJob::class,
-            [],
-            '',
-            false,
-            true,
-            true,
-            ['getSteps', 'runTask', 'error', 'running']
+            ['getSteps', 'runTask', 'error', 'running', 'isCancelled']
         );
 
         $mockJob->expects($this->once())
             ->method('getSteps')
             ->willReturn([
-                ['class' => DummyTask::class],
+                [],
             ]);
 
         $e = new \Exception("Dummy exception");
@@ -383,55 +383,47 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
      */
     public function testRollback()
     {
-        $mockEntity = $this->getMockBuilder(JobEntityInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $mockStatus = $this->getMockStatus();
 
-        $mockStatus = $this->createMock(Status::class);
+        $mockEntity = $this->getMockJobEntity();
 
-        $mockEntity->method('getStatus')
-            ->willReturn($mockStatus);
+        $mockEntity->method('getStatus')->willReturn($mockStatus);
 
-        $mockOm = $this->createMock(ObjectManagerInterface::class);
+        $mockOm = $this->getMockObjectManager();
 
-        $mockTask = $this->createMock(AbstractTask::class);
+        $mockTask = $this->getMockTask(AbstractTask::class, ['run', 'rollback']);
 
-        $mockDispatcher = $this->createMock(EventDispatcher::class);
+        $mockDispatcher = $this->getMockDispatcher();
 
-        $mockJob = $this->getMockForAbstractClass(
+        $mockJob = $this->getMockJob(
             AbstractJob::class,
-            [],
-            '',
-            false,
-            true,
-            true,
             ['getObjectManager', 'getEntity', 'getSteps', 'getTasks', 'initTask', 'getDispatcher']
         );
 
-        $mockJob->expects($this->any())
+        $mockJob
             ->method('getObjectManager')
             ->willReturn($mockOm);
 
-        $mockJob->expects($this->any())
+        $mockJob
             ->method('getEntity')
             ->willReturn($mockEntity);
 
-        $mockJob->expects($this->any())
+        $mockJob
             ->method('getSteps')
             ->willReturn([
                 ['class' => 'TaskClass1'],
                 ['class' => 'TaskClass2'],
             ]);
 
-        $mockJob->expects($this->exactly(2))
+        $mockJob
             ->method('initTask')
             ->willReturn($mockTask);
 
-        $mockJob->expects($this->once())
+        $mockJob
             ->method('getTasks')
             ->willReturn([$mockTask, $mockTask]);
 
-        $mockJob->expects($this->any())
+        $mockJob
             ->method('getDispatcher')
             ->willReturn($mockDispatcher);
 
@@ -452,148 +444,80 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
         $mockJob->run();
     }
 
-    public function initMockJob(array $taskData, array $mockedMethods = [], bool $expectGetSteps = true)
+    public function getMockJobWithGetStepsMockedMethod(array $taskData, array $mockedMethods = [], bool $expectGetSteps = true)
     {
-        $mockEntity = $this->getMockBuilder(JobEntityInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $mockStatus = $this->createMock(Status::class);
-
-        $mockEntity->method('getStatus')
-            ->willReturn($mockStatus);
-
-        $mockOm = $this->createMock(ObjectManagerInterface::class);
-
-        $defaultMockedMethods = ['getObjectManager', 'getEntity', 'getSteps', 'success', 'running'];
+        $defaultMockedMethods = ['getObjectManager', 'getEntity', 'getSteps', 'success', 'running', 'getDispatcher'];
 
         $methods = \array_merge(
             $defaultMockedMethods,
             $mockedMethods
         );
 
-        $mockJob = $this->getMockForAbstractClass(
-            AbstractJob::class,
-            [],
-            '',
-            false,
-            true,
-            true,
-            $methods
-        );
-
-        $mockJob->expects($this->any())
-            ->method('getObjectManager')
-            ->willReturn($mockOm);
-
-        $mockJob->expects($this->any())
-            ->method('getEntity')
-            ->willReturn($mockEntity);
+        $this->getMockAbstractJobWithMockedMethods($methods);
 
         if ($expectGetSteps) {
-            $mockJob->expects($this->once())
+            $this->mockJob->expects($this->once())
                 ->method('getSteps')
                 ->willReturn([
                     $taskData,
                 ]);
         }
 
-        $mockJob->expects($this->once())
+        $this->mockJob->expects($this->once())
             ->method('success');
 
-        return $mockJob;
+        return $this->mockJob;
     }
 
-    public function initAbstractJobMock(
-        Status $mockStatus = null,
-        JobEntityInterface $mockEntity = null,
-        ObjectManagerInterface $mockOm = null,
-        EventDispatcher $mockDispatcher = null,
-        AbstractTask $mockTask = null,
-        AbstractJob $mockJob = null
-    ) {
-        if (!$mockStatus) {
-            $mockStatus = $this->createMock(Status::class);
-        }
-
-        if (!$mockEntity) {
-            $mockEntity = $this->getMockBuilder(JobEntityInterface::class)
-                ->disableOriginalConstructor()
-                ->getMock();
-        }
+    public function getMockAbstractJob(array $jobMockedMethods = [])
+    {
+        $mockStatus = isset($this->mockStatus[0]) ? $this->mockStatus[0] : $this->getMockStatus();
+        $mockEntity = isset($this->mockJobEntity[0]) ? $this->mockJobEntity[0] : $this->getMockJobEntity();
+        $mockOm = $this->mockOm ?: $this->getMockObjectManager();
+        $mockDispatcher = $this->mockDispatcher ?: $this->getMockDispatcher();
 
         $mockEntity->method('getStatus')
             ->willReturn($mockStatus);
 
-        if (!$mockOm) {
-            $mockOm = $this->createMock(ObjectManagerInterface::class);
-        }
+        //['getName', 'getSteps', 'initTask']
+        $defaultJobMockedMethods = ['getName'];
 
-        if (!$mockOm) {
-            $mockOm = $this->createMock(ObjectManagerInterface::class);
-        }
+        $mergedJobMockedMethods = \array_merge(
+            $defaultJobMockedMethods,
+            $jobMockedMethods
+        );
 
-        if (!$mockDispatcher) {
-            $mockDispatcher = $this->createMock(EventDispatcher::class);
-        }
-
-        if (!$mockTask) {
-            $mockTask = $this->createMock(AbstractTask::class);
-        }
-
-        if (!$mockJob) {
-            $mockJob = $this->getMockForAbstractClass(
-                AbstractJob::class,
-                [],
-                '',
-                false,
-                true,
-                true,
-                ['getName', 'getSteps', 'initTask']
-            );
-        }
-
-        return \compact(
-            'mockStatus',
-            'mockEntity',
-            'mockOm',
-            'mockDispatcher',
-            'mockTask',
-            'mockJob'
+        $mockJob = $this->getMockJob(
+            AbstractJob::class,
+            $mergedJobMockedMethods
         );
     }
 
-    public function initAbstractJobMockConstructor(
-        Status $mockStatus = null,
-        JobEntityInterface $mockEntity = null,
-        ObjectManagerInterface $mockOm = null,
-        EventDispatcher $mockDispatcher = null,
-        AbstractTask $mockTask = null,
-        AbstractJob $mockJob = null
-    ) {
-        \extract(
-            $this->initAbstractJobMock(
-                $mockStatus,
-                $mockEntity,
-                $mockOm,
-                $mockDispatcher,
-                $mockTask,
-                $mockJob
-            )
-        );
+    public function getMockAbstractJobWithMockedMethods(array $jobMockedMethods = [])
+    {
+        $this->getMockAbstractJob($jobMockedMethods);
 
-        $reflectedClass = new \ReflectionClass(AbstractJob::class);
-        $constructor = $reflectedClass->getConstructor();
-        $constructor->invokeArgs($mockJob, [$mockOm, $mockDispatcher, $mockEntity]);
+        $this->mockJob->method('getObjectManager')->willReturn($this->mockOm);
+        $this->mockJob->method('getEntity')->willReturn($this->mockJobEntity[0]);
+        $this->mockJob->method('getDispatcher')->willReturn($this->mockDispatcher);
 
-        return \compact(
-            'mockStatus',
-            'mockEntity',
-            'mockOm',
-            'mockDispatcher',
-            'mockTask',
-            'mockJob'
+        return $this->mockJob;
+
+    }
+
+    public function getMockAbstractJobWithConstructor(array $jobMockedMethods = [])
+    {
+        $this->getMockAbstractJob($jobMockedMethods);
+        $this->invokeConstructor(
+            AbstractJob::class,
+            $this->mockJob,
+            [
+                $this->mockOm,
+                $this->mockDispatcher,
+                $this->mockJobEntity[0]
+            ]
         );
+        return $this->mockJob;
     }
 
     public function initTaskDataProvider()

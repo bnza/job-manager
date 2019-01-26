@@ -9,6 +9,7 @@
 
 namespace Bnza\JobManagerBundle\Runner\Task;
 
+use Bnza\JobManagerBundle\Exception\JobManagerCancelledJobException;
 use Bnza\JobManagerBundle\Runner\Job\JobInterface;
 use Bnza\JobManagerBundle\Event\TaskStartedEvent;
 use Bnza\JobManagerBundle\Event\TaskEndedEvent;
@@ -44,6 +45,9 @@ abstract class AbstractTask implements TaskInterface
         return $this->getEntity()->getNum();
     }
 
+    /**
+     * @throws JobManagerCancelledJobException
+     */
     public function run(): void
     {
         $dispatcher = $this->getJob()->getDispatcher();
@@ -69,6 +73,9 @@ abstract class AbstractTask implements TaskInterface
         foreach ($this->getSteps() as $i => $arguments) {
             if ($doDispatchStep = $dispatchStep($i)) {
                 $dispatcher->dispatch(TaskStepStartedEvent::NAME, $stepStartedEvent);
+            }
+            if ($this->isCancelled()) {
+                throw new JobManagerCancelledJobException();
             }
             $this->executeStep($arguments);
             $this->next();

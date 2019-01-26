@@ -13,9 +13,10 @@ use Bnza\JobManagerBundle\Exception\JobManagerException;
 
 class Status
 {
-    const RUNNING = 0b001;
-    const SUCCESS = 0b010;
-    const ERROR = 0b100;
+    const RUNNING = 0b0001;
+    const SUCCESS = 0b0010;
+    const ERROR = 0b0100;
+    const CANCELLED = 0b1000;
 
     private $status;
 
@@ -80,6 +81,18 @@ class Status
     public function isError(): bool
     {
         return (bool) ($this->status & self::ERROR);
+    }
+
+    public function cancel(): Status
+    {
+        $this->status |= self::CANCELLED;
+
+        return $this;
+    }
+
+    public function isCancelled(): bool
+    {
+        return (bool) ($this->status & self::CANCELLED);
     }
 
     public function success(): Status

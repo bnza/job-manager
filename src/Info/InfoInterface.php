@@ -32,4 +32,6 @@ interface InfoInterface
     public function isSuccessful(): bool;
 
     public function isError(): bool;
+
+    public function isCancelled(): bool;
 }

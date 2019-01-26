@@ -30,7 +30,7 @@ class AbstractTaskTest extends \PHPUnit\Framework\TestCase
 
         $mockTask = $this->getMockTask(
             AbstractTask::class,
-            ['configure', 'terminate', 'getSteps', 'next', 'executeStep', 'getJob']
+            ['configure', 'terminate', 'getSteps', 'next', 'executeStep', 'getJob', 'isCancelled']
         );
 
         $mockTask->expects($this->once())
@@ -82,7 +82,7 @@ class AbstractTaskTest extends \PHPUnit\Framework\TestCase
 
         $mockTask = $this->getMockTask(
             AbstractTask::class,
-            ['getSteps', 'next', 'getJob']
+            ['getSteps', 'next', 'getJob', 'isCancelled']
         );
 
         $mockTask->method('getJob')->willReturn($this->mockJob);
@@ -115,7 +115,7 @@ class AbstractTaskTest extends \PHPUnit\Framework\TestCase
 
         $mockTask = $this->getMockTask(
             AbstractTask::class,
-            ['getSteps', 'next', 'executeStep', 'getJob', 'getStepInterval']
+            ['getSteps', 'next', 'executeStep', 'getJob', 'getStepInterval', 'isCancelled']
         );
 
         $mockTask->method('getJob')

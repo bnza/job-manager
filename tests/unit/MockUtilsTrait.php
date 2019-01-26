@@ -25,6 +25,16 @@ trait MockUtilsTrait
     protected $mockJob;
 
     /**
+     * @var MockObject[]|\Bnza\JobManagerBundle\Entity\JobEntityInterface[]
+     */
+    protected $mockJobEntity = [];
+
+    /**
+     * @var MockObject[]|\Bnza\JobManagerBundle\Runner\Status[]
+     */
+    protected $mockStatus = [];
+
+    /**
      * @var MockObject[]|\Bnza\JobManagerBundle\Runner\Task\TaskInterface[]
      */
     protected $mockTasks = [];
@@ -169,8 +179,40 @@ trait MockUtilsTrait
         $index = 0
     ): MockObject
     {
-        $mockTask = $this->mockTasks[$index] = $this->getMockForTypeWithMethods($className, $methods);
-        return $mockTask;
+        $mock = $this->mockTasks[$index] = $this->getMockForTypeWithMethods($className, $methods);
+        return $mock;
+    }
+
+    /**
+     * @param string $className
+     * @param array $methods
+     * @param int $index
+     * @return MockObject|\Bnza\JobManagerBundle\Entity\JobEntityInterface
+     */
+    protected function getMockJobEntity(
+        $className = \Bnza\JobManagerBundle\Entity\JobEntityInterface::class,
+        $methods = [],
+        $index = 0
+    ): MockObject
+    {
+        $mock = $this->mockJobEntity[$index] = $this->getMockForTypeWithMethods($className, $methods);
+        return $mock;
+    }
+
+    /**
+     * @param string $className
+     * @param array $methods
+     * @param int $index
+     * @return MockObject|\Bnza\JobManagerBundle\Runner\Status
+     */
+    protected function getMockStatus(
+        $className = \Bnza\JobManagerBundle\Runner\Status::class,
+        $methods = [],
+        $index = 0
+    ): MockObject
+    {
+        $mock = $this->mockStatus[$index] = $this->getMockForTypeWithMethods($className, $methods);
+        return $mock;
     }
 
     protected function invokeConstructor(string $class, MockObject $object, array $arguments): void
@@ -179,5 +221,7 @@ trait MockUtilsTrait
         $constructor = $rc->getConstructor();
         $constructor->invokeArgs($object, $arguments);
     }
+
+
 
 }

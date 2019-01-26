@@ -15,7 +15,10 @@ class JobManagerCancelledJobException extends JobManagerException
 {
     public function __construct(string $message = '', int $code = 0, Throwable $previous = null)
     {
-        $message = $message ?: 'Runnar cancelled by user input';
-        parent::__construct($message, $code, $previous);
+        $defaultMessage = 'Job cancelled by user input';
+        if ($message) {
+            $defaultMessage .= ": $message";
+        }
+        parent::__construct($defaultMessage, $code, $previous);
     }
 }
