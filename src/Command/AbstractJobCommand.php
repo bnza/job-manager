@@ -11,7 +11,7 @@ namespace Bnza\JobManagerBundle\Command;
 
 
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
-use Bnza\JobManagerBundle\Runnable\Job\JobInfoInterface;
+use Bnza\JobManagerBundle\Runner\Job\JobInfoInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -83,7 +83,7 @@ abstract class AbstractJobCommand extends Command
 
     public function displayJobHeader(OutputInterface $output, JobInfoInterface $info)
     {
-        $output->writeln('Runnable: ' . $info->getId());
+        $output->writeln('Runnar: ' . $info->getId());
         $output->writeln('Name: ' . $info->getName());
     }
 

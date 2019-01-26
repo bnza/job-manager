@@ -18,7 +18,7 @@ namespace Bnza\JobManagerBundle\Tests\Entity\TmpFS;
 
 use Bnza\JobManagerBundle\Entity\TmpFS\JobEntity;
 use Bnza\JobManagerBundle\Entity\TmpFS\TaskEntity;
-use Bnza\JobManagerBundle\Runnable\Status;
+use Bnza\JobManagerBundle\Runner\Status;
 
 class TaskEntityTest extends \PHPUnit\Framework\TestCase
 {
@@ -60,7 +60,7 @@ class TaskEntityTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider wrongJobParameterProvider
      * @expectedException           \InvalidArgumentException
-     * @expectedExceptionMessage    Invalid Runnable parameter: only job ID string or JobEntity instance are permitted
+     * @expectedExceptionMessage    Invalid Runnar parameter: only job ID string or JobEntity instance are permitted
      */
     public function testWrongJobParameterConstructor($job)
     {
@@ -71,7 +71,7 @@ class TaskEntityTest extends \PHPUnit\Framework\TestCase
     {
         return [
             ['Class', self::class],
-            ['Name', 'Runnable\\Task name'],
+            ['Name', 'Runnar\\Task name'],
             ['Num', $this->taskNum],
             ['CurrentStepNum', 2],
             ['StepsNum', 3],

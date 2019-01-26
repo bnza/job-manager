@@ -20,12 +20,12 @@ trait MockUtilsTrait
     protected $mockDispatcher;
 
     /**
-     * @var MockObject|\Bnza\JobManagerBundle\Runnable\Job\JobInterface
+     * @var MockObject|\Bnza\JobManagerBundle\Runner\Job\JobInterface
      */
     protected $mockJob;
 
     /**
-     * @var MockObject[]|\Bnza\JobManagerBundle\Runnable\Task\TaskInterface[]
+     * @var MockObject[]|\Bnza\JobManagerBundle\Runner\Task\TaskInterface[]
      */
     protected $mockTasks = [];
 
@@ -146,10 +146,10 @@ trait MockUtilsTrait
     /**
      * @param string $className
      * @param array $methods
-     * @return MockObject|\Bnza\JobManagerBundle\Runnable\Job\JobInterface
+     * @return MockObject|\Bnza\JobManagerBundle\Runner\Job\JobInterface
      */
     protected function getMockJob(
-        $className = \Bnza\JobManagerBundle\Runnable\Job\JobInterface::class,
+        $className = \Bnza\JobManagerBundle\Runner\Job\JobInterface::class,
         $methods = []
     ): MockObject
     {
@@ -161,10 +161,10 @@ trait MockUtilsTrait
      * @param string $className
      * @param array $methods
      * @param int $index
-     * @return MockObject|\Bnza\JobManagerBundle\Runnable\Task\TaskInterface
+     * @return MockObject|\Bnza\JobManagerBundle\Runner\Task\TaskInterface
      */
     protected function getMockTask(
-        $className = \Bnza\JobManagerBundle\Runnable\Task\TaskInterface::class,
+        $className = \Bnza\JobManagerBundle\Runner\Task\TaskInterface::class,
         $methods = [],
         $index = 0
     ): MockObject

@@ -12,7 +12,7 @@ namespace Bnza\JobManagerBundle\Entity\TmpFS;
 use Bnza\JobManagerBundle\Entity\JobEntityInterface;
 use Bnza\JobManagerBundle\Entity\RunnableEntityInterface;
 use Bnza\JobManagerBundle\Entity\TaskEntityInterface;
-use Bnza\JobManagerBundle\Runnable\Status;
+use Bnza\JobManagerBundle\Runner\Status;
 
 class TaskEntity extends AbstractRunnableEntity implements TaskEntityInterface
 {
@@ -34,7 +34,7 @@ class TaskEntity extends AbstractRunnableEntity implements TaskEntityInterface
             } elseif (is_string($job)) {
                 $this->job = new JobEntity($job);
             } else {
-                throw new \InvalidArgumentException('Invalid Runnable parameter: only job ID string or JobEntity instance are permitted');
+                throw new \InvalidArgumentException('Invalid Runnar parameter: only job ID string or JobEntity instance are permitted');
             }
         }
 

@@ -164,7 +164,7 @@ class ObjectManagerTest extends \PHPUnit\Framework\TestCase
         return [
             ['status', 23],
             ['class', self::class],
-            ['name', 'Runnable name'],
+            ['name', 'Runnar name'],
             ['steps_num', 4],
             ['current_step_num', 3],
         ];

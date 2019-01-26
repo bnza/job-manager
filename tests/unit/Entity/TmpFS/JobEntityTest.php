@@ -11,7 +11,7 @@ namespace Bnza\JobManagerBundle\Tests\Entity\TmpFS;
 
 use Bnza\JobManagerBundle\Entity\TmpFS\JobEntity;
 use Bnza\JobManagerBundle\Entity\TaskEntityInterface;
-use Bnza\JobManagerBundle\Runnable\Status;
+use Bnza\JobManagerBundle\Runner\Status;
 
 class JobEntityTest extends \PHPUnit\Framework\TestCase
 {
@@ -45,7 +45,7 @@ class JobEntityTest extends \PHPUnit\Framework\TestCase
     {
         return [
             ['Class', self::class],
-            ['Name', 'Runnable\\Task name'],
+            ['Name', 'Runnar\\Task name'],
             ['Status', new Status(1)],
             ['CurrentStepNum', 2],
             ['StepsNum', 3],
