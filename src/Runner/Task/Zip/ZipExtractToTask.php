@@ -9,7 +9,6 @@
 
 namespace Bnza\JobManagerBundle\Runner\Task\Zip;
 
-
 use Bnza\JobManagerBundle\Runner\Job\JobInterface;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 use Bnza\JobManagerBundle\Runner\Task\AbstractTask;
@@ -31,6 +30,11 @@ class ZipExtractToTask extends AbstractTask
     public function getName(): string
     {
         return 'bnza:task:zip:extract-to';
+    }
+
+    public function getDefaultDescription(): string
+    {
+        return 'Extracting file[s] from zip';
     }
 
     public function __construct(

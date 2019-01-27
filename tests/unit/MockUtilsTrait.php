@@ -75,7 +75,7 @@ trait MockUtilsTrait
             ->disableOriginalClone()
             ->disableArgumentCloning()
             ->disallowMockingUnknownTypes()
-            ->setMethods($methods)
+            ->setMethods($methods ?: null)
             ->getMock();
     }
 
@@ -220,6 +220,24 @@ trait MockUtilsTrait
         $rc = new \ReflectionClass($class);
         $constructor = $rc->getConstructor();
         $constructor->invokeArgs($object, $arguments);
+    }
+
+    public function getMockTaskAndInvokeConstructor(string $class, array $specificArgs = [], array $baseArgs = [],  array $methods = [], int $index = 0): MockObject
+    {
+        $mockTask = $this->getMockTask($class, $methods, $index);
+
+        if (!isset($baseArgs[0])) {
+            $baseArgs[0] = $this->mockOm ?: $this->getMockObjectManager();
+        }
+        if (!isset($baseArgs[1])) {
+            $baseArgs[1] = $this->mockJob ?: $this->getMockJob();
+        }
+        if (!isset($baseArgs[2])) {
+            $baseArgs[2] = (int) mt_rand(0, 100);
+        }
+
+        $this->invokeConstructor($class, $mockTask, \array_merge($baseArgs, $specificArgs));
+        return $mockTask;
     }
 
 

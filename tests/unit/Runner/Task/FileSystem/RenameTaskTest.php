@@ -10,13 +10,14 @@
 namespace Bnza\JobManagerBundle\Tests\Runner\Task\FileSystem;
 
 use Bnza\JobManagerBundle\Runner\Task\FileSystem\RenameTask;
-use Bnza\JobManagerBundle\Tests\Runner\Task\MockJobUtilsTrait;
+use Bnza\JobManagerBundle\Tests\Runner\Task\CommonTaskTestTrait;
 use Bnza\JobManagerBundle\Tests\UtilsTrait;
 
 class RenameTaskTest extends \PHPUnit\Framework\TestCase
 {
-    use MockJobUtilsTrait;
+
     use UtilsTrait;
+    use CommonTaskTestTrait;
 
     /**
      * @var string|string[]
@@ -58,7 +59,7 @@ class RenameTaskTest extends \PHPUnit\Framework\TestCase
     {
         $origin = $this->getRandomFileName($this->originDir);
         \touch($origin);
-        $mockTask = $this->getMockTaskAndInvokeConstructor(RenameTask::class, [$origin, $this->targetDir], [], ['next']);
+        $mockTask = $this->getMockTaskAndInvokeConstructor(RenameTask::class, [$origin, $this->targetDir], [], ['next', 'isCancelled']);
         $this->assertSingleFileOriginWillBeRenamed($origin, $this->targetDir.DIRECTORY_SEPARATOR.basename($origin), $mockTask);
     }
 
@@ -143,7 +144,7 @@ class RenameTaskTest extends \PHPUnit\Framework\TestCase
         $origin = $this->origin = $this->getRandomFileName($this->originDir);
         $target = $this->target = $this->targetDir.DIRECTORY_SEPARATOR.'target-file';
         \touch($origin);
-        $this->mockTask = $this->getMockTaskAndInvokeConstructor(RenameTask::class, [$origin, $target], [], ['next']);
+        $this->mockTask = $this->getMockTaskAndInvokeConstructor(RenameTask::class, [$origin, $target], [], ['next', 'isCancelled']);
     }
 
     protected function renameMultipleFileOriginToDirectoryTarget()
@@ -155,8 +156,18 @@ class RenameTaskTest extends \PHPUnit\Framework\TestCase
             $this->assertFileExists($origins[$i]);
         }
         $this->origin = $origins;
-        $this->mockTask = $this->getMockTaskAndInvokeConstructor(RenameTask::class, [$origins, $this->targetDir], [], ['next']);
+        $this->mockTask = $this->getMockTaskAndInvokeConstructor(RenameTask::class, [$origins, $this->targetDir], [], ['next', 'isCancelled']);
         $this->mockTask->run();
+    }
+
+    protected function getClassName(): string
+    {
+        return RenameTask::class;
+    }
+
+    protected function getTaskName(): string
+    {
+        return 'bnza:task:filesystem:rename';
     }
 
 }

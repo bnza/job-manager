@@ -48,6 +48,8 @@ class ObjectManager implements ObjectManagerInterface
         'current_step_num',
         'steps_num',
         'error',
+        'description',
+        'message'
     ];
 
     /**
@@ -58,6 +60,8 @@ class ObjectManager implements ObjectManagerInterface
         'steps_num',
         'name',
         'current_step_num',
+        'description',
+        'message'
     ];
 
     public function __construct(string $env = 'dev', string $tempDir = '')

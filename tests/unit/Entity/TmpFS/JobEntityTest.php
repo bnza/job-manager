@@ -45,11 +45,14 @@ class JobEntityTest extends \PHPUnit\Framework\TestCase
     {
         return [
             ['Class', self::class],
-            ['Name', 'Runnar\\Task name'],
+            ['Name', 'Runner\\Task name'],
             ['Status', new Status(1)],
             ['CurrentStepNum', 2],
             ['StepsNum', 3],
             ['Error', 'Bad error'],
+            ['Description', 'Dummy job description'],
+            ['Message', 'Dummy job message']
+
         ];
     }
 

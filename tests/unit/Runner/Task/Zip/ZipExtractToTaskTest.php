@@ -9,14 +9,15 @@
 
 namespace Bnza\JobManagerBundle\Tests\Runner\Task\Zip;
 
+use Bnza\JobManagerBundle\ObjectManager\TmpFS\ObjectManager;
 use Bnza\JobManagerBundle\Runner\Task\Zip\ZipExtractToTask;
-use Bnza\JobManagerBundle\Tests\Runner\Task\MockJobUtilsTrait;
 use Bnza\JobManagerBundle\Tests\UtilsTrait;
+use Bnza\JobManagerBundle\Tests\Runner\Task\CommonTaskTestTrait;
 
 class ZipExtractToTaskTest extends \PHPUnit\Framework\TestCase
 {
     use UtilsTrait;
-    use MockJobUtilsTrait;
+    use CommonTaskTestTrait;
 
     public function setUp()
     {
@@ -43,9 +44,18 @@ class ZipExtractToTaskTest extends \PHPUnit\Framework\TestCase
     public function testZipArchiveWillExtractToDestination()
     {
         $path = $this->copyZipFromAssetsToOriginDir('test1.zip');
-        $mockTask = $this->getMockTaskAndInvokeConstructor(ZipExtractToTask::class, [$path, $this->targetDir], [], ['next']);
+        $mockTask = $this->getMockTaskAndInvokeConstructor(ZipExtractToTask::class, [$path, $this->targetDir], [], ['next', 'isCancelled']);
         $mockTask->run();
         $this->assertEquals(3, $mockTask->getStepsNum());
     }
 
+    protected function getClassName(): string
+    {
+        return ZipExtractToTask::class;
+    }
+
+    protected function getTaskName(): string
+    {
+        return 'bnza:task:zip:extract-to';
+    }
 }

@@ -75,6 +75,8 @@ class TaskEntityTest extends \PHPUnit\Framework\TestCase
             ['Num', $this->taskNum],
             ['CurrentStepNum', 2],
             ['StepsNum', 3],
+            ['Description', 'Dummy job description'],
+            ['Message', 'Dummy job message']
         ];
     }
 

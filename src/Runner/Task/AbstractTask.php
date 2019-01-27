@@ -33,6 +33,13 @@ abstract class AbstractTask implements TaskInterface
      */
     protected $stepInterval = 1;
 
+    /**
+     * @var string
+     */
+    protected $description = '';
+
+    abstract function getDefaultDescription(): string;
+
     public function __construct(ObjectManagerInterface $om, JobInterface $job, int $num)
     {
         $this->job = $job;
@@ -118,6 +125,17 @@ abstract class AbstractTask implements TaskInterface
     protected function executeStep(array $arguments): void
     {
         throw new \LogicException('You must must override "executeStep" method in concrete class');
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description ?: $this->getDefaultDescription();
+    }
+
+    public function setDescription(string $description): void
+    {
+        $this->description = $description;
+        $this->getEntity()->setDescription($description);
     }
 
 }

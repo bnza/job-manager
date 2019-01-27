@@ -25,7 +25,9 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 
 abstract class AbstractJob implements JobInterface, JobInfoInterface
 {
-    use RunnableTrait;
+    use RunnableTrait {
+        isCancelled as protected infoIsCancelled;
+    }
     use ParameterBagTrait;
     use JobInfoTrait;
 
@@ -69,7 +71,6 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
     {
         return $this->tasks;
     }
-
 
     final public function run(): void
     {
@@ -237,5 +238,22 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
     public function getTask(int $num): TaskInfoInterface
     {
         return $this->tasks[$num];
+    }
+
+    /**
+     * Returns the job description.
+     * MUST BE OVERRIDE IN CONCRETE METHOD.
+     *
+     * @return string
+     */
+    public function getDescription(): string
+    {
+        throw new \LogicException('You must must override "getDescription" method in concrete class');
+    }
+
+    public function isCancelled(): bool
+    {
+        $this->refresh('status');
+        return $this->infoIsCancelled();
     }
 }

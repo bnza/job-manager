@@ -33,6 +33,16 @@ abstract class AbstractRunnableEntity implements RunnableEntityInterface
      */
     protected $stepsNum = 0;
 
+    /**
+     * @var string
+     */
+    protected $description = '';
+
+    /**
+     * @var string
+     */
+    protected $message = '';
+
     public function getClass(): string
     {
         return $this->class;
@@ -51,5 +61,25 @@ abstract class AbstractRunnableEntity implements RunnableEntityInterface
     public function getStepsNum(): int
     {
         return $this->stepsNum;
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description)
+    {
+        $this->description = $description;
+    }
+
+    public function getMessage(): string
+    {
+        return $this->message;
+    }
+
+    public function setMessage(string $message)
+    {
+        $this->message = $message;
     }
 }

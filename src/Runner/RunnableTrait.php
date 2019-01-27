@@ -50,21 +50,6 @@ trait RunnableTrait
             ->updateEntity();
     }
 
-//    /**
-//     * RunnableTrait constructor.
-//     *
-//     * @param ObjectManagerInterface  $om
-//     * @param RunnableEntityInterface $entity
-//     *
-//     * @throws \Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException
-//     */
-//    public function __construct(ObjectManagerInterface $om, RunnableEntityInterface $entity)
-//    {
-//        $this->entity = $this->updateEntity($entity);
-//        parent::__construct($om);
-//        $this->persist();
-//    }
-
     /**
      * Persist the entity.
      *
@@ -133,6 +118,15 @@ trait RunnableTrait
         $entity = $this->getEntity();
 
         $entity->setCurrentStepNum($num);
+
+        $this->persist('current_step_num');
+    }
+
+    protected function setMessage(string $message)
+    {
+        $entity = $this->getEntity();
+
+        $entity->setMessage($message);
 
         $this->persist('current_step_num');
     }

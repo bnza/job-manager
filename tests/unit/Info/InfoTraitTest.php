@@ -16,7 +16,7 @@ use Bnza\JobManagerBundle\Info\InfoTrait;
 use Bnza\JobManagerBundle\ObjectManager\TmpFS\ObjectManager;
 use Bnza\JobManagerBundle\Tests\UtilsTrait;
 
-class RunnableInfoTraitTest extends \PHPUnit\Framework\TestCase
+class InfoTraitTest extends \PHPUnit\Framework\TestCase
 {
     use UtilsTrait;
 
@@ -107,6 +107,8 @@ class RunnableInfoTraitTest extends \PHPUnit\Framework\TestCase
             ['name', 'Task name'],
             ['steps_num', 4],
             ['current_step_num', 3],
+            ['description', 'Dummy description'],
+            ['message', 'Dummy message']
         ];
     }
 

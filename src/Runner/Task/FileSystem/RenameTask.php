@@ -37,6 +37,11 @@ class RenameTask extends AbstractTask
         return 'bnza:task:filesystem:rename';
     }
 
+    public function getDefaultDescription(): string
+    {
+        return 'Renaming file[s]';
+    }
+
     /**
      * {@inheritdoc}
      */

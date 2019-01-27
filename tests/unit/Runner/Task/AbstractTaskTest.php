@@ -13,6 +13,8 @@ use Bnza\JobManagerBundle\Event\TaskStepStartedEvent;
 use Bnza\JobManagerBundle\Event\TaskStepEndedEvent;
 use Bnza\JobManagerBundle\Runner\Task\AbstractTask;
 use Bnza\JobManagerBundle\Tests\MockUtilsTrait;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+
 class AbstractTaskTest extends \PHPUnit\Framework\TestCase
 {
     use MockUtilsTrait;
@@ -101,7 +103,7 @@ class AbstractTaskTest extends \PHPUnit\Framework\TestCase
      */
     public function testMethodRunWillDispatchDependingOnStepInterval(int $interval, int $expected)
     {
-        $this->getMockDispatcher();
+        $this->getMockDispatcher(EventDispatcher::class, ['dispatch']);
 
         $this->mockDispatcher
             ->expects($spy = $this->any())

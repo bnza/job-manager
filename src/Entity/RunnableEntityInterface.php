@@ -38,4 +38,12 @@ interface RunnableEntityInterface
     public function setStepsNum($num): self;
 
     public function setCurrentStepNum($num): self;
+
+    public function getDescription(): string;
+
+    public function setDescription(string $description);
+
+    public function getMessage(): string;
+
+    public function setMessage(string $message);
 }

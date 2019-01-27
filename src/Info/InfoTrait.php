@@ -25,28 +25,6 @@ trait InfoTrait
      */
     protected $entity;
 
-//    /**
-//     * InfoTrait constructor.
-//     *
-//     * @param ObjectManagerInterface $om
-//     * @param string                 $class
-//     * @param $jobId
-//     * @param int $taskNum
-//     *
-//     * @throws JobManagerEntityNotFoundException
-//     */
-//    public function __construct(ObjectManagerInterface $om, string $class = '', $jobId = '', $taskNum = -1)
-//    {
-//        $this->om = $om;
-//
-//        if (!$this->entity) {
-//            if (!$class) {
-//                throw new \InvalidArgumentException('Entity class must be set');
-//            }
-//            $this->entity = $this->getObjectManager()->find($class, $jobId, $taskNum);
-//        }
-//    }
-
     /**
      * @return RunnableEntityInterface
      */
@@ -110,6 +88,16 @@ trait InfoTrait
     public function getClass(): string
     {
         return $this->getEntity()->getClass();
+    }
+
+    public function getDescription(): string
+    {
+        return $this->getEntity()->getDescription();
+    }
+
+    public function getMessage(): string
+    {
+        return $this->getEntity()->getMessage();
     }
 
     public function getCurrentStepNum(): int

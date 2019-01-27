@@ -33,6 +33,11 @@ class DummyTask extends AbstractTask
         $this->prop2 = $param2;
     }
 
+    public function getDefaultDescription(): string
+    {
+        return 'DummyTask description';
+    }
+
     public function getName(): string
     {
         return 'DummyTask name';
@@ -70,6 +75,7 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
 
     public function testMethodSuccessWillSetSuccessStatus()
     {
+        $this->getMockStatus(Status::class, ['run', 'success']);
         $this->getMockAbstractJobWithConstructor();
 
         $this->mockJob->method('getSteps')->willReturn([]);
@@ -302,7 +308,7 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
      */
     public function testCancelledJobStatusWillThrowException()
     {
-        $mockStatus = $this->getMockStatus();
+        $mockStatus = $this->getMockStatus(Status::class, ['isCancelled']);
 
         $mockStatus->method('isCancelled')->will(
             $this->onConsecutiveCalls(
@@ -480,7 +486,7 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
             ->willReturn($mockStatus);
 
         //['getName', 'getSteps', 'initTask']
-        $defaultJobMockedMethods = ['getName'];
+        $defaultJobMockedMethods = ['getName', 'getDescription'];
 
         $mergedJobMockedMethods = \array_merge(
             $defaultJobMockedMethods,

@@ -21,6 +21,10 @@ interface InfoInterface
 
     public function getName(): string;
 
+    public function getDescription(): string;
+
+    public function getMessage(): string;
+
     public function getCurrentStepNum(): int;
 
     public function getStepsNum(): int;

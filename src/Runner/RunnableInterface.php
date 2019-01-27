@@ -15,7 +15,7 @@ interface RunnableInterface extends InfoInterface
 {
     /**
      * @param string $prop
-     * @return Interface
+     * @return InfoInterface
      */
     public function persist(string $prop = '');
 
