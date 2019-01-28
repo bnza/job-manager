@@ -30,6 +30,11 @@ trait MockUtilsTrait
     protected $mockJobEntity = [];
 
     /**
+     * @var MockObject[]|\Bnza\JobManagerBundle\Entity\TaskEntityInterface[]
+     */
+    protected $mockTaskEntity = [];
+
+    /**
      * @var MockObject[]|\Bnza\JobManagerBundle\Runner\Status[]
      */
     protected $mockStatus = [];
@@ -191,6 +196,22 @@ trait MockUtilsTrait
      */
     protected function getMockJobEntity(
         $className = \Bnza\JobManagerBundle\Entity\JobEntityInterface::class,
+        $methods = [],
+        $index = 0
+    ): MockObject
+    {
+        $mock = $this->mockJobEntity[$index] = $this->getMockForTypeWithMethods($className, $methods);
+        return $mock;
+    }
+
+    /**
+     * @param string $className
+     * @param array $methods
+     * @param int $index
+     * @return MockObject|\Bnza\JobManagerBundle\Entity\TaskEntityInterface
+     */
+    protected function getMockTaskEntity(
+        $className = \Bnza\JobManagerBundle\Entity\TaskEntityInterface::class,
         $methods = [],
         $index = 0
     ): MockObject

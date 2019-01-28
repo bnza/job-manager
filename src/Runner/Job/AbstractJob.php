@@ -41,7 +41,7 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
      */
     protected $dispatcher;
 
-    public function __construct(ObjectManagerInterface $om, EventDispatcher $dispatcher, $entity, array $parameters = [])
+    public function __construct(ObjectManagerInterface $om, EventDispatcher $dispatcher, $entity = '', array $parameters = [])
     {
         $this->setParameterBag($parameters);
         $this->dispatcher = $dispatcher;

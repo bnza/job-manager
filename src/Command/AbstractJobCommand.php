@@ -10,6 +10,7 @@
 namespace Bnza\JobManagerBundle\Command;
 
 
+use Bnza\JobManagerBundle\Info\TaskInfoInterface;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 use Bnza\JobManagerBundle\Info\JobInfoInterface;
 use Symfony\Component\Console\Command\Command;
@@ -73,18 +74,19 @@ abstract class AbstractJobCommand extends Command
     public function initialize(InputInterface $input, OutputInterface $output)
     {
         if ($output instanceof ConsoleOutput) {
+            $this->sections['header'] = $output->section();
             $this->sections['status'] = $output->section();
             $this->sections['overall'] = $output->section();
         } else {
             $this->output = $output;
         }
-
     }
 
-    public function displayJobHeader(OutputInterface $output, JobInfoInterface $info)
+    public function displayJobHeader(JobInfoInterface $info)
     {
-        $output->writeln('Runnar: ' . $info->getId());
-        $output->writeln('Name: ' . $info->getName());
+        $section = $this->getSection('header');
+        $section->writeln('Runner: ' . $info->getId());
+        $section->writeln(sprintf('%s [%s]', $info->getDescription(), $info->getName()));
     }
 
     public function updateOverallProgress(JobInfoInterface $info)
@@ -114,6 +116,16 @@ abstract class AbstractJobCommand extends Command
             }
             $section->overwrite($message);
         }
+    }
+
+    public function updateJobProgress(TaskInfoInterface $info)
+    {
+        $this->updateOverallProgress($info->getJob());
+    }
+
+    public function updateTaskProgress(TaskInfoInterface $info)
+    {
+
     }
 
     public function updateDisplay(JobInfoInterface $info)

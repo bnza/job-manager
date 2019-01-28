@@ -82,7 +82,7 @@ class JobInfoCommand extends AbstractJobCommand
 
         try {
             $info = $this->getInfo($id);
-            $this->displayJobHeader($output, $info);
+            $this->displayJobHeader($info);
             $this->updateDisplay($info);
         } catch (JobManagerEntityNotFoundException $e) {
             $output->writeln("No job with ID <comment>$id</comment> found");

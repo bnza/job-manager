@@ -38,7 +38,9 @@ abstract class AbstractTask implements TaskInterface
      */
     protected $description = '';
 
-    abstract function getDefaultDescription(): string;
+    abstract public function getDefaultDescription(): string;
+
+    abstract protected function executeStep(array $arguments): void;
 
     public function __construct(ObjectManagerInterface $om, JobInterface $job, int $num)
     {
@@ -122,10 +124,10 @@ abstract class AbstractTask implements TaskInterface
         $this->stepInterval = $stepInterval;
     }
 
-    protected function executeStep(array $arguments): void
+/*    protected function executeStep(array $arguments): void
     {
         throw new \LogicException('You must must override "executeStep" method in concrete class');
-    }
+    }*/
 
     public function getDescription(): string
     {

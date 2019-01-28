@@ -16,41 +16,8 @@ use Bnza\JobManagerBundle\Runner\Job\AbstractJob;
 use Bnza\JobManagerBundle\Runner\Task\AbstractTask;
 use Bnza\JobManagerBundle\Runner\Job\JobInterface;
 use Bnza\JobManagerBundle\Runner\Status;
+use Bnza\JobManagerBundle\Tests\Fixture\Runner\Task\DummyTask1;
 use Symfony\Component\HttpFoundation\ParameterBag;
-
-class DummyTask extends AbstractTask
-{
-    public $prop1;
-    public $prop2;
-
-    public function __construct(ObjectManagerInterface $om, JobInterface $job, int $num, string $param1, int $param2 = 2)
-    {
-        parent::__construct($om, $job, $num);
-        $this->prop1 = $param1;
-        $this->prop2 = $param2;
-    }
-
-    public function getDefaultDescription(): string
-    {
-        return 'DummyTask description';
-    }
-
-    public function getName(): string
-    {
-        return 'DummyTask name';
-    }
-
-    public function getSteps(): iterable
-    {
-        return [
-            [$this, 'runMethod'], ['arg0', 'arg1'],
-        ];
-    }
-
-    public function run(): void
-    {
-    }
-}
 
 class AbstractJobTest extends \PHPUnit\Framework\TestCase
 {
@@ -132,7 +99,7 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
         $this->mockJob->expects($this->once())
             ->method('createTask')
             ->with(
-                $this->equalTo(DummyTask::class),
+                $this->equalTo(DummyTask1::class),
                 $this->equalTo(0),
                 $this->equalTo($expectedArgs)
             );
@@ -217,7 +184,7 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
         $par1 = (int)mt_rand(0, 100);
 
         $taskData = [
-            ['class' => DummyTask::class],
+            ['class' => DummyTask1::class],
             'setDummyParameter',
             [$par1],
         ];
@@ -537,15 +504,15 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
 
         return [
             [
-                ['class' => DummyTask::class, 'arguments' => $arg1],
+                ['class' => DummyTask1::class, 'arguments' => $arg1],
                 [$arg1],
             ],
             [
-                ['class' => DummyTask::class, 'arguments' => [$arg1, $arg2]],
+                ['class' => DummyTask1::class, 'arguments' => [$arg1, $arg2]],
                 [$arg1, $arg2],
             ],
             [
-                ['class' => DummyTask::class, 'arguments' => [['**mockJob**', 'getArgument1']]],
+                ['class' => DummyTask1::class, 'arguments' => [['**mockJob**', 'getArgument1']]],
                 ['Dummy task argument 1'],
             ]
         ];
@@ -558,12 +525,12 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
 
         return [
             [
-                ['class' => DummyTask::class, 'parameters' => [['setDummyParameter', $arg1]]],
+                ['class' => DummyTask1::class, 'parameters' => [['setDummyParameter', $arg1]]],
                 'setDummyParameter',
                 [$arg1],
             ],
             [
-                ['class' => DummyTask::class, 'parameters' => [['setDummyParameter', 'sys_get_temp_dir']]],
+                ['class' => DummyTask1::class, 'parameters' => [['setDummyParameter', 'sys_get_temp_dir']]],
                 'setDummyParameter',
                 [sys_get_temp_dir()],
             ]
@@ -577,32 +544,32 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
 
         return [
             [
-                ['class' => DummyTask::class, 'setters' => [['setDummyParameter', $arg1]]],
+                ['class' => DummyTask1::class, 'setters' => [['setDummyParameter', $arg1]]],
                 '',
                 'setDummyParameter',
                 [$arg1],
             ],
             [
-                ['class' => DummyTask::class, 'setters' => [['setDummyParameter', 'sys_get_temp_dir']]],
+                ['class' => DummyTask1::class, 'setters' => [['setDummyParameter', 'sys_get_temp_dir']]],
                 '',
                 'setDummyParameter',
                 [sys_get_temp_dir()],
             ],
             [
-                ['class' => DummyTask::class, 'setters' => [['setDummyParameter', ['strtoupper', 'a']]]],
+                ['class' => DummyTask1::class, 'setters' => [['setDummyParameter', ['strtoupper', 'a']]]],
                 '',
                 'setDummyParameter',
                 ['A'],
             ],
             [
-                ['class' => DummyTask::class, 'setters' => [['setDummyParameter']]],
+                ['class' => DummyTask1::class, 'setters' => [['setDummyParameter']]],
                 'getDummyParameter',
                 'setDummyParameter',
                 [$arg1],
             ],
             [
                 [
-                    'class' => DummyTask::class,
+                    'class' => DummyTask1::class,
                     'setters' => [
                         [
                             'setDummyParameter',

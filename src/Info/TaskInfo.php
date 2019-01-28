@@ -21,6 +21,11 @@ class TaskInfo implements TaskInfoInterface
      */
     protected $entity;
 
+    /**
+     * @var JobInfoInterface
+     */
+    protected $job;
+
     public function __construct(ObjectManagerInterface $om, $entity, $jobId = '', $taskNum = -1)
     {
         $this->setUpRunnableInfo($om, $entity, $jobId, $taskNum);
@@ -37,5 +42,16 @@ class TaskInfo implements TaskInfoInterface
     public function getNum(): int
     {
         return $this->getEntity()->getNum();
+    }
+
+    /**
+     * @return JobInfoInterface
+     */
+    public function getJob()
+    {
+        if (!$this->job) {
+            $this->job = new JobInfo($this->getObjectManager(), $this->getEntity()->getJob());
+        }
+        return $this->job;
     }
 }

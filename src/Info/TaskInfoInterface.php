@@ -12,4 +12,9 @@ namespace Bnza\JobManagerBundle\Info;
 interface TaskInfoInterface extends InfoInterface
 {
     public function getNum(): int;
+
+    /**
+     * @return JobInfoInterface
+     */
+    public function getJob();
 }

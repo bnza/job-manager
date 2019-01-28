@@ -27,7 +27,7 @@ abstract class AbstractTaskEvent extends Event
     /**
      * @return TaskInterface
      */
-    public function getJob(): TaskInterface
+    public function getTask(): TaskInterface
     {
         return $this->task;
     }

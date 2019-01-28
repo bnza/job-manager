@@ -16,13 +16,14 @@ use Bnza\JobManagerBundle\Info\JobInfo;
 use Bnza\JobManagerBundle\Runner\Status;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 use Bnza\JobManagerBundle\Command\JobInfoCommand;
-use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\Console\Tester\CommandTester;
+
 
 class JobInfoCommandTest extends KernelTestCase
 {
+    use CommandUtilTrait;
+
     public function jobEntityStatusDataProvider()
     {
         return [
@@ -63,55 +64,6 @@ class JobInfoCommandTest extends KernelTestCase
         $reflectedClass->getConstructor()->invokeArgs($command, $arguments);
     }
 
-    public function executeCommandTesterOnMock(Command $mockCommand, array $input = [], array $options = []): CommandTester
-    {
-        $this->invokeCommandConstructor($mockCommand);
-        $defaultInput = [
-            'command' => $mockCommand->getName(),
-        ];
-        // Force ConsoleOutput
-        $defaultOptions = [
-            'capture_stderr_separately' => true,
-        ];
-
-        $input = \array_merge($input, $defaultInput);
-        $options = \array_merge($options, $defaultOptions);
-
-        $kernel = static::createKernel();
-        $application = new Application($kernel);
-        $application->add($mockCommand);
-
-        $command = $application->find($mockCommand->getName());
-        $commandTester = new CommandTester($command);
-        $commandTester->execute($input, $options);
-
-        return $commandTester;
-    }
-
-    public function executeCommandTester(Command $command, array $input = [], array $options = []): CommandTester
-    {
-        $defaultInput = [
-            'command' => $command->getName(),
-        ];
-        // Force ConsoleOutput
-        $defaultOptions = [
-            'capture_stderr_separately' => true,
-        ];
-
-        $input = \array_merge($input, $defaultInput);
-        $options = \array_merge($options, $defaultOptions);
-
-        $kernel = static::createKernel();
-        $application = new Application($kernel);
-        $application->add($command);
-
-        $appCommand = $application->find($command->getName());
-        $commandTester = new CommandTester($appCommand);
-        $commandTester->execute($input, $options);
-
-        return $commandTester;
-    }
-
     public function testJobNotFoundException()
     {
         $id = sha1(microtime());
@@ -133,14 +85,15 @@ class JobInfoCommandTest extends KernelTestCase
         $entity->method('getStatus')->willReturn(new Status(Status::SUCCESS));
         $entity->method('getId')->willReturn($id);
         $entity->method('getName')->willReturn(JobInfoCommand::getDefaultName());
+        $entity->method('getDescription')->willReturn('Dummy job description');
         $om = $this->getObjectManagerMock($entity);
 
         $jobCommand = new JobInfoCommand($om);
 
         $commandTester = $this->executeCommandTester($jobCommand, ['job_id' => $id]);
         $output = $commandTester->getDisplay();
-        $this->assertContains('Runnar: '.$id, $output);
-        $this->assertContains('Name: '.JobInfoCommand::getDefaultName(), $output);
+        $this->assertContains('Runner: '.$id, $output);
+        $this->assertContains('Dummy job description [bnza:job-manager:info]', $output);
     }
 
     /**

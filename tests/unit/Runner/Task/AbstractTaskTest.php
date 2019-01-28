@@ -69,28 +69,28 @@ class AbstractTaskTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($interval, $mockTask->getStepInterval());
     }
 
-    /**
-     * @expectedException \LogicException
-     * @expectedExceptionMessage You must must override "executeStep" method in concrete class
-     */
-    public function testMethodExecuteStepWillThrowsException()
-    {
-        $this->getMockDispatcher();
-        $this->getMockJob();
-
-        $this->mockJob
-            ->method('getDispatcher')
-            ->willReturn($this->mockDispatcher);
-
-        $mockTask = $this->getMockTask(
-            AbstractTask::class,
-            ['getSteps', 'next', 'getJob', 'isCancelled']
-        );
-
-        $mockTask->method('getJob')->willReturn($this->mockJob);
-        $mockTask->method('getSteps')->willReturn([['arg0']]);
-        $mockTask->run();
-    }
+//    /**
+//     * @expectedException \LogicException
+//     * @expectedExceptionMessage You must must override "executeStep" method in concrete class
+//     */
+//    public function testMethodExecuteStepWillThrowsException()
+//    {
+//        $this->getMockDispatcher();
+//        $this->getMockJob();
+//
+//        $this->mockJob
+//            ->method('getDispatcher')
+//            ->willReturn($this->mockDispatcher);
+//
+//        $mockTask = $this->getMockTask(
+//            AbstractTask::class,
+//            ['getSteps', 'next', 'getJob', 'isCancelled']
+//        );
+//
+//        $mockTask->method('getJob')->willReturn($this->mockJob);
+//        $mockTask->method('getSteps')->willReturn([['arg0']]);
+//        $mockTask->run();
+//    }
 
     /**
      * @param int $interval
