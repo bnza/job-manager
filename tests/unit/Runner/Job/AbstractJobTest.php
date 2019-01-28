@@ -9,16 +9,13 @@
 
 namespace Bnza\JobManagerBundle\Tests\Runner\Job;
 
-use Bnza\JobManagerBundle\Runner\Task\TaskInterface;
 use Bnza\JobManagerBundle\Tests\MockUtilsTrait;
 use Bnza\JobManagerBundle\Exception\JobManagerCancelledJobException;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 use Bnza\JobManagerBundle\Runner\Job\AbstractJob;
 use Bnza\JobManagerBundle\Runner\Task\AbstractTask;
-use Bnza\JobManagerBundle\Entity\JobEntityInterface;
 use Bnza\JobManagerBundle\Runner\Job\JobInterface;
 use Bnza\JobManagerBundle\Runner\Status;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 class DummyTask extends AbstractTask
@@ -127,7 +124,10 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
      */
     public function testCreateTaskIsCalledWithRightArguments(array $taskData, array $expectedArgs)
     {
-        $this->getMockJobWithGetStepsMockedMethod($taskData, ['createTask']);
+        $this->getMockJobWithGetStepsMockedMethod($taskData, ['createTask', 'getArgument1']);
+
+        $this->mockJob->method('getArgument1')->willReturn('Dummy task argument 1');
+
 
         $this->mockJob->expects($this->once())
             ->method('createTask')
@@ -190,7 +190,8 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
             $taskData['setters'][0][] = [$mockTask, $mockedTaskGetter];
         }
 
-        $mockJob = $this->getMockJobWithGetStepsMockedMethod($taskData, ['initTask', $mockedJobSetter]);
+        $mockJob = $this->getMockJobWithGetStepsMockedMethod($taskData, ['initTask', 'jobDummyGetter', $mockedJobSetter]);
+
 
         $mockJob->expects($this->once())
             ->method('initTask')
@@ -213,7 +214,7 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
     {
         $mockedTaskSetter = 'setDummyParameter';
 
-        $par1 = (int) mt_rand(0, 100);
+        $par1 = (int)mt_rand(0, 100);
 
         $taskData = [
             ['class' => DummyTask::class],
@@ -258,11 +259,12 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
      */
     public function testCreateTaskWillCreateTaskInstances(array $taskData, array $expectedArgs)
     {
-        $mockJob = $this->getMockJobWithGetStepsMockedMethod($taskData);
+        $mockJob = $this->getMockJobWithGetStepsMockedMethod($taskData, ['getArgument1']);
+        $this->mockJob->method('getArgument1')->willReturn('Dummy task argument 1');
         $mockJob->run();
         $task = $mockJob->getTask(0);
         $this->assertEquals($expectedArgs[0], $task->prop1);
-        $this->assertEquals(isset($expectedArgs[1]) ? $expectedArgs[1] : 2, $task->prop2);
+        $this->assertEquals(isset($expectedArgs[1]) ?: 2, $task->prop2);
     }
 
     /**
@@ -461,6 +463,8 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
 
         $this->getMockAbstractJobWithMockedMethods($methods);
 
+        $taskData = $this->replacePlaceholderWithMockedObject($taskData);
+
         if ($expectGetSteps) {
             $this->mockJob->expects($this->once())
                 ->method('getSteps')
@@ -479,8 +483,8 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
     {
         $mockStatus = isset($this->mockStatus[0]) ? $this->mockStatus[0] : $this->getMockStatus();
         $mockEntity = isset($this->mockJobEntity[0]) ? $this->mockJobEntity[0] : $this->getMockJobEntity();
-        $mockOm = $this->mockOm ?: $this->getMockObjectManager();
-        $mockDispatcher = $this->mockDispatcher ?: $this->getMockDispatcher();
+        $this->mockOm ?: $this->getMockObjectManager();
+        $this->mockDispatcher ?: $this->getMockDispatcher();
 
         $mockEntity->method('getStatus')
             ->willReturn($mockStatus);
@@ -493,7 +497,7 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
             $jobMockedMethods
         );
 
-        $mockJob = $this->getMockJob(
+        return $this->getMockJob(
             AbstractJob::class,
             $mergedJobMockedMethods
         );
@@ -528,7 +532,7 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
 
     public function initTaskDataProvider()
     {
-        $arg2 = (int) rand(1, 100);
+        $arg2 = (int)rand(1, 100);
         $arg1 = "Dummy string $arg2";
 
         return [
@@ -540,12 +544,16 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
                 ['class' => DummyTask::class, 'arguments' => [$arg1, $arg2]],
                 [$arg1, $arg2],
             ],
+            [
+                ['class' => DummyTask::class, 'arguments' => [['**mockJob**', 'getArgument1']]],
+                ['Dummy task argument 1'],
+            ]
         ];
     }
 
     public function setTaskParametersDataProvider()
     {
-        $arg2 = (int) rand(1, 100);
+        $arg2 = (int)rand(1, 100);
         $arg1 = "Dummy string $arg2";
 
         return [
@@ -564,7 +572,7 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
 
     public function setJobParametersDataProvider()
     {
-        $arg2 = (int) rand(1, 100);
+        $arg2 = (int)rand(1, 100);
         $arg1 = "Dummy string $arg2";
 
         return [
@@ -581,10 +589,33 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
                 [sys_get_temp_dir()],
             ],
             [
+                ['class' => DummyTask::class, 'setters' => [['setDummyParameter', ['strtoupper', 'a']]]],
+                '',
+                'setDummyParameter',
+                ['A'],
+            ],
+            [
                 ['class' => DummyTask::class, 'setters' => [['setDummyParameter']]],
                 'getDummyParameter',
                 'setDummyParameter',
                 [$arg1],
+            ],
+            [
+                [
+                    'class' => DummyTask::class,
+                    'setters' => [
+                        [
+                            'setDummyParameter',
+                            [
+                                'getDummyParameter',
+                                ['**mockJob**', 'jobDummyGetter']
+                            ]
+                        ]
+                    ]
+                ],
+                'getDummyParameter',
+                'setDummyParameter',
+                ['jobDummyGetter return value'],
             ]
         ];
     }

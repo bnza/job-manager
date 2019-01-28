@@ -43,7 +43,7 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
 
     public function __construct(ObjectManagerInterface $om, EventDispatcher $dispatcher, $entity, array $parameters = [])
     {
-        $this->parameters = new ParameterBag($parameters);
+        $this->setParameterBag($parameters);
         $this->dispatcher = $dispatcher;
         $jobId = '';
         if (!$entity instanceof JobEntityInterface) {
@@ -145,6 +145,12 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
                 } else {
                     $arguments[] = $taskData['arguments'];
                 }
+
+                foreach ($arguments as $i => $argument) {
+                    if (\is_callable($argument)) {
+                        $arguments[$i] = $argument();
+                    }
+                }
             }
             $this->setCurrentStepNum($num);
             $task = $this->createTask($class, $num, $arguments);
@@ -155,17 +161,74 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
         throw new \InvalidArgumentException("Task class must implement TaskInterface: \"$class\" does not");
     }
 
+    /**
+     * This is just a method stub. Must be implemented in subclasses when needed
+     * @param array $parameters
+     * @throws \InvalidArgumentException
+     */
+    protected function checkConstructorParameters(array $parameters) {
+
+    }
+
+    /**
+     * @param array $parameters
+     * @throws \InvalidArgumentException
+     */
+    protected function setParameterBag(array $parameters)
+    {
+        $this->checkConstructorParameters($parameters);
+        $this->parameters = new ParameterBag($parameters);
+    }
+
+    protected function callCallable(callable $callable, $args = [], $getterArgs = [])
+    {
+        if (is_callable($args)) {
+            $getterArgs = \is_array($getterArgs) ? $getterArgs : [$getterArgs];
+            $args = \call_user_func_array($args, $getterArgs);
+        }
+
+        if (!\is_array($args)) {
+            $args = [$args];
+        }
+
+        return \call_user_func_array($callable, $args);
+    }
+
     protected function setJobParameters(AbstractTask $task, array $taskData)
     {
         if (isset($taskData['setters'])) {
             foreach ($taskData['setters'] as $setter) {
                 $argument = $setter[1];
                 $method = $setter[0];
-                if (\is_callable($argument)) {
-                    $argument = $argument();
-                } else if (\is_string($argument) && \method_exists($task, $argument)) {
-                    $argument = $task->$argument();
+
+                $getterArgs = isset($argument[2]) ? $argument[2] : [];
+                $callableArgs = [];
+
+                if (
+                    \is_array($argument)
+                    && isset($argument[0])
+                    && \is_callable($argument[0])
+                ) {
+                    $callable = $argument[0];
+                    $callableArgs = $argument[1];
+                } else if (
+                    \is_array($argument)
+                    && isset($argument[0])
+                    && \is_string($argument[0])
+                    && \method_exists($task, $argument[0])
+                ) {
+                    $callable = [$task, $argument[0]];
+                    $callableArgs = $argument[1];
+                } else if (\is_callable($argument)) {
+                    $callable = $argument;
+                }   else if (\is_string($argument) && \method_exists($task, $argument)) {
+                    $callable = [$task, $argument];
                 }
+
+                if (isset($callable)) {
+                    $argument = $this->callCallable($callable, $callableArgs, $getterArgs);
+                }
+
 
                 if (\is_callable($method)) {
                     \call_user_func($method, $argument);
@@ -197,7 +260,6 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
             }
         }
     }
-
 
     protected function createTask(string $class, $num, $arguments): AbstractTask
     {

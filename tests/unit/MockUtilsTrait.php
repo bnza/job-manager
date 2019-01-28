@@ -240,6 +240,31 @@ trait MockUtilsTrait
         return $mockTask;
     }
 
-
+    /**
+     * Replaces string placeholder (e.g. '**mockJob**' or '**mockTask[0]**') with the corresponding mocked object
+     * stored as object property (e.g. $this->mockObject or $this->mockTask[0])
+     * @param array $data
+     * @return array
+     */
+    protected function replacePlaceholderWithMockedObject(array $data): array
+    {
+        $pattern = '/^\*\*(?P<object>\w+)(?>\[(?P<index>\d+)\])?\*\*$/';
+        foreach ($data as $key => $datum) {
+            if (\is_array($datum)) {
+                $data[$key] = $this->replacePlaceholderWithMockedObject($datum);
+            } else {
+                if (\is_string($datum)) {
+                    if (preg_match($pattern, $datum, $matches)) {
+                        $datum = $this->{$matches['object']};
+                        if (isset($matches['index'])) {
+                            $datum = $datum[$matches['index']];
+                        }
+                        $data[$key] = $datum;
+                    }
+                }
+            }
+        }
+        return $data;
+    }
 
 }
