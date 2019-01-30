@@ -22,7 +22,7 @@ trait WorkDirTrait
 
     private function getParameterKey(): string
     {
-        return self::class.":work-dir";
+        return "work-dir";
     }
 
     public function setWorkDir(string $baseWorkDir)
@@ -53,7 +53,7 @@ trait WorkDirTrait
         if (\file_exists($workDir)) {
             throw new \RuntimeException("Work directory already exists. Cannot create");
         }
-        \mkdir($workDir, 0600);
+        \mkdir($workDir, 0700);
         return realpath($workDir);
     }
 }

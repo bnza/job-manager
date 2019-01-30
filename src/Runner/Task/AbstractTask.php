@@ -47,6 +47,7 @@ abstract class AbstractTask implements TaskInterface
         $this->job = $job;
         $entity = new TaskEntity($job->getId(), $num);
         $this->setUpRunnableInfo($om, $entity);
+        $this->persist();
     }
 
     public function getNum(): int

@@ -255,8 +255,11 @@ class ObjectManager implements ObjectManagerInterface
         } else {
             throw new \InvalidArgumentException("Invalid entity class \"$class\"");
         }
-        $this->refresh($entity);
-
+        if ($jobId) {
+            $this->refresh($entity);
+        } else {
+            $this->persist($entity);
+        }
         return $entity;
     }
 

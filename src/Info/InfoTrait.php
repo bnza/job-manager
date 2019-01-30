@@ -33,12 +33,12 @@ trait InfoTrait
         return $this->entity;
     }
 
-    protected function setEntity($entity, string $class = '', $jobId = '', $taskNum = -1): self
+    protected function setEntity($entity,  $jobId = '', $taskNum = -1): self
     {
         if ($entity instanceof RunnableEntityInterface) {
             $this->entity = $entity;
         } else {
-            $this->entity = $this->getObjectManager()->find($class, $jobId, $taskNum);
+            $this->entity = $this->getObjectManager()->find($entity, $jobId, $taskNum);
         }
         return $this;
     }

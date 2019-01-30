@@ -180,6 +180,14 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
         $this->parameters = new ParameterBag($parameters);
     }
 
+    /**
+     * Calls the provided callable and returns value. If $args is also a callable use the return value as $param_arr of
+     * call_user_func_array() function
+     * @param callable $callable Any valid callable
+     * @param array $args The $callable arguments
+     * @param array $getterArgs This value is used as callable arguments if $args is a callable
+     * @return mixed The callable's return value
+     */
     protected function callCallable(callable $callable, $args = [], $getterArgs = [])
     {
         if (is_callable($args)) {
@@ -194,41 +202,51 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
         return \call_user_func_array($callable, $args);
     }
 
+    /**
+     * @param AbstractTask $task
+     * @param $arguments
+     * @return mixed the arguments used by Abstract::setJobParameters() internal function call
+     */
+    protected function getSetJobParameterArguments(AbstractTask $task, $arguments)
+    {
+        $getterArgs = isset($arguments[2]) ? $arguments[2] : [];
+        $callableArgs = [];
+
+        if (
+            \is_array($arguments)
+            && isset($arguments[0])
+            && \is_callable($arguments[0])
+        ) {
+            $callable = $arguments[0];
+            $callableArgs = $arguments[1];          // execute $arguments[0]($arguments[1])
+        } else if (
+            \is_array($arguments)
+            && isset($arguments[0])
+            && \is_string($arguments[0])
+            && \method_exists($task, $arguments[0])
+        ) {
+            $callable = [$task, $arguments[0]];
+            $callableArgs = $arguments[1];           // execute $task->$arguments[0]($arguments[1])
+        } else if (\is_callable($arguments)) {
+            $callable = $arguments;                  // will execute $arguments()
+        }   else if (\is_string($arguments) && \method_exists($task, $arguments)) {
+            $callable = [$task, $arguments];         // will execute $task->$arguments()
+        }
+
+        if (isset($callable)) {
+            $arguments = $this->callCallable($callable, $callableArgs, $getterArgs);
+        }
+
+        return $arguments;
+    }
+
     protected function setJobParameters(AbstractTask $task, array $taskData)
     {
         if (isset($taskData['setters'])) {
             foreach ($taskData['setters'] as $setter) {
                 $argument = $setter[1];
                 $method = $setter[0];
-
-                $getterArgs = isset($argument[2]) ? $argument[2] : [];
-                $callableArgs = [];
-
-                if (
-                    \is_array($argument)
-                    && isset($argument[0])
-                    && \is_callable($argument[0])
-                ) {
-                    $callable = $argument[0];
-                    $callableArgs = $argument[1];
-                } else if (
-                    \is_array($argument)
-                    && isset($argument[0])
-                    && \is_string($argument[0])
-                    && \method_exists($task, $argument[0])
-                ) {
-                    $callable = [$task, $argument[0]];
-                    $callableArgs = $argument[1];
-                } else if (\is_callable($argument)) {
-                    $callable = $argument;
-                }   else if (\is_string($argument) && \method_exists($task, $argument)) {
-                    $callable = [$task, $argument];
-                }
-
-                if (isset($callable)) {
-                    $argument = $this->callCallable($callable, $callableArgs, $getterArgs);
-                }
-
+                $argument = $this->getSetJobParameterArguments($task, $argument);
 
                 if (\is_callable($method)) {
                     \call_user_func($method, $argument);
@@ -249,7 +267,10 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
                 $method = $parameter[0];
                 if (\is_callable($argument)) {
                     $argument = $argument();
+                } elseif (\is_string($argument) && \method_exists($this, $argument)) {
+                    $argument = $this->$argument();
                 }
+
                 if (\is_callable($method)) {
                     \call_user_func($method, $argument);
                 } else if (\is_string($method) && \method_exists($task, $method)) {

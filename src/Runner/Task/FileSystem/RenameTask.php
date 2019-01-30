@@ -139,7 +139,7 @@ class RenameTask extends AbstractTask
      */
     public function getTarget(string $origin = ''): string
     {
-        if ($origin && \is_file($origin)) {
+        if ($origin) {
             if (\is_dir($this->target)) {
                 return $this->target.DIRECTORY_SEPARATOR.basename($origin);
             }
