@@ -11,10 +11,8 @@ namespace Bnza\JobManagerBundle\Tests\Runner\Job;
 
 use Bnza\JobManagerBundle\Tests\MockUtilsTrait;
 use Bnza\JobManagerBundle\Exception\JobManagerCancelledJobException;
-use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 use Bnza\JobManagerBundle\Runner\Job\AbstractJob;
 use Bnza\JobManagerBundle\Runner\Task\AbstractTask;
-use Bnza\JobManagerBundle\Runner\Job\JobInterface;
 use Bnza\JobManagerBundle\Runner\Status;
 use Bnza\JobManagerBundle\Tests\Fixture\Runner\Task\DummyTask1;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -95,6 +93,7 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
 
         $this->mockJob->method('getArgument1')->willReturn('Dummy task argument 1');
 
+        $expectedArgs = $this->replacePlaceholderWithMockedObject($expectedArgs);
 
         $this->mockJob->expects($this->once())
             ->method('createTask')
@@ -224,14 +223,16 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
      *
      * @dataProvider initTaskDataProvider
      */
-    public function testCreateTaskWillCreateTaskInstances(array $taskData, array $expectedArgs)
+    public function testCreateTaskWillCreateTaskInstances(array $taskData, array $expectedArgs, array $taskProps)
     {
         $mockJob = $this->getMockJobWithGetStepsMockedMethod($taskData, ['getArgument1']);
         $this->mockJob->method('getArgument1')->willReturn('Dummy task argument 1');
         $mockJob->run();
         $task = $mockJob->getTask(0);
-        $this->assertEquals($expectedArgs[0], $task->prop1);
-        $this->assertEquals(isset($expectedArgs[1]) ?: 2, $task->prop2);
+        for ($i=0; $i < count($taskProps); $i++) {
+            $prop = 'prop'. ($i+1);
+            $this->assertEquals($taskProps[$i], $task->$prop);
+        }
     }
 
     /**
@@ -505,15 +506,18 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
         return [
             [
                 ['class' => DummyTask1::class, 'arguments' => $arg1],
-                [$arg1],
+                ['class' => DummyTask1::class, 'arguments' => $arg1],
+                [$arg1]
             ],
             [
                 ['class' => DummyTask1::class, 'arguments' => [$arg1, $arg2]],
-                [$arg1, $arg2],
+                ['class' => DummyTask1::class, 'arguments' => [$arg1, $arg2]],
+                [$arg1, $arg2]
             ],
             [
                 ['class' => DummyTask1::class, 'arguments' => [['**mockJob**', 'getArgument1']]],
-                ['Dummy task argument 1'],
+                ['class' => DummyTask1::class, 'arguments' => [['**mockJob**', 'getArgument1']]],
+                ['Dummy task argument 1']
             ]
         ];
     }

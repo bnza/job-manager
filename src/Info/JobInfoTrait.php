@@ -37,8 +37,21 @@ trait JobInfoTrait
         return $this->tasks[$num];
     }
 
+    /**
+     * Returns the current task
+     * @return TaskInfoInterface
+     * @throws JobManagerEntityNotFoundException
+     */
     public function getCurrentTask(): TaskInfoInterface
     {
         return $this->getTask($this->getCurrentStepNum());
+    }
+
+    /**
+     * @return AbstractTask[]
+     */
+    protected function getTasks(): array
+    {
+        return $this->tasks;
     }
 }
