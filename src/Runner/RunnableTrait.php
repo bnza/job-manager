@@ -108,7 +108,8 @@ trait RunnableTrait
 
         $entity->setClass($this->getClass());
         $entity->setName($this->getName());
-        $entity->setStepsNum($this->getStepsNum());
+        $entity->setDescription($this->getDescription());
+        //$entity->setStepsNum($this->getStepsNum());
 
         return $this;
     }

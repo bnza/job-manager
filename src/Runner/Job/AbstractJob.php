@@ -84,7 +84,10 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
             $jobId = $entity;
             $entity = $om->getEntityClass('job');
         }
+
         $this->setUpRunnable($om, $entity, $jobId);
+        $this->getEntity()->setStepsNum($this->getStepsNum());
+        $this->persist();
     }
 
     /**
@@ -171,11 +174,29 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
      */
     public function error(\Throwable $e): void
     {
+        $this->persistError($e);
+        try {
+            $this->rollback();
+        } catch (\Throwable $t) {
+            $this->handleRollbackError($t);
+        }
+        $this->getDispatcher()->dispatch(JobEndedEvent::NAME, new JobEndedEvent($this));
+    }
+
+    protected function handleRollbackError(\Throwable $t)
+    {
+        //TODO handle rollback's errors
+    }
+
+    /**
+     * Persist error relate data to ObjectManager
+     * @param \Throwable $e
+     */
+    protected function persistError(\Throwable $e): void
+    {
         $this->getEntity()->setError($e);
         $this->getEntity()->getStatus()->error();
         $this->persist();
-        $this->rollback();
-        $this->getDispatcher()->dispatch(JobEndedEvent::NAME, new JobEndedEvent($this));
     }
 
     /**
@@ -209,9 +230,11 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
      */
     protected function initTask(int $num, array $taskData): AbstractTask
     {
-        if (!$class = $taskData['class']) {
+        if (!isset($taskData['class'])) {
             throw new \InvalidArgumentException("Task class must be provided");
         }
+
+        $class = $taskData['class'];
 
         if (!\is_string($class)) {
             throw new \InvalidArgumentException("Task class must be a string");
@@ -369,15 +392,17 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
         if (isset($taskData['setters'])) {
             foreach ($taskData['setters'] as $setter) {
                 $argument = $setter[1];
-                $method = $setter[0];
                 $argument = $this->getSetJobParameterArguments($task, $argument);
 
-                if (\is_callable($method)) {
-                    \call_user_func($method, $argument);
-                } else if (\is_string($method) && \method_exists($this, $method)) {
+                $method = $setter[0];
+                if (\is_string($method)) {
+                    if (!\method_exists($this, $method))
+                    {
+                        throw new \InvalidArgumentException(sprintf("No \"%s\" method found in %s", $method, self::class));
+                    }
                     $this->$method($argument);
                 } else {
-                    throw new \InvalidArgumentException("Invalid setter provided: " . gettype($method));
+                    throw new \InvalidArgumentException("Invalid setter method provided: " . gettype($method));
                 }
             }
         }
@@ -407,24 +432,25 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
     {
         if (isset($taskData['parameters'])) {
             foreach ($taskData['parameters'] as $parameter) {
-                $argument = $parameter[1];
-                $method = $parameter[0];
-                if (\is_callable($argument)) {
-                    $argument = $argument();    //callable return value
-                } elseif (\is_string($argument) && \method_exists($this, $argument)) {
-                    $argument = $this->$argument(); //job method return value
-                }
-
-                if (\is_callable($method)) {
-                    \call_user_func($method, $argument);
-                } else if (\is_string($method) && \method_exists($task, $method)) {
-                    $task->$method($argument);
-                } else {
-                    $message = "Invalid task parameter setter provided: " . gettype($method);
-                    if (\is_string($method)) {
-                        $message .= " [$method]";
+                if (\is_array($parameter)) {
+                    $argument = $parameter[1];
+                    $method = $parameter[0];
+                    if (\is_callable($argument)) {
+                        $argument = $argument();    //callable return value
+                    } elseif (\is_string($argument) && \method_exists($this, $argument)) {
+                        $argument = $this->$argument(); //job method return value
                     }
-                    throw new \InvalidArgumentException($message);
+
+                    if (\is_string($method)) {
+                        if (!\method_exists($task, $method)) {
+                            throw new \InvalidArgumentException(sprintf("No \"%s\" method found in %s", $method, \get_class($task)));
+                        }
+                        $task->$method($argument);
+                    } else {
+                        throw new \InvalidArgumentException("Invalid task parameter setter provided: " . gettype($method));
+                    }
+                } else {
+                    throw new \InvalidArgumentException("Task setter must be an array");
                 }
             }
         }

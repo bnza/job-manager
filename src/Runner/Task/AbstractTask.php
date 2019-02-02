@@ -46,7 +46,7 @@ abstract class AbstractTask implements TaskInterface
     {
         $this->job = $job;
         $entity = new TaskEntity($job->getId(), $num);
-        $this->setUpRunnableInfo($om, $entity);
+        $this->setUpRunnable($om, $entity);
         $this->persist();
     }
 
@@ -60,6 +60,7 @@ abstract class AbstractTask implements TaskInterface
      */
     public function run(): void
     {
+        $this->setStepsNum();
         $dispatcher = $this->getJob()->getDispatcher();
         $dispatcher->dispatch(TaskStartedEvent::NAME, new TaskStartedEvent($this));
         $this->configure();
@@ -125,11 +126,6 @@ abstract class AbstractTask implements TaskInterface
         $this->stepInterval = $stepInterval;
     }
 
-/*    protected function executeStep(array $arguments): void
-    {
-        throw new \LogicException('You must must override "executeStep" method in concrete class');
-    }*/
-
     public function getDescription(): string
     {
         return $this->description ?: $this->getDefaultDescription();
@@ -139,6 +135,12 @@ abstract class AbstractTask implements TaskInterface
     {
         $this->description = $description;
         $this->getEntity()->setDescription($description);
+    }
+
+    protected function setStepsNum()
+    {
+        $this->getEntity()->setStepsNum($this->getStepsNum());
+        $this->persist('steps_num');
     }
 
 }

@@ -20,6 +20,11 @@ class DummyJob1 extends AbstractJob
         return 'bnza:job:test:dummy-1';
     }
 
+    public function getDescription(): string
+    {
+        return 'Dummy job description';
+    }
+
     public function getSteps(): iterable
     {
         return [
