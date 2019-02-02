@@ -45,7 +45,8 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
      * instance.
      * array(3) {
      *  [class]=>string(*) The fully qualified Task class name (MUST implements TaskInterface) (required)
-     *  [condition]=>array|string Determines if task will be run
+     *  [condition]=>array|string Determines if task will be run (optional)
+     *  [negateCondition]=>mixed Determines if condition will be negated (optional)
      *  [arguments]=>array The Task* subclass arguments, the AbstractTask ones are provided by the function (optional)
      *  [parameters]=>array Call the provided Task* setter methods with the relative Job* getter methods. It will called before Task*::configure() (optional)
      *  [setters]=>string Call the provided Job* setter methods with the relative Task* getter methods. It will called after Task*::terminate() (optional)
@@ -54,6 +55,8 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
      * e.g.
      *  [
      *      'class' => DummyTask,
+     *      'condition' => ['getSomeValue'],
+     *      'negateCondition' => true
      *      'arguments' => [ 'some value', $this->getArgument2 ],
      *      'parameters' => [
      *          ['setTaskParameter1', 'some parameter'],
@@ -137,6 +140,9 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
             foreach ($this->getSteps() as $num => $taskData) {
                 if ($this->isCancelled()) {
                     throw new JobManagerCancelledJobException();
+                }
+                if (!$this->checkTaskRunConditions($taskData)) {
+                    continue;
                 }
                 $this->runTask($num, $taskData);
             }
@@ -455,6 +461,57 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
         $this->setTaskParameters($task, $taskData);
         $task->run();
         $this->setJobParameters($task, $taskData);
+    }
+
+    /**
+     * Determines if the the task will be run
+     *
+     * @param array $taskData
+     * @return bool
+     */
+    protected function checkTaskRunConditions(array $taskData): bool
+    {
+        $run = true;
+
+        if (isset($taskData['negateCondition'])) {
+            $modifier = (bool) $taskData['negateCondition'];
+        } else {
+            $modifier = false;
+        }
+
+        if (isset($taskData['condition'])) {
+
+            $condition = $taskData['condition'];
+
+            if (!\is_bool($condition) && !$condition) {
+                throw new \InvalidArgumentException("Not boolean falsy values are not allowed");
+            } elseif (\is_bool($condition)) {
+                $run = $condition;
+            } else if (\is_callable($condition)) {
+                $run = $condition();
+            } else if (\is_array($condition)) {
+                $method = $condition[0];
+                $argument = isset($condition[1]) ? $condition[1] : [];
+                if (\is_callable($method)) {
+                    if (!\is_array($argument)) {
+                        $argument = [$argument];
+                    }
+                    $run =\call_user_func_array($method, $argument);
+                } else if (\is_string($method) && \method_exists($this, $method)) {
+                    if (!\is_array($argument)) {
+                        $argument = [$argument];
+                    }
+                    $run = \call_user_func_array([$this,$method], $argument);
+                } else {
+                    throw new \InvalidArgumentException("Invalid condition method provided: " . gettype($condition));
+                }
+            } else if (\is_string($condition) && \method_exists($this, $condition)) {
+                $run = $this->$condition();
+            } else {
+                throw new \InvalidArgumentException("Invalid condition provided: " . gettype($condition));
+            }
+        }
+        return (bool) ($modifier ? !$run : $run);
     }
 
 }

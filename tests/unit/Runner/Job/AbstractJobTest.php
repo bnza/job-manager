@@ -236,6 +236,24 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * @param array $taskData
+     * @param bool $willRun
+     *
+     * @param null $getterResult
+     * @dataProvider checkTaskRunConditionsDataProvider
+     */
+    public function testMethodCheckTaskRunConditionsWillReturnExpectedValue(array $taskData, bool $willRun, $getterResult = null)
+    {
+        $mockJob = $this->getMockJobWithGetStepsMockedMethod($taskData, ['runTask', 'jobGetter']);
+        $expect = $willRun ? $this->once() : $this->never();
+        $this->mockJob->expects($expect)->method('runTask');
+        if (!\is_null($getterResult)) {
+            $this->mockJob->method('jobGetter')->willReturn($getterResult);
+        }
+        $mockJob->run();
+    }
+
+    /**
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage Task class must implement TaskInterface:
      */
@@ -588,6 +606,71 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
                 'setDummyParameter',
                 ['jobDummyGetter return value'],
             ]
+        ];
+    }
+
+    public function checkTaskRunConditionsDataProvider()
+    {
+        return [
+            [
+                ['class' => DummyTask1::class, 'condition' => true],
+                true
+            ],
+            [
+                ['class' => DummyTask1::class, 'condition' => false],
+                false
+            ],
+            [
+                ['class' => DummyTask1::class, 'condition' => true, 'negateCondition' => true],
+                false
+            ],
+            [
+                ['class' => DummyTask1::class, 'condition' => true, 'negateCondition' => false],
+                true
+            ],
+            [
+                ['class' => DummyTask1::class, 'condition' => false],
+                false
+            ],
+            [
+                ['class' => DummyTask1::class, 'condition' => 'sys_get_temp_dir'],
+                true
+            ],
+            [
+                ['class' => DummyTask1::class, 'condition' => 'jobGetter'],
+                true,
+                'A string'
+            ],
+            [
+                ['class' => DummyTask1::class, 'condition' => 'jobGetter'],
+                true,
+                new \DateTime()
+            ],
+            [
+                ['class' => DummyTask1::class, 'condition' => 'jobGetter'],
+                false,
+                0
+            ],
+            [
+                ['class' => DummyTask1::class, 'condition' => ['jobGetter','A string']],
+                false,
+                0
+            ],
+            [
+                ['class' => DummyTask1::class, 'condition' => ['jobGetter',['A string', 'Another string']]],
+                false,
+                0
+            ],
+            [
+                ['class' => DummyTask1::class, 'condition' => [['**mockJob**','jobGetter']]],
+                false,
+                0
+            ],
+            [
+                ['class' => DummyTask1::class, 'condition' => [['**mockJob**','jobGetter'],['A string', 'Another string']]],
+                false,
+                0
+            ],
         ];
     }
 }
