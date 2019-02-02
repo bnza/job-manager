@@ -130,8 +130,8 @@ class RenameTask extends AbstractTask
     }
 
     /**
-     * When $origin argument is provided then if $target is a directory and $origin is file than the returned value will
-     * be a new path with the target dirname and the $origin basename.
+     * When $origin argument is provided and if $target is a directory then the returned value will
+     * be a new path with the $target dirname and the $origin basename.
      *
      * @param string $origin
      *

@@ -21,6 +21,8 @@ class RunnableTraitTest extends \PHPUnit\Framework\TestCase
 
     private $name = 'Dummy job/task name ';
 
+    private $description = 'Dummy job/task description ';
+
     private $stepsNum;
 
     public function setUp()
@@ -60,11 +62,15 @@ class RunnableTraitTest extends \PHPUnit\Framework\TestCase
 
     public function testUpdateEntityWillSetUpEntity()
     {
-        $runnable = $this->getRunnableTraitMock(['getEntity','getName', 'getStepsNum']);
+        $runnable = $this->getRunnableTraitMock(['getEntity','getName', 'getStepsNum', 'getDescription']);
 
         $runnable
             ->method('getName')
             ->willReturn($this->name);
+
+        $runnable
+            ->method('getDescription')
+            ->willReturn($this->description);
 
         $runnable
             ->method('getStepsNum')
@@ -75,8 +81,8 @@ class RunnableTraitTest extends \PHPUnit\Framework\TestCase
             );
 
         $entity->expects($this->once())->method('setClass')->with(\get_class($runnable));
-        $entity->expects($spyName = $this->once())->method('setName')->with($this->name);
-        $entity->expects($spyStepsNum = $this->once())->method('setStepsNum')->with($this->stepsNum);
+        $entity->expects($this->once())->method('setName')->with($this->name);
+        $entity->expects($this->once())->method('setDescription')->with($this->description);
 
         $runnable
             ->expects($this->once())

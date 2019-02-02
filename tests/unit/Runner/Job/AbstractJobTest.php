@@ -9,6 +9,7 @@
 
 namespace Bnza\JobManagerBundle\Tests\Runner\Job;
 
+use Bnza\JobManagerBundle\Entity\JobEntityInterface;
 use Bnza\JobManagerBundle\Tests\MockUtilsTrait;
 use Bnza\JobManagerBundle\Exception\JobManagerCancelledJobException;
 use Bnza\JobManagerBundle\Runner\Job\AbstractJob;
@@ -46,6 +47,33 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
         $this->mockOm->method('persist')->with($this->mockJobEntity[0], 'status');
 
         $this->mockJob->run();
+    }
+
+    public function testConstructorWithEmptyEntity()
+    {
+        $this->getMockAbstractJob(['setUpRunnable', 'getEntity', 'getStepsNum', 'getObjectManager']);
+        $this->mockOm->expects($this->once())->method('getEntityClass')->willReturn('JobEntityClassName');
+        $this->mockJob->expects($this->once())->method('setUpRunnable')->with($this->anything(), $this->equalTo('JobEntityClassName'));
+        $this->mockJob->method('getEntity')->willReturn($this->mockJobEntity[0]);
+        $this->mockJob->method('getObjectManager')->willReturn($this->mockOm);
+        $this->invokeConstructor(
+            AbstractJob::class,
+            $this->mockJob,
+            [
+                $this->mockOm,
+                $this->mockDispatcher,
+            ]
+        );
+    }
+
+    /**
+     * @expectedException \LogicException
+     * @expectedExceptionMessage You must must override "getDescription" method in concrete class
+     */
+    public function testMethodGetDescriptionWillThrowsExcetion()
+    {
+        $this->getMockJob(AbstractJob::class);
+        $this->mockJob->getDescription();
     }
 
     /**
@@ -89,7 +117,7 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
      */
     public function testCreateTaskIsCalledWithRightArguments(array $taskData, array $expectedArgs)
     {
-        $this->getMockJobWithGetStepsMockedMethod($taskData, ['createTask', 'getArgument1']);
+        $this->getMockJobWithGetStepsMockedMethodSuccess($taskData, ['createTask', 'getArgument1']);
 
         $this->mockJob->method('getArgument1')->willReturn('Dummy task argument 1');
 
@@ -107,21 +135,51 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * @dataProvider setWrongTaskDataProvider
+     * @param array $taskData
+     * @param string $expectedMessage
+     */
+    public function testMethodInitTaskWillThrowsExceptionWithWrongTaskData(array $taskData, string $expectedMessage)
+    {
+        $this->getMockJobWithGetStepsMockedMethodError($taskData, ['createTask']);
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage($expectedMessage);
+        $this->mockJob->run();
+    }
+
+    /**
      * @testdox Method setTaskParameters() set task parameter
      * @param array $taskData
      * @param string $mockedTaskSetter
      * @param array $expectedArgs
-     *
-     * @throws \ReflectionException
+     * @param array $expectedException
      * @dataProvider setTaskParametersDataProvider
      */
-    public function testMethodSetTaskParametersSetTaskParameters(array $taskData, string $mockedTaskSetter, array $expectedArgs)
+    public function testMethodSetTaskParametersSetTaskParameters(
+        array $taskData,
+        string $mockedTaskSetter,
+        array $expectedArgs,
+        array $expectedException = []
+    )
     {
         $mockTask = $this->getMockTask(AbstractTask::class, [$mockedTaskSetter, 'run', 'success']);
 
-        $mockTask->expects($this->once())->method($mockedTaskSetter)->with(...$expectedArgs);
+        if ($expectedException) {
+            $this->expectException($expectedException[0]);
+            if ($expectedException[1]) {
+                $this->expectExceptionMessage($expectedException[1]);
+            }
+            if (isset($expectedException[2])) {
+                $this->expectExceptionMessageRegExp($expectedException[2]);
+            }
+            $assertion = 'getMockJobWithGetStepsMockedMethodError';
+        } else {
+            $mockTask->expects($this->once())->method($mockedTaskSetter)->with(...$expectedArgs);
+            $assertion = 'getMockJobWithGetStepsMockedMethodSuccess';
+        }
 
-        $mockJob = $this->getMockJobWithGetStepsMockedMethod($taskData, ['initTask', 'getDummyParameter']);
+        $mockJob = $this->$assertion($taskData, ['initTask', 'getDummyParameter']);
+
 
         $mockJob->expects($this->once())
             ->method('initTask')
@@ -139,24 +197,45 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
      * @param string $mockedJobSetter
      * @param array $expectedArgs
      *
-     * @throws \ReflectionException
      * @dataProvider setJobParametersDataProvider
      */
-    public function testMethodSetJobParametersSetTaskParameters(array $taskData, string $mockedTaskGetter, string $mockedJobSetter, array $expectedArgs)
+    public function testMethodSetJobParametersSetTaskParameters(
+        array $taskData,
+        string $mockedTaskGetter,
+        string $mockedJobSetter,
+        array $expectedArgs,
+        array $expectedException = []
+    )
     {
         $taskMockedMethods = ['run', 'success'];
         if ($mockedTaskGetter) {
             $taskMockedMethods[] = $mockedTaskGetter;
         }
 
-        $mockTask = $this->getMockTask(AbstractTask::class, $taskMockedMethods);
+        $mockTask = $this->getMockTask($taskData['class'], $taskMockedMethods);
 
-        if ($mockedTaskGetter) {
-            $mockTask->expects($this->once())->method($mockedTaskGetter)->willReturn($expectedArgs[0]);
-            $taskData['setters'][0][] = [$mockTask, $mockedTaskGetter];
+
+
+        if ($expectedException) {
+            $this->expectException($expectedException[0]);
+            if ($expectedException[1]) {
+                $this->expectExceptionMessage($expectedException[1]);
+            }
+            if (isset($expectedException[2])) {
+                $this->expectExceptionMessageRegExp($expectedException[2]);
+            }
+            $assertion = 'getMockJobWithGetStepsMockedMethodError';
+            $expects = $this->never();
+        } else {
+            if ($mockedTaskGetter) {
+                $mockTask->expects($this->once())->method($mockedTaskGetter)->willReturn($expectedArgs[0]);
+                $taskData['setters'][0][] = [$mockTask, $mockedTaskGetter];
+            }
+            $assertion = 'getMockJobWithGetStepsMockedMethodSuccess';
+            $expects = $this->once();
         }
 
-        $mockJob = $this->getMockJobWithGetStepsMockedMethod($taskData, ['initTask', 'jobDummyGetter', $mockedJobSetter]);
+        $mockJob = $this->$assertion($taskData, ['initTask', 'jobDummyGetter', $mockedJobSetter]);
 
 
         $mockJob->expects($this->once())
@@ -165,7 +244,7 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
                 $mockTask
             );
 
-        $mockJob->expects($this->once())
+        $mockJob->expects($expects)
             ->method($mockedJobSetter)
             ->with(...$expectedArgs);
 
@@ -192,7 +271,7 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
 
         $mockTask->expects($this->once())->method($mockedTaskSetter)->with($par1);
 
-        $mockJob = $this->getMockJobWithGetStepsMockedMethod($taskData, ['initTask', 'getDummyParameter'], false);
+        $mockJob = $this->getMockJobWithGetStepsMockedMethodSuccess($taskData, ['initTask', 'getDummyParameter'], false);
 
         $taskData['parameters'] = [[$mockedTaskSetter, [$mockJob, 'getDummyParameter']]];
 
@@ -225,7 +304,7 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
      */
     public function testCreateTaskWillCreateTaskInstances(array $taskData, array $expectedArgs, array $taskProps)
     {
-        $mockJob = $this->getMockJobWithGetStepsMockedMethod($taskData, ['getArgument1']);
+        $mockJob = $this->getMockJobWithGetStepsMockedMethodSuccess($taskData, ['getArgument1']);
         $this->mockJob->method('getArgument1')->willReturn('Dummy task argument 1');
         $mockJob->run();
         $task = $mockJob->getTask(0);
@@ -240,15 +319,25 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
      * @param bool $willRun
      *
      * @param null $getterResult
+     * @param array $expectedExceptions
      * @dataProvider checkTaskRunConditionsDataProvider
      */
-    public function testMethodCheckTaskRunConditionsWillReturnExpectedValue(array $taskData, bool $willRun, $getterResult = null)
+    public function testMethodCheckTaskRunConditionsWillReturnExpectedValue(
+        array $taskData,
+        bool $willRun,
+        $getterResult = null,
+        array $expectedExceptions = []
+    )
     {
-        $mockJob = $this->getMockJobWithGetStepsMockedMethod($taskData, ['runTask', 'jobGetter']);
+        $mockJob = $this->getMockJobWithGetStepsMockedMethod($taskData, ['runTask', 'jobGetter', 'success']);
         $expect = $willRun ? $this->once() : $this->never();
         $this->mockJob->expects($expect)->method('runTask');
         if (!\is_null($getterResult)) {
             $this->mockJob->method('jobGetter')->willReturn($getterResult);
+        }
+        if ($expectedExceptions) {
+            $this->expectException($expectedExceptions[0]);
+            $this->expectExceptionMessage($expectedExceptions[1]);
         }
         $mockJob->run();
     }
@@ -438,9 +527,56 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
         $mockJob->run();
     }
 
+    /**
+     * @expectedException \Exception
+     * @expectedExceptionMessage Dummy exception
+     */
+    public function testRollbackException()
+    {
+        $mockDispatcher = $this->getMockDispatcher();
+
+        $mockJob = $this->getMockJob(
+            AbstractJob::class,
+            ['configure', 'persistError', 'handleRollBackError', 'rollback', 'running', 'getDispatcher']
+        );
+
+        $mockJob
+            ->method('getDispatcher')
+            ->willReturn($mockDispatcher);
+
+        $e = new \Exception('Rollback error');
+        $mockJob->method('configure')->willThrowException(new \Exception('Dummy exception'));
+        $mockJob->method('rollback')->willThrowException($e);
+        $mockJob->expects($this->once())->method('handleRollBackError')->with($e);
+        $mockJob->run();
+    }
+
+    /**
+     * @expectedException \Exception
+     * @expectedExceptionMessage Dummy exception
+     */
+    public function testHandleRollbackError()
+    {
+        $mockDispatcher = $this->getMockDispatcher();
+
+        $mockJob = $this->getMockJob(
+            AbstractJob::class,
+            ['configure', 'persistError', 'rollback', 'running', 'getDispatcher']
+        );
+
+        $mockJob
+            ->method('getDispatcher')
+            ->willReturn($mockDispatcher);
+
+        $e = new \Exception('Rollback error');
+        $mockJob->method('configure')->willThrowException(new \Exception('Dummy exception'));
+        $mockJob->method('rollback')->willThrowException($e);
+        $mockJob->run();
+    }
+
     public function getMockJobWithGetStepsMockedMethod(array $taskData, array $mockedMethods = [], bool $expectGetSteps = true)
     {
-        $defaultMockedMethods = ['getObjectManager', 'getEntity', 'getSteps', 'success', 'running', 'getDispatcher'];
+        $defaultMockedMethods = ['getObjectManager', 'getEntity', 'getSteps', 'running', 'getDispatcher'];
 
         $methods = \array_merge(
             $defaultMockedMethods,
@@ -459,8 +595,37 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
                 ]);
         }
 
+        return $this->mockJob;
+    }
+
+    public function getMockJobWithGetStepsMockedMethodSuccess(array $taskData, array $mockedMethods = [], bool $expectGetSteps = true)
+    {
+        $defaultMockedMethods = ['success'];
+
+        $methods = \array_merge(
+            $defaultMockedMethods,
+            $mockedMethods
+        );
+
+        $this->getMockJobWithGetStepsMockedMethod($taskData, $methods, $expectGetSteps);
         $this->mockJob->expects($this->once())
             ->method('success');
+
+        return $this->mockJob;
+    }
+
+    public function getMockJobWithGetStepsMockedMethodError(array $taskData, array $mockedMethods = [], bool $expectGetSteps = true)
+    {
+        $defaultMockedMethods = ['error'];
+
+        $methods = \array_merge(
+            $defaultMockedMethods,
+            $mockedMethods
+        );
+
+        $this->getMockJobWithGetStepsMockedMethod($taskData, $methods, $expectGetSteps);
+        $this->mockJob->expects($this->once())
+            ->method('error');
 
         return $this->mockJob;
     }
@@ -540,6 +705,20 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
+    public function setWrongTaskDataProvider()
+    {
+
+        return [
+            [
+                [], "Task class must be provided"
+
+            ],
+            [
+                ['class' => 0], "Task class must be a string"
+            ],
+        ];
+    }
+
     public function setTaskParametersDataProvider()
     {
         $arg2 = (int)rand(1, 100);
@@ -555,7 +734,29 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
                 ['class' => DummyTask1::class, 'parameters' => [['setDummyParameter', 'sys_get_temp_dir']]],
                 'setDummyParameter',
                 [sys_get_temp_dir()],
-            ]
+            ],
+            [
+                ['class' => DummyTask1::class, 'parameters' => [['setDummyParameter', 'getName']]],
+                'setDummyParameter',
+                [''],
+            ],
+            [
+                ['class' => DummyTask1::class, 'parameters' => [['setDummyParameter', ['**mockJob**','getName']]]],
+                'setDummyParameter',
+                [''],
+            ],
+            [
+                ['class' => DummyTask1::class, 'parameters' => [56]],
+                'setDummyParameter',
+                [sys_get_temp_dir()],
+                [\InvalidArgumentException::class, "Task setter must be an array"]
+            ],
+            [
+                ['class' => DummyTask1::class, 'parameters' => [['nonExistentSetter', $arg1]]],
+                'setDummyParameter',
+                [''],
+                [\InvalidArgumentException::class, "", '/^No "\w+" method found in/']
+            ],
         ];
     }
 
@@ -565,6 +766,13 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
         $arg1 = "Dummy string $arg2";
 
         return [
+            [
+                ['class' => DummyTask1::class, 'setters' => [['nonExistentSetter', $arg1]]],
+                '',
+                'setDummyParameter',
+                [$arg1],
+                [\InvalidArgumentException::class, "", '/^No "\w+" method found in/']
+            ],
             [
                 ['class' => DummyTask1::class, 'setters' => [['setDummyParameter', $arg1]]],
                 '',
@@ -580,6 +788,12 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
             [
                 ['class' => DummyTask1::class, 'setters' => [['setDummyParameter', ['strtoupper', 'a']]]],
                 '',
+                'setDummyParameter',
+                ['A'],
+            ],
+            [
+                ['class' => DummyTask1::class, 'setters' => [['setDummyParameter', 'getTaskDummyParameter']]],
+                'getTaskDummyParameter',
                 'setDummyParameter',
                 ['A'],
             ],
@@ -667,9 +881,27 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
                 0
             ],
             [
-                ['class' => DummyTask1::class, 'condition' => [['**mockJob**','jobGetter'],['A string', 'Another string']]],
+                ['class' => DummyTask1::class, 'condition' => [['**mockJob**','jobGetter'], 'some value']],
                 false,
                 0
+            ],
+            [
+                ['class' => DummyTask1::class, 'condition' => ""],
+                false,
+                0,
+                [\InvalidArgumentException::class, "Not boolean falsy values are not allowed"]
+            ],
+            [
+                ['class' => DummyTask1::class, 'condition' => ["not a valid method"]],
+                false,
+                0,
+                [\InvalidArgumentException::class, "Invalid condition method provided:"]
+            ],
+            [
+                ['class' => DummyTask1::class, 'condition' => 35],
+                false,
+                0,
+                [\InvalidArgumentException::class, "Invalid condition provided:"]
             ],
         ];
     }
