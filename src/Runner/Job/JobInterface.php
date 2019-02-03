@@ -9,7 +9,7 @@
 namespace Bnza\JobManagerBundle\Runner\Job;
 
 use Bnza\JobManagerBundle\Runner\RunnableInterface;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 interface JobInterface extends RunnableInterface
 {
@@ -17,5 +17,5 @@ interface JobInterface extends RunnableInterface
 
     public function success(): void;
 
-    public function getDispatcher(): EventDispatcher;
+    public function getDispatcher(): EventDispatcherInterface;
 }

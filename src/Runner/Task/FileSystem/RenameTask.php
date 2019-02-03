@@ -87,6 +87,8 @@ class RenameTask extends AbstractTask
     public function rename(string $origin, string $target, bool $overwrite = false)
     {
         $this->getFileSystem()->rename($origin, $target, $overwrite);
+        $this->setMessage($origin);
+        $this->persist('message');
     }
 
     /**

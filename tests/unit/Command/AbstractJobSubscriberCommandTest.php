@@ -13,14 +13,29 @@ use Bnza\JobManagerBundle\Command\AbstractJobSubscriberCommand;
 use Bnza\JobManagerBundle\Entity\TmpFS\JobEntity;
 use Bnza\JobManagerBundle\Tests\Fixture\Runner\Job\DummyJob1;
 use Bnza\JobManagerBundle\Tests\MockUtilsTrait;
+use Bnza\JobManagerBundle\Tests\UtilsTrait;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 
 class AbstractJobSubscriberCommandTest extends KernelTestCase
 {
     use CommandUtilTrait;
     use MockUtilsTrait;
+    use UtilsTrait;
+
+    public function testMethodGetDispatcherWillReturnDispatcher()
+    {
+        $this->getMockDispatcher();
+        $this->getMockObjectManager();
+        $command = $this->getMockForTypeWithMethods(AbstractJobSubscriberCommand::class, []);
+        $this->invokeConstructor(AbstractJobSubscriberCommand::class, $command, [$this->mockOm, $this->mockDispatcher]);
+        $getDispatcher = $this->getNonPublicMethod($command, 'getDispatcher');
+
+
+        $this->assertInstanceOf(EventDispatcherInterface::class, $getDispatcher->invoke($command));
+    }
 
     /**
      * @testWith    ["onJobStarted", 1, "\\Bnza\\JobManagerBundle\\Event\\JobStartedEvent"]
@@ -56,6 +71,8 @@ class AbstractJobSubscriberCommandTest extends KernelTestCase
             ]
         );
 
+        $this->mockDispatcher->addSubscriber($command);
+
         $command->expects($this->exactly($count))->method($method)->with($this->isInstanceOf($class));
         $this->invokeConstructor(AbstractJobSubscriberCommand::class, $command, [$mockOm, $this->mockDispatcher]);
         $mockJob->run();
@@ -63,8 +80,11 @@ class AbstractJobSubscriberCommandTest extends KernelTestCase
 
     /**
      * @testWith    ["displayJobHeader", 1, "\\Bnza\\JobManagerBundle\\Info\\JobInfoInterface"]
-     *              ["updateStatusDisplay", 5, "\\Bnza\\JobManagerBundle\\Info\\JobInfoInterface"]
-     *              ["updateTaskProgress", 8, "\\Bnza\\JobManagerBundle\\Info\\TaskInfoInterface"]
+     *              ["updateStatusDisplay", 1, "\\Bnza\\JobManagerBundle\\Info\\JobInfoInterface"]
+     *              ["updateOverallProgress", 1, "\\Bnza\\JobManagerBundle\\Info\\JobInfoInterface"]
+     *              ["updateTaskProgress", 6, "\\Bnza\\JobManagerBundle\\Info\\TaskInfoInterface"]
+     *              ["setJobComplete", 1, "\\Bnza\\JobManagerBundle\\Info\\JobInfoInterface"]
+     *              ["setTaskComplete", 2, "\\Bnza\\JobManagerBundle\\Info\\TaskInfoInterface"]
      *
      * @param string $method
      * @param int $count
@@ -86,8 +106,13 @@ class AbstractJobSubscriberCommandTest extends KernelTestCase
                 'displayJobHeader',
                 'updateStatusDisplay',
                 'updateTaskProgress',
+                'updateOverallProgress',
+                'setJobComplete',
+                'setTaskComplete',
             ]
         );
+
+        $this->mockDispatcher->addSubscriber($command);
 
         $command->expects($this->exactly($count))->method($method)->with($this->isInstanceOf($class));
         $this->invokeConstructor(AbstractJobSubscriberCommand::class, $command, [$mockOm, $this->mockDispatcher]);

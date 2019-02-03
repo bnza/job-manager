@@ -111,5 +111,7 @@ class ZipExtractToTask extends AbstractTask
     protected function executeStep(array $arguments): void
     {
         $this->zipArchiveSingleExtractTo(...$arguments);
+        $this->setMessage($arguments[1]);
+        $this->persist('message');
     }
 }

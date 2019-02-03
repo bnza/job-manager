@@ -121,7 +121,7 @@ trait MockUtilsTrait
         } elseif ($type === 'abstract') {
             $mock = $this->getMockForAbstractClassWithMockedMethods($className, $methods);
         } elseif ($type === 'trait') {
-            $mock = $this->getMockForAbstractClassWithMockedMethods($className, $methods);
+            $mock = $this->getMockForTraitWithMockedMethods($className, $methods);
         } else {
             throw new \InvalidArgumentException("Invalid class type: $type");
         }

@@ -22,10 +22,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 abstract class AbstractJobSubscriberCommand extends AbstractJobCommand implements EventSubscriberInterface
 {
-    /**
-     * @var JobInterface
-     */
-    protected $job;
 
     /**
      * @var EventDispatcherInterface
@@ -68,42 +64,39 @@ abstract class AbstractJobSubscriberCommand extends AbstractJobCommand implement
     {
         parent::__construct($om);
         $this->dispatcher = $dispatcher;
-        $this->dispatcher->addSubscriber($this);
     }
 
     protected function getDispatcher(): EventDispatcherInterface
     {
-        return $this->getDispatcher();
-    }
-
-    protected function getJob(): JobInterface
-    {
-        return $this->job;
+        return $this->dispatcher;
     }
 
     public function onJobStarted(JobStartedEvent $event)
     {
-        $this->displayJobHeader($event->getJob());
+        $job = $event->getJob();
+        $this->displayJobHeader($job);
+        $this->updateStatusDisplay($job);
+        $this->updateOverallProgress($job);
     }
 
     public function onJobEnded(JobEndedEvent $event)
     {
-        $this->updateStatusDisplay($event->getJob());
+        $this->setJobComplete($event->getJob());
     }
 
     public function onTaskStarted(TaskStartedEvent $event)
     {
-        $this->updateStatusDisplay($event->getTask()->getJob());
+        $this->updateTaskProgress($event->getTask());
     }
 
     public function onTaskEnded(TaskEndedEvent $event)
     {
-        $this->updateStatusDisplay($event->getTask()->getJob());
+        $this->setTaskComplete($event->getTask());
     }
 
     public function onTaskStepStarted(TaskStepStartedEvent $event)
     {
-        $this->updateTaskProgress($event->getTask());
+        //$this->updateTaskProgress($event->getTask());
     }
 
     public function onTaskStepEnded(TaskStepEndedEvent $event)

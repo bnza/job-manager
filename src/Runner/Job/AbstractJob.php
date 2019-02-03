@@ -18,7 +18,7 @@ use Bnza\JobManagerBundle\Event\JobStartedEvent;
 use Bnza\JobManagerBundle\Entity\JobEntityInterface;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 use Bnza\JobManagerBundle\Runner\RunnableTrait;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 abstract class AbstractJob implements JobInterface, JobInfoInterface
@@ -35,7 +35,7 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
     protected $entity;
 
     /**
-     * @var EventDispatcher
+     * @var EventDispatcherInterface
      */
     protected $dispatcher;
 
@@ -74,7 +74,7 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
      */
     abstract public function getSteps(): iterable;
 
-    public function __construct(ObjectManagerInterface $om, EventDispatcher $dispatcher, $entity = '', array $parameters = [])
+    public function __construct(ObjectManagerInterface $om, EventDispatcherInterface $dispatcher, $entity = '', array $parameters = [])
     {
         $this->setParameterBag($parameters);
         $this->dispatcher = $dispatcher;
@@ -91,9 +91,9 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
     }
 
     /**
-     * @return EventDispatcher
+     * @return EventDispatcherInterface
      */
-    public function getDispatcher(): EventDispatcher
+    public function getDispatcher(): EventDispatcherInterface
     {
         return $this->dispatcher;
     }

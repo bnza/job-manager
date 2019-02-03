@@ -126,9 +126,9 @@ class JobInfoCommandTest extends KernelTestCase
         $entity->method('getId')->willReturn($id);
         $entity->method('getName')->willReturn(JobInfoCommand::getDefaultName());
         $entity->method('getStepsNum')->willReturn(3);
-        $entity->method('getCurrentStepNum')->willReturn(2);
+        $entity->method('getCurrentStepNum')->willReturn(1);
         $taskEntity = $this->createMock(TaskEntityInterface::class);
-        $taskEntity->method('getName')->willReturn('Dummy task');
+        $taskEntity->method('getDescription')->willReturn('Dummy task');
         $entity->method('getTask')->willReturn($taskEntity);
         $om = $this->getObjectManagerMock($entity);
 
