@@ -41,7 +41,7 @@ class InfoTraitTest extends \PHPUnit\Framework\TestCase
 
     public function testMethodAsArray()
     {
-
+        $sha1 = sha1(microtime());
         $mockStatus = $this->getMockStatus(Status::class, ['get']);
         $mockStatus->expects($this->once())->method('get')->willReturn(1);
 
@@ -50,8 +50,10 @@ class InfoTraitTest extends \PHPUnit\Framework\TestCase
 
         $mock = $this->getMockForTypeWithMethods(
             InfoTrait::class,
-            ['getName', 'getClass', 'getDescription', 'getStepsNum', 'getEntity']
+            ['getName', 'getClass', 'getDescription', 'getStepsNum', 'getEntity', 'getId']
         );
+
+        $mock->method('getId')->willReturn($sha1);
 
         $expected = [
             'name' => 'foo',
@@ -59,13 +61,14 @@ class InfoTraitTest extends \PHPUnit\Framework\TestCase
             'description' => 'bar',
             'steps_num' => 3,
             'status' => 1,
+            'id' => $sha1
         ];
 
         $mock->expects($this->once())->method('getName')->willReturn($expected['name']);
         $mock->expects($this->once())->method('getClass')->willReturn($expected['class']);
         $mock->expects($this->once())->method('getDescription')->willReturn($expected['description']);
         $mock->expects($this->once())->method('getStepsNum')->willReturn($expected['steps_num']);
-        $mock->expects($this->once())->method('getEntity')->willReturn($mockEntity);
+        $mock->method('getEntity')->willReturn($mockEntity);
 
 
         $this->assertEquals($expected, $mock->asArray());

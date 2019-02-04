@@ -134,7 +134,7 @@ trait InfoTrait
     public function asArray(): array
     {
         $array = [];
-        foreach (['name', 'class', 'description', 'steps_num'] as $key) {
+        foreach (['id', 'name', 'class', 'description', 'steps_num'] as $key) {
             $array[$key] = $this->{'get'.Inflector::classify($key)}();
         }
         $array['status'] = $this->getEntity()->getStatus()->get();

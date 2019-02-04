@@ -47,7 +47,7 @@ trait WorkDirTrait
     protected function createWorkDir(string $baseWorkDir): string
     {
         if (!\file_exists($baseWorkDir)) {
-            throw new \InvalidArgumentException("Base work directory MUST exists");
+            \mkdir($baseWorkDir,0700, true);
         }
         $workDir = $baseWorkDir.DIRECTORY_SEPARATOR.$this->getId();
         if (\file_exists($workDir)) {

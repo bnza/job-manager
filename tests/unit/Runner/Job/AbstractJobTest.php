@@ -9,7 +9,8 @@
 
 namespace Bnza\JobManagerBundle\Tests\Runner\Job;
 
-use Bnza\JobManagerBundle\Entity\JobEntityInterface;
+use Bnza\JobManagerBundle\Exception\JobManagerNonCriticalErrorException;
+use Bnza\JobManagerBundle\Runner\Task\TaskInterface;
 use Bnza\JobManagerBundle\Tests\MockUtilsTrait;
 use Bnza\JobManagerBundle\Exception\JobManagerCancelledJobException;
 use Bnza\JobManagerBundle\Runner\Job\AbstractJob;
@@ -70,7 +71,7 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
      * @expectedException \LogicException
      * @expectedExceptionMessage You must must override "getDescription" method in concrete class
      */
-    public function testMethodGetDescriptionWillThrowsExcetion()
+    public function testMethodGetDescriptionWillThrowsException()
     {
         $this->getMockJob(AbstractJob::class);
         $this->mockJob->getDescription();
@@ -456,6 +457,45 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
         $mockJob->expects($this->once())
             ->method('runTask')
             ->willThrowException($e);
+
+        $mockJob->run();
+    }
+
+    /**
+     * @expectedException \Bnza\JobManagerBundle\Exception\JobManagerNonCriticalErrorException
+     * @expectedExceptionMessage Dummy non critical exception
+     */
+    public function testTaskRunNonCriticalExceptionWillThrownAfterStepIteration()
+    {
+        $mockJob = $this->getMockJob(
+            AbstractJob::class,
+            ['getSteps', 'initTask', 'error', 'running', 'isCancelled']
+        );
+
+        $mockJob->expects($this->once())
+            ->method('getSteps')
+            ->willReturn([
+                [],[]
+            ]);
+
+        $e = new \Exception("Dummy exception");
+        $ne = new JobManagerNonCriticalErrorException('Dummy non critical exception',0, $e);
+
+        $mockJob->expects($this->once())
+            ->method('error')
+            ->with($ne);
+
+        $mockJob->expects($this->exactly(2))
+            ->method('initTask')
+            ->will(
+                $this->onConsecutiveCalls(
+                    $this->getMockTask(AbstractTask::class, ['run'], 0),
+                    $this->getMockTask(AbstractTask::class, ['run'], 1)
+                )
+            );
+
+        $this->mockTasks[0]->method('run')->willThrowException($ne);
+        $this->mockTasks[1]->expects($this->once())->method('run');
 
         $mockJob->run();
     }

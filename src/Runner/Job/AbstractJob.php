@@ -10,6 +10,7 @@
 namespace Bnza\JobManagerBundle\Runner\Job;
 
 use Bnza\JobManagerBundle\Exception\JobManagerCancelledJobException;
+use Bnza\JobManagerBundle\Exception\JobManagerNonCriticalErrorException;
 use Bnza\JobManagerBundle\Info\JobInfoInterface;
 use Bnza\JobManagerBundle\Info\JobInfoTrait;
 use Bnza\JobManagerBundle\Runner\Task\AbstractTask;
@@ -28,6 +29,11 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
     }
     use ParameterBagTrait;
     use JobInfoTrait;
+
+    /**
+     * @var JobManagerNonCriticalErrorException[]
+     */
+    protected $nonCriticalExceptions = [];
 
     /**
      * @var JobEntityInterface
@@ -152,6 +158,10 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
                     continue;
                 }
                 $this->runTask($num, $taskData);
+            }
+            if ($this->nonCriticalExceptions) {
+                //only first will thrown
+                throw $this->nonCriticalExceptions[0];
             }
         } catch (\Throwable $e) {
             $this->error($e);
@@ -507,7 +517,12 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
     {
         $task = $this->initTask($num, $taskData);
         $this->setTaskParameters($task, $taskData);
-        $task->run();
+        try {
+            $task->run();
+        } catch (JobManagerNonCriticalErrorException $e) {
+            $this->nonCriticalExceptions[] = $e;
+        }
+
         $this->setJobParameters($task, $taskData);
     }
 

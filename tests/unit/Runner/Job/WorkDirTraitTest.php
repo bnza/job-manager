@@ -116,17 +116,17 @@ class WorkDirTraitTest extends \PHPUnit\Framework\TestCase
         $mock->setWorkDir($this->baseWorkDir);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Base work directory MUST exists
-     */
-    public function testSetWorkDirThrowsExceptionIfBaseWorkDoesNotExist()
-    {
-        $fs = new Filesystem();
-        $fs->remove($this->baseWorkDir);
-        $mock = $this->getMockTrait();
-        $mock->setWorkDir($this->baseWorkDir);
-    }
+//    /**
+//     * @expectedException \InvalidArgumentException
+//     * @expectedExceptionMessage Base work directory MUST exists
+//     */
+//    public function testSetWorkDirThrowsExceptionIfBaseWorkDoesNotExist()
+//    {
+//        $fs = new Filesystem();
+//        $fs->remove($this->baseWorkDir);
+//        $mock = $this->getMockTrait();
+//        $mock->setWorkDir($this->baseWorkDir);
+//    }
 
     /**
      * @expectedException \RuntimeException
