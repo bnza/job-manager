@@ -38,4 +38,6 @@ interface InfoInterface
     public function isError(): bool;
 
     public function isCancelled(): bool;
+
+    public function asArray(): array;
 }

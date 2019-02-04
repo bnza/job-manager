@@ -12,6 +12,7 @@ namespace Bnza\JobManagerBundle\Info;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 use Bnza\JobManagerBundle\Entity\RunnableEntityInterface;
 use Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException;
+use Doctrine\Common\Inflector\Inflector;
 
 trait InfoTrait
 {
@@ -128,5 +129,15 @@ trait InfoTrait
     public function isCancelled(): bool
     {
         return $this->getEntity()->getStatus()->isCancelled();
+    }
+
+    public function asArray(): array
+    {
+        $array = [];
+        foreach (['name', 'class', 'description', 'steps_num'] as $key) {
+            $array[$key] = $this->{'get'.Inflector::classify($key)}();
+        }
+        $array['status'] = $this->getEntity()->getStatus()->get();
+        return $array;
     }
 }

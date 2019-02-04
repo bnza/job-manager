@@ -7,7 +7,7 @@
  * For full license information see the README.md file
  */
 
-namespace Bnza\JobManagerBundle\Tests\Runner\Traits;
+namespace Bnza\JobManagerBundle\Tests\Runner;
 
 use Bnza\JobManagerBundle\Entity\RunnableEntityInterface;
 use Bnza\JobManagerBundle\Entity\TmpFS\JobEntity;
