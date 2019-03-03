@@ -40,6 +40,20 @@ trait CommandUtilTrait
         return $commandTester;
     }
 
+    /**
+     * Command class "XXX" is not correctly initialized. You probably forgot to call the parent constructor.
+     *
+     * @param Command $command
+     * @param array   $arguments
+     *
+     * @throws \ReflectionException
+     */
+    public function invokeCommandConstructor(Command $command, array $arguments = [])
+    {
+        $reflectedClass = new \ReflectionClass(Command::class);
+        $reflectedClass->getConstructor()->invokeArgs($command, $arguments);
+    }
+
     public function executeCommandTesterOnMock(Command $mockCommand, array $input = [], array $options = []): CommandTester
     {
         $this->invokeCommandConstructor($mockCommand);

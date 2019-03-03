@@ -108,7 +108,7 @@ abstract class AbstractJobCommand extends Command
         return $this->om;
     }
 
-    public function initialize(InputInterface $input, OutputInterface $output)
+    protected function setUpOutputSections(OutputInterface $output)
     {
         $this->output = $output;
         if ($output instanceof ConsoleOutput) {
@@ -117,6 +117,11 @@ abstract class AbstractJobCommand extends Command
             //$this->sections['overall'] = $output->section();
             $this->sections['tasks'] = [];
         }
+    }
+
+    public function initialize(InputInterface $input, OutputInterface $output)
+    {
+        $this->setUpOutputSections($output);
     }
 
     public function displayJobHeader(JobInfoInterface $info)

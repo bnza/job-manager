@@ -115,7 +115,11 @@ class Summary implements EventSubscriberInterface
     public function onJobEnded(JobEndedEvent $event)
     {
         $id = $event->getJob()->getId();
-        $filename = $this->getBaseWorkDir().DIRECTORY_SEPARATOR.$id.DIRECTORY_SEPARATOR.'summary.json';
+        $workDir = $this->getBaseWorkDir().DIRECTORY_SEPARATOR.$id;
+        if (!file_exists($workDir)) {
+            mkdir($workDir, 0700, true);
+        }
+        $filename = $workDir.DIRECTORY_SEPARATOR.'summary.json';
         \file_put_contents($filename, \json_encode($this->getEntries()));
 
     }
