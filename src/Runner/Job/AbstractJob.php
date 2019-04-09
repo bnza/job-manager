@@ -163,6 +163,7 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
                 //only first will thrown
                 throw $this->nonCriticalExceptions[0];
             }
+            $this->success();
         } catch (\Throwable $e) {
             $this->error($e);
             throw $e;
@@ -170,7 +171,6 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
             $this->terminate();
             $this->getObjectManager()->archive($this->getEntity());
         }
-        $this->success();
     }
 
     /**

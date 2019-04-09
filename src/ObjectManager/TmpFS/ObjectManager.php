@@ -111,7 +111,7 @@ class ObjectManager implements ObjectManagerInterface
 
         $this->inflector = new Inflector();
 
-        $this->workDir = $workDir.DIRECTORY_SEPARATOR.'job';
+        $this->workDir = $workDir;
 
         $this->fs = new Filesystem();
     }
@@ -163,11 +163,15 @@ class ObjectManager implements ObjectManagerInterface
         if ($entity instanceof JobEntityInterface) {
             return $this->getArchivePath()
                 .DIRECTORY_SEPARATOR
-                .$entity->getId();
+                .$entity->getId()
+                .DIRECTORY_SEPARATOR
+                .'job';
         } elseif ($entity instanceof TaskEntityInterface) {
             return $this->getArchivePath()
                 .DIRECTORY_SEPARATOR
                 .$entity->getJob()->getId()
+                .DIRECTORY_SEPARATOR
+                .'job'
                 .DIRECTORY_SEPARATOR
                 .'tasks'
                 .DIRECTORY_SEPARATOR
@@ -190,19 +194,6 @@ class ObjectManager implements ObjectManagerInterface
     public function getEntityPath(RunnableEntityInterface $entity, bool $archive = false): string
     {
         $path = $this->getTmpEntityPath($entity);
-/*        if ($entity instanceof JobEntityInterface) {
-            $path = $this->getBasePath()
-                .DIRECTORY_SEPARATOR
-                .$entity->getId();
-        } elseif ($entity instanceof TaskEntityInterface) {
-            $path = $this->getBasePath()
-                .DIRECTORY_SEPARATOR
-                .$entity->getJob()->getId()
-                .DIRECTORY_SEPARATOR
-                .'tasks'
-                .DIRECTORY_SEPARATOR
-                .$entity->getNum();
-        }*/
         if (!file_exists($path) && $archive) {
             return $this->getArchiveEntityPath($entity);
         } else {
