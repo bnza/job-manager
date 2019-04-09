@@ -111,7 +111,7 @@ class ObjectManager implements ObjectManagerInterface
 
         $this->inflector = new Inflector();
 
-        $this->workDir = $workDir;
+        $this->workDir = $workDir.DIRECTORY_SEPARATOR.'job';
 
         $this->fs = new Filesystem();
     }
