@@ -9,6 +9,7 @@
 
 namespace Bnza\JobManagerBundle\ObjectManager;
 
+use Bnza\JobManagerBundle\Entity\JobEntityInterface;
 use Bnza\JobManagerBundle\Entity\RunnableEntityInterface;
 use Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException;
 
@@ -50,4 +51,10 @@ interface ObjectManagerInterface
      * @throws \InvalidArgumentException
      */
     public function getEntityClass(string $type): string;
+
+    /**
+     * Moves to job from the running jobs to archive (runningJob -> ranJob)
+     * @param string $jobId
+     */
+    public function archive(JobEntityInterface $job): void;
 }

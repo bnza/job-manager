@@ -38,6 +38,20 @@ class ObjectManagerTest extends \PHPUnit\Framework\TestCase
         $this->om = new ObjectManager('test');
     }
 
+    public function tearDown()
+    {
+        $path = $this->om->getBasePath();
+        if (file_exists($path)) {
+            $fs = new Filesystem();
+            $fs->remove($path);
+        }
+        $archivePath = $this->om->getArchivePath();
+        if (file_exists($archivePath)) {
+            $fs = new Filesystem();
+            $fs->remove($archivePath);
+        }
+    }
+
     public function testEmptyConstructor()
     {
         $om = new ObjectManager();
@@ -348,15 +362,6 @@ class ObjectManagerTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals((string) $value, $this->handleEntityProp($entity, 'get', $prop));
     }
 
-    public function tearDown()
-    {
-        $path = $this->om->getBasePath();
-        if (file_exists($path)) {
-            $fs = new Filesystem();
-            $fs->remove($path);
-        }
-    }
-
     public function testFindJob()
     {
         $job = new JobEntity(sha1(microtime()));
@@ -380,5 +385,26 @@ class ObjectManagerTest extends \PHPUnit\Framework\TestCase
     public function testFindWrongClassThrowsException()
     {
         $this->om->find(\Exception::class, sha1(microtime()));
+    }
+
+    public function testMethodArchiveWillMoveJobDirToArchive()
+    {
+        $this->om = new ObjectManager('test', '/tmp', '/tmp/job-manager/test');
+        $job = new JobEntity(sha1(microtime()));
+        $this->om->persist($job);
+        $this->assertFileExists($this->om->getEntityPath($job));
+        $this->om->archive($job);
+        $this->assertFileNotExists($this->om->getEntityPath($job));
+        $this->assertFileExists($this->om->getEntityPath($job, true));
+    }
+
+    public function testMethodFindWillFindJobAfterItHasBeenMovedToArchive()
+    {
+        $this->om = new ObjectManager('test', '/tmp', '/tmp/job-manager/test');
+        $job = new JobEntity(sha1(microtime()));
+        $this->om->persist($job);
+        $this->om->archive($job);
+        $job2 = $this->om->find(get_class($job), $job->getId());
+        $this->assertEquals($job, $job2);
     }
 }

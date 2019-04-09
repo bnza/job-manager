@@ -24,6 +24,7 @@ use Bnza\JobManagerBundle\Entity\TmpFS\TaskEntity;
 use Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 use Doctrine\Common\Inflector\Inflector;
+use Symfony\Component\DependencyInjection\Tests\Compiler\F;
 use Symfony\Component\Filesystem\Filesystem;
 
 class ObjectManager implements ObjectManagerInterface
@@ -32,6 +33,13 @@ class ObjectManager implements ObjectManagerInterface
      * @var string
      */
     private $basePath = '';
+
+    private $workDir = '';
+
+    /**
+     * @var Filesystem
+     */
+    private $fs;
 
     /**
      * @var Inflector
@@ -64,7 +72,13 @@ class ObjectManager implements ObjectManagerInterface
         'message'
     ];
 
-    public function __construct(string $env = 'dev', string $tempDir = '')
+    /**
+     * ObjectManager constructor.
+     * @param string $env
+     * @param string $tempDir The tmpfs tmp dir
+     * @param string $workDir The job's work dir, used as archive to not pollute memory
+     */
+    public function __construct(string $env = 'dev', string $tempDir = '', string $workDir='')
     {
         if ($tempDir) {
             if (file_exists($tempDir)) {
@@ -96,11 +110,20 @@ class ObjectManager implements ObjectManagerInterface
         );
 
         $this->inflector = new Inflector();
+
+        $this->workDir = $workDir;
+
+        $this->fs = new Filesystem();
     }
 
     public function getBasePath(): string
     {
         return $this->basePath;
+    }
+
+    public function getArchivePath(): string
+    {
+        return $this->workDir;
     }
 
     public function getJobPropertiesList(): array
@@ -118,7 +141,7 @@ class ObjectManager implements ObjectManagerInterface
         return $this->inflector;
     }
 
-    public function getEntityPath(RunnableEntityInterface $entity): string
+    public function getTmpEntityPath(RunnableEntityInterface $entity): string
     {
         if ($entity instanceof JobEntityInterface) {
             return $this->getBasePath()
@@ -132,6 +155,58 @@ class ObjectManager implements ObjectManagerInterface
                 .'tasks'
                 .DIRECTORY_SEPARATOR
                 .$entity->getNum();
+        }
+    }
+
+    public function getArchiveEntityPath(RunnableEntityInterface $entity): string
+    {
+        if ($entity instanceof JobEntityInterface) {
+            return $this->getArchivePath()
+                .DIRECTORY_SEPARATOR
+                .$entity->getId();
+        } elseif ($entity instanceof TaskEntityInterface) {
+            return $this->getArchivePath()
+                .DIRECTORY_SEPARATOR
+                .$entity->getJob()->getId()
+                .DIRECTORY_SEPARATOR
+                .'tasks'
+                .DIRECTORY_SEPARATOR
+                .$entity->getNum();
+        }
+    }
+
+    public function archive(JobEntityInterface $job): void
+    {
+        $tmp = $this->getEntityPath($job);
+        $archive = $this->getArchiveEntityPath($job);
+        $this->fs->rename($tmp, $archive);
+    }
+
+    /**
+     * @param RunnableEntityInterface $entity
+     * @param bool $archive
+     * @return string
+     */
+    public function getEntityPath(RunnableEntityInterface $entity, bool $archive = false): string
+    {
+        $path = $this->getTmpEntityPath($entity);
+/*        if ($entity instanceof JobEntityInterface) {
+            $path = $this->getBasePath()
+                .DIRECTORY_SEPARATOR
+                .$entity->getId();
+        } elseif ($entity instanceof TaskEntityInterface) {
+            $path = $this->getBasePath()
+                .DIRECTORY_SEPARATOR
+                .$entity->getJob()->getId()
+                .DIRECTORY_SEPARATOR
+                .'tasks'
+                .DIRECTORY_SEPARATOR
+                .$entity->getNum();
+        }*/
+        if (!file_exists($path) && $archive) {
+            return $this->getArchiveEntityPath($entity);
+        } else {
+            return $path;
         }
     }
 
@@ -152,11 +227,11 @@ class ObjectManager implements ObjectManagerInterface
 
         $path = $this->getEntityPath($entity);
 
-        $fs = new Filesystem();
+        /*$fs = new Filesystem();*/
 
         if (!$property) {
             if (!\file_exists($path)) {
-                $fs->mkdir($path, 0700);
+                $this->fs->mkdir($path, 0700);
             }
             // Persist all properties
             foreach ($props as $prop) {
@@ -183,7 +258,7 @@ class ObjectManager implements ObjectManagerInterface
             }
             $path .= DIRECTORY_SEPARATOR.$property;
             $method = 'get'.$this->getInflector()->classify($property);
-            $fs->dumpFile($path, $entity->$method());
+            $this->fs->dumpFile($path, $entity->$method());
         }
     }
 
@@ -197,7 +272,7 @@ class ObjectManager implements ObjectManagerInterface
             $props = $this->getTaskPropertiesList();
         }
 
-        $path = $this->getEntityPath($entity);
+        $path = $this->getEntityPath($entity, true);
 
         if (!$property) {
             // Refresh all properties
