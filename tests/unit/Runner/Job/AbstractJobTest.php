@@ -82,10 +82,15 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
      */
     public function testMethodRunCallRunTaskMethodWithRightArguments()
     {
+
         $mockJob = $this->getMockJob(
             AbstractJob::class,
-            ['running', 'runTask', 'success', 'getSteps', 'isCancelled']
+            ['running', 'runTask', 'success', 'getSteps', 'isCancelled', 'getObjectManager', 'getEntity']
         );
+
+        $mockJob->method('getObjectManager')->willReturn($this->getMockObjectManager());
+
+        $mockJob->method('getEntity')->willReturn($this->getMockJobEntity());
 
         $mockJob->expects($this->once())
             ->method('running');
@@ -439,8 +444,12 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
     {
         $mockJob = $this->getMockJob(
             AbstractJob::class,
-            ['getSteps', 'runTask', 'error', 'running', 'isCancelled']
+            ['getSteps', 'runTask', 'error', 'running', 'isCancelled', 'getObjectManager', 'getEntity']
         );
+
+        $mockJob->method('getObjectManager')->willReturn($this->getMockObjectManager());
+
+        $mockJob->method('getEntity')->willReturn($this->getMockJobEntity());
 
         $mockJob->expects($this->once())
             ->method('getSteps')
@@ -469,8 +478,12 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
     {
         $mockJob = $this->getMockJob(
             AbstractJob::class,
-            ['getSteps', 'initTask', 'error', 'running', 'isCancelled']
+            ['getSteps', 'initTask', 'error', 'running', 'isCancelled', 'getObjectManager', 'getEntity']
         );
+
+        $mockJob->method('getObjectManager')->willReturn($this->getMockObjectManager());
+
+        $mockJob->method('getEntity')->willReturn($this->getMockJobEntity());
 
         $mockJob->expects($this->once())
             ->method('getSteps')
@@ -577,8 +590,12 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
 
         $mockJob = $this->getMockJob(
             AbstractJob::class,
-            ['configure', 'persistError', 'handleRollBackError', 'rollback', 'running', 'getDispatcher']
+            ['configure', 'persistError', 'handleRollBackError', 'rollback', 'running', 'getDispatcher', 'getObjectManager', 'getEntity']
         );
+
+        $mockJob->method('getObjectManager')->willReturn($this->getMockObjectManager());
+
+        $mockJob->method('getEntity')->willReturn($this->getMockJobEntity());
 
         $mockJob
             ->method('getDispatcher')
@@ -601,8 +618,12 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
 
         $mockJob = $this->getMockJob(
             AbstractJob::class,
-            ['configure', 'persistError', 'rollback', 'running', 'getDispatcher']
+            ['configure', 'persistError', 'rollback', 'running', 'getDispatcher', 'getObjectManager', 'getEntity']
         );
+
+        $mockJob->method('getObjectManager')->willReturn($this->getMockObjectManager());
+
+        $mockJob->method('getEntity')->willReturn($this->getMockJobEntity());
 
         $mockJob
             ->method('getDispatcher')

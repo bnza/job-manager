@@ -168,6 +168,7 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
             throw $e;
         } finally {
             $this->terminate();
+            $this->getObjectManager()->archive($this->getEntity());
         }
         $this->success();
     }
