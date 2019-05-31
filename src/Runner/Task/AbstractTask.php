@@ -62,7 +62,7 @@ abstract class AbstractTask implements TaskInterface
     {
         $this->setStepsNum();
         $dispatcher = $this->getJob()->getDispatcher();
-        $dispatcher->dispatch(TaskStartedEvent::NAME, new TaskStartedEvent($this));
+        $dispatcher->dispatch( new TaskStartedEvent($this),TaskStartedEvent::NAME);
         $this->configure();
         $stepInterval = $this->getStepInterval();
         /**
@@ -83,7 +83,7 @@ abstract class AbstractTask implements TaskInterface
         $stepEndedEvent = new TaskStepEndedEvent($this);
         foreach ($this->getSteps() as $i => $arguments) {
             if ($doDispatchStep = $dispatchStep($i)) {
-                $dispatcher->dispatch(TaskStepStartedEvent::NAME, $stepStartedEvent);
+                $dispatcher->dispatch( $stepStartedEvent, TaskStepStartedEvent::NAME);
             }
             if ($this->isCancelled()) {
                 throw new JobManagerCancelledJobException();
@@ -91,7 +91,7 @@ abstract class AbstractTask implements TaskInterface
             $this->executeStep($arguments);
             $this->next();
             if ($doDispatchStep) {
-                $dispatcher->dispatch(TaskStepEndedEvent::NAME, $stepEndedEvent);
+                $dispatcher->dispatch($stepEndedEvent, TaskStepEndedEvent::NAME);
             }
         }
         $this->terminate();

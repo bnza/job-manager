@@ -128,8 +128,8 @@ class AbstractTaskTest extends \PHPUnit\Framework\TestCase
         $invocations = $spy->getInvocations();
         foreach ($invocations as $invocation) {
             $parameters = $invocation->getParameters();
-            $eventName = $parameters[0];
-            $event = $parameters[1];
+            $event = $parameters[0];
+            $eventName = $parameters[1];
             if ($eventName === TaskStepStartedEvent::NAME) {
                 $this->assertInstanceOf(TaskStepStartedEvent::class, $event);
                 ++$countStartEvents;

@@ -196,7 +196,7 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
         } catch (\Throwable $t) {
             $this->handleRollbackError($t);
         }
-        $this->getDispatcher()->dispatch(JobEndedEvent::NAME, new JobEndedEvent($this));
+        $this->getDispatcher()->dispatch(new JobEndedEvent($this), JobEndedEvent::NAME);
     }
 
     protected function handleRollbackError(\Throwable $t)
@@ -223,7 +223,7 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
     {
         $this->getEntity()->getStatus()->success();
         $this->persist('status');
-        $this->getDispatcher()->dispatch(JobEndedEvent::NAME, new JobEndedEvent($this));
+        $this->getDispatcher()->dispatch(new JobEndedEvent($this), JobEndedEvent::NAME);
     }
 
     /**
@@ -233,7 +233,7 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
     {
         $this->getEntity()->getStatus()->run();
         $this->persist('status');
-        $this->getDispatcher()->dispatch(JobStartedEvent::NAME, new JobStartedEvent($this));
+        $this->getDispatcher()->dispatch( new JobStartedEvent($this), JobStartedEvent::NAME);
     }
 
     /**
