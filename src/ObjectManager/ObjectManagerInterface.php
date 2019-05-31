@@ -54,7 +54,7 @@ interface ObjectManagerInterface
 
     /**
      * Moves to job from the running jobs to archive (runningJob -> ranJob)
-     * @param string $jobId
+     * @param JobEntityInterface $job
      */
     public function archive(JobEntityInterface $job): void;
 }
