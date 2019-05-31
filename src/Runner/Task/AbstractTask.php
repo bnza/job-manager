@@ -95,7 +95,7 @@ abstract class AbstractTask implements TaskInterface
             }
         }
         $this->terminate();
-        $dispatcher->dispatch(TaskEndedEvent::NAME, new TaskEndedEvent($this));
+        $dispatcher->dispatch( new TaskEndedEvent($this), TaskEndedEvent::NAME);
     }
 
     /**

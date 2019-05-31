@@ -9,7 +9,7 @@
 
 namespace Bnza\JobManagerBundle\Event;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 use Bnza\JobManagerBundle\Runner\Job\JobInterface;
 
 abstract class AbstractJobEvent extends Event

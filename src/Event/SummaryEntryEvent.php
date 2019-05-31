@@ -19,7 +19,7 @@ namespace Bnza\JobManagerBundle\Event;
 
 use Bnza\JobManagerBundle\Info\InfoInterface;
 use Bnza\JobManagerBundle\Summary\Entry\AbstractInfoEntry;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class SummaryEntryEvent extends Event
 {

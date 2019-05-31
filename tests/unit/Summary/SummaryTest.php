@@ -19,7 +19,7 @@ use Bnza\JobManagerBundle\Runner\Job\JobInterface;
 use Bnza\JobManagerBundle\Summary\Entry\AbstractInfoEntry;
 use Bnza\JobManagerBundle\Summary\Entry\ErrorEntry;
 use Bnza\JobManagerBundle\Summary\Summary;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -150,7 +150,7 @@ class SummaryTest extends \PHPUnit\Framework\TestCase
         );
         $mock->expects($this->once())->method($method)->with($this->isInstanceOf($eventClass));
         $this->dispatcher->addSubscriber($mock);
-        $this->dispatcher->dispatch($eventName, $event);
+        $this->dispatcher->dispatch($event, $eventName);
     }
 
     /**
