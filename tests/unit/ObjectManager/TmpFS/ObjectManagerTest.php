@@ -306,6 +306,37 @@ class ObjectManagerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @depends      testGetEntityJobPath
+     *
+     * @param ObjectManager $om
+     * @throws \Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException
+     */
+    public function testRefreshJobWithTasks(ObjectManager $om)
+    {
+        $job = new JobEntity($this->jobId);
+        foreach ($this->jobPropertiesProvider() as $jobProp) {
+            list($prop, $value) = $jobProp;
+            $this->handleEntityProp($job, 'set', $prop, $value);
+        }
+
+        $om->persist($job);
+
+        $task = new TaskEntity($job, 0);
+
+        foreach ($this->taskPropertiesProvider() as $taskProp) {
+            list($prop, $value) = $taskProp;
+            $this->handleEntityProp($task, 'set', $prop, $value);
+        }
+
+        $job->addTask($task);
+        $om->persist($task);
+
+        $job2 = new JobEntity($this->jobId);
+        $om->refresh($job2);
+        $this->assertEquals($job, $job2);
+    }
+
+    /**
+     * @depends      testGetEntityJobPath
      * @dataProvider taskPropertiesProvider
      *
      * @param string $prop

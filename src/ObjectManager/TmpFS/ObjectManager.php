@@ -253,6 +253,18 @@ class ObjectManager implements ObjectManagerInterface
         }
     }
 
+    protected function refreshJobTasks(JobEntityInterface $jobEntity)
+    {
+        for ($i = 0; $i < $jobEntity->getCurrentStepNum(); $i++) {
+            $task = new TaskEntity($jobEntity,$i);
+            $taskPath = $this->getEntityPath($task, true);
+            if (file_exists($taskPath)) {
+                $this->refresh($task);
+                $jobEntity->addTask($task);
+            }
+        }
+    }
+
     public function refresh(RunnableEntityInterface $entity, string $property = ''): void
     {
         if ($entity instanceof JobEntityInterface) {
@@ -269,6 +281,11 @@ class ObjectManager implements ObjectManagerInterface
             // Refresh all properties
             foreach ($props as $prop) {
                 $this->refresh($entity, $prop);
+            }
+
+            // Refresh job tasks entities
+            if ($entity instanceof JobEntityInterface) {
+                $this->refreshJobTasks($entity);
             }
         } else {
             if (!\file_exists($path)) {
