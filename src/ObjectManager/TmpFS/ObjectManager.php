@@ -255,7 +255,7 @@ class ObjectManager implements ObjectManagerInterface
 
     protected function refreshJobTasks(JobEntityInterface $jobEntity)
     {
-        for ($i = 0; $i < $jobEntity->getCurrentStepNum(); $i++) {
+        for ($i = 0; $i <= $jobEntity->getCurrentStepNum(); $i++) {
             $task = new TaskEntity($jobEntity,$i);
             $taskPath = $this->getEntityPath($task, true);
             if (file_exists($taskPath)) {

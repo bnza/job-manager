@@ -320,15 +320,16 @@ class ObjectManagerTest extends \PHPUnit\Framework\TestCase
 
         $om->persist($job);
 
-        $task = new TaskEntity($job, 0);
+        for ($i = 0; $i <= 3; $i++) {
+            $task = new TaskEntity($job, $i);
 
-        foreach ($this->taskPropertiesProvider() as $taskProp) {
-            list($prop, $value) = $taskProp;
-            $this->handleEntityProp($task, 'set', $prop, $value);
+            foreach ($this->taskPropertiesProvider() as $taskProp) {
+                list($prop, $value) = $taskProp;
+                $this->handleEntityProp($task, 'set', $prop, $value);
+            }
+            $job->addTask($task);
+            $om->persist($task);
         }
-
-        $job->addTask($task);
-        $om->persist($task);
 
         $job2 = new JobEntity($this->jobId);
         $om->refresh($job2);
