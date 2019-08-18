@@ -54,7 +54,7 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
         $this->mockJob->method('getSteps')->willReturn([]);
         $this->mockStatus[0]->expects($this->once())->method('run');
         $this->mockStatus[0]->expects($this->once())->method('success');
-        $this->mockOm->method('persist')->with($this->mockJobEntity[0], 'status');
+        //$this->mockOm->method('persist')->with($this->mockJobEntity[0], 'status');
 
         $this->mockJob->run();
     }

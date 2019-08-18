@@ -180,11 +180,11 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
             }
             $this->success();
         } catch (\Throwable $e) {
-            $this->setMessage($this->getErrors());
             $this->error($e);
             throw $e;
         } finally {
             $this->terminate();
+            $this->setMessage($this->getErrors());
             $this->getObjectManager()->archive($this->getEntity());
         }
     }
