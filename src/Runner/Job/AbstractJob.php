@@ -118,7 +118,7 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
         return $this->entity;
     }
 
-    public function pushError(string $key, array $value, ?\Throwable $t) {
+    public function pushError(string $key, array $value, ?\Throwable $t = null) {
         $this->errors->push($key, $value, $t);
     }
 

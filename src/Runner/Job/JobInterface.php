@@ -18,4 +18,6 @@ interface JobInterface extends RunnableInterface
     public function success(): void;
 
     public function getDispatcher(): EventDispatcherInterface;
+
+    public function pushError(string $key, array $value, ?\Throwable $t = null);
 }
