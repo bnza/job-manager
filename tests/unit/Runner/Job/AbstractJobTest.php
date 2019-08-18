@@ -23,6 +23,15 @@ class AbstractJobTest extends \PHPUnit\Framework\TestCase
 {
     use MockUtilsTrait;
 
+    public function testPushErrorMethod()
+    {
+        $this->getMockAbstractJobWithConstructor();
+
+        $this->mockJob->pushError('some-key', ['some-values'], new \LogicException());
+
+        $this->assertRegExp('/^\[{"key":".*","value":\[.*\],"exception":".*"}\]$/', $this->mockJob->getErrors());
+    }
+
     public function testGetDispatcherWillReturnDispatcher()
     {
         $this->getMockAbstractJobWithConstructor();

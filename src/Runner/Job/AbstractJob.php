@@ -9,6 +9,7 @@
 
 namespace Bnza\JobManagerBundle\Runner\Job;
 
+use Bnza\JobManagerBundle\Runner\Errors;
 use Bnza\JobManagerBundle\Exception\JobManagerCancelledJobException;
 use Bnza\JobManagerBundle\Exception\JobManagerNonCriticalErrorException;
 use Bnza\JobManagerBundle\Info\JobInfoInterface;
@@ -44,6 +45,11 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
      * @var EventDispatcherInterface
      */
     protected $dispatcher;
+
+    /**
+     * @var Errors
+     */
+    protected $errors;
 
     /**
      * Return an iterable which contains an ordered list of data used for instantiate, set up, execute an AbstractTask's
@@ -90,7 +96,7 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
             $jobId = $entity;
             $entity = $om->getEntityClass('job');
         }
-
+        $this->errors = new Errors();
         $this->setUpRunnable($om, $entity, $jobId);
         $this->getEntity()->setStepsNum($this->getStepsNum());
         $this->persist();
@@ -110,6 +116,15 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
     protected function getEntity()
     {
         return $this->entity;
+    }
+
+    public function pushError(string $key, array $value, ?\Throwable $t) {
+        $this->errors->push($key, $value, $t);
+    }
+
+    public function getErrors(): string
+    {
+        return (string) $this->errors;
     }
 
     /**
@@ -165,6 +180,7 @@ abstract class AbstractJob implements JobInterface, JobInfoInterface
             }
             $this->success();
         } catch (\Throwable $e) {
+            $this->setMessage($this->getErrors());
             $this->error($e);
             throw $e;
         } finally {

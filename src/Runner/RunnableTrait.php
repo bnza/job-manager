@@ -129,7 +129,7 @@ trait RunnableTrait
 
         $entity->setMessage($message);
 
-        $this->persist('current_step_num');
+        $this->persist('message');
     }
 
     protected function next()
