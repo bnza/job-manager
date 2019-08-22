@@ -1,5 +1,9 @@
 language: php
 sudo: false
+
+before_script:
+  - sudo groupadd www-data
+
 cache:
   directories:
   - $HOME/.composer/cache/files
