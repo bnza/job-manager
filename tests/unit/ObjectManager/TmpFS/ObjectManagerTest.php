@@ -72,6 +72,22 @@ class ObjectManagerTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(__DIR__.'/bnza/test/job_manager/jobs', $om->getBasePath());
     }
 
+    public function testOwnerConstructor()
+    {
+        $om = new ObjectManager('test', '', '', 'user:group');
+        $this->assertEquals('user', $om->getOwner());
+        $this->assertEquals('group', $om->getGroup());
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Owner must be provide in the form "user:group"
+     */
+    public function testInvalidOwnerParameterThrowsInvalidArgumentException()
+    {
+        $om = new ObjectManager('test', '', '', 'user');
+    }
+
     /**
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessageRegExp /.+ does not exist/
@@ -428,6 +444,18 @@ class ObjectManagerTest extends \PHPUnit\Framework\TestCase
         $this->om->archive($job);
         $this->assertFileNotExists($this->om->getEntityPath($job));
         $this->assertFileExists($this->om->getEntityPath($job, true));
+    }
+
+    public function testMethodArchiveWillChangeOwnershipAndPermission()
+    {
+        $owner = posix_getpwuid(posix_geteuid())['name'].':www-data';
+        $this->om = new ObjectManager('test', '/tmp', '/tmp/job-manager/test', $owner);
+        $job = new JobEntity(sha1(microtime()));
+        $this->om->persist($job);
+        $this->om->archive($job);
+        $archive = $this->om->getEntityPath($job, true);
+        $this->assertEquals('www-data', posix_getgrgid(filegroup($archive))['name']);
+        $this->assertEquals('0770', substr(sprintf('%o', fileperms($archive)), -4));
     }
 
     public function testMethodFindWillFindJobAfterItHasBeenMovedToArchive()

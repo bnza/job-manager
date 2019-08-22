@@ -24,7 +24,7 @@ use Bnza\JobManagerBundle\Entity\TmpFS\TaskEntity;
 use Bnza\JobManagerBundle\Exception\JobManagerEntityNotFoundException;
 use Bnza\JobManagerBundle\ObjectManager\ObjectManagerInterface;
 use Doctrine\Common\Inflector\Inflector;
-use Symfony\Component\DependencyInjection\Tests\Compiler\F;
+use http\Exception\InvalidArgumentException;
 use Symfony\Component\Filesystem\Filesystem;
 
 class ObjectManager implements ObjectManagerInterface
@@ -45,6 +45,16 @@ class ObjectManager implements ObjectManagerInterface
      * @var Inflector
      */
     private $inflector;
+
+    /**
+     * @var string
+     */
+    private $owner = '';
+
+    /**
+     * @var string
+     */
+    private $group = '';
 
     /**
      * @var array
@@ -77,8 +87,9 @@ class ObjectManager implements ObjectManagerInterface
      * @param string $env
      * @param string $tempDir The tmpfs tmp dir
      * @param string $workDir The job's work dir, used as archive to not pollute memory
+     * @param string $owner The archived directory owner/group
      */
-    public function __construct(string $env = 'dev', string $tempDir = '', string $workDir='')
+    public function __construct(string $env = 'dev', string $tempDir = '', string $workDir='', string $owner='')
     {
         if ($tempDir) {
             if (file_exists($tempDir)) {
@@ -114,6 +125,30 @@ class ObjectManager implements ObjectManagerInterface
         $this->workDir = $workDir;
 
         $this->fs = new Filesystem();
+
+        if ($owner) {
+            $this->setOwner($owner);
+        }
+    }
+
+    private function setOwner(string $owner)
+    {
+        $ownerAndGroup = explode(':', $owner);
+        if (sizeof($ownerAndGroup) !== 2) {
+            throw new \InvalidArgumentException('Owner must be provide in the form "user:group"');
+        }
+        $this->owner = $ownerAndGroup[0];
+        $this->group = $ownerAndGroup[1];
+    }
+
+    public function getOwner(): string
+    {
+        return $this->owner;
+    }
+
+    public function getGroup(): string
+    {
+        return $this->group;
     }
 
     public function getBasePath(): string
@@ -184,6 +219,10 @@ class ObjectManager implements ObjectManagerInterface
         $tmp = $this->getEntityPath($job);
         $archive = $this->getArchiveEntityPath($job);
         $this->fs->rename($tmp, $archive);
+        if ($group = $this->getGroup()) {
+            $this->fs->chgrp($archive, $group, true);
+            $this->fs->chmod($archive, 0770, 0000, true);
+        }
     }
 
     /**
