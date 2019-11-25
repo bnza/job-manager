@@ -3,13 +3,16 @@
   "license": "GPL-3.0-or-later",
   "type": "symfony-bundle",
   "description": "Simple job manager",
+  "minimum-stability": "dev",
   "keywords": [
     "job",
     "task",
     "runner"
   ],
   "require-dev": {
-    "phpunit/phpunit": "~7"
+    "phpunit/phpunit": "~7",
+    "friendsofphp/php-cs-fixer": "^2.17@dev",
+    "phpmd/phpmd": "dev-master"
   },
   "autoload": {
     "psr-4": {
