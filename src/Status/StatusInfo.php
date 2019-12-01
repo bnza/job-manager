@@ -4,7 +4,7 @@ namespace Bnza\JobManagerBundle\Status;
 
 class StatusInfo implements StatusInfoInterface
 {
-    const NEW = 0;
+    const CLEAN = 0;
     const RUNNING = 0b1;
     const SKIPPED = 0b10;
     const SUCCESS = 0b100;
@@ -16,14 +16,14 @@ class StatusInfo implements StatusInfoInterface
      */
     protected $status;
 
-    public function __construct(int $status = self::NEW)
+    public function __construct(int $status = self::CLEAN)
     {
         $this->status = $status;
     }
 
-    public function isNew(): bool
+    public function isClean(): bool
     {
-        return $this->is(self::NEW);
+        return $this->is(self::CLEAN);
     }
     
     public function isRunning(): bool
@@ -56,7 +56,7 @@ class StatusInfo implements StatusInfoInterface
      */
     public function is(int $status): bool
     {
-        if ($status === self::NEW) {
+        if ($status === self::CLEAN) {
             return $this->status === $status;
         }
         return (bool) ($this->status & $status);

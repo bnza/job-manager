@@ -11,7 +11,7 @@ interface StatusInfoInterface
      */
     public function __toString(): string;
 
-    public function isNew(): bool;
+    public function isClean(): bool;
 
     public function isRunning(): bool;
     

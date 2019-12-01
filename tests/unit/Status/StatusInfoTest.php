@@ -10,8 +10,8 @@ class StatusInfoTest extends TestCase
     public function getterProvider()
     {
         return [
-            [0b00000, 'isNew', true],
-            [0b11111, 'isNew', false],
+            [0b00000, 'isClean', true],
+            [0b11111, 'isClean', false],
             [0b00001, 'isRunning', true],
             [0b11110, 'isRunning', false],
             [0b00010, 'isSkipped', true],

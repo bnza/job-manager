@@ -26,8 +26,9 @@
   },
   "require": {
     "php": "~7.1",
-    "ext-zip": "*",
     "ext-json": "*",
-    "ext-posix": "*"
+    "ext-posix": "*",
+    "symfony/serializer": "4.4",
+    "jawira/case-converter": "dev-master"
   }
 }
