@@ -3,6 +3,7 @@
   "license": "GPL-3.0-or-later",
   "type": "symfony-bundle",
   "description": "Simple job manager",
+  "prefer-stable": true,
   "minimum-stability": "dev",
   "keywords": [
     "job",
@@ -28,7 +29,7 @@
     "php": "~7.1",
     "ext-json": "*",
     "ext-posix": "*",
-    "symfony/serializer": "4.4",
-    "jawira/case-converter": "dev-master"
+    "symfony/serializer": "~4.4",
+    "jawira/case-converter": "~3"
   }
 }
