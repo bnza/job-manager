@@ -6,8 +6,7 @@ use Bnza\JobManagerBundle\Entity\TaskInfoEntity;
 use Bnza\JobManagerBundle\Serializer\Normalizer\StatusNormalizer;
 use Bnza\JobManagerBundle\Serializer\Normalizer\TaskInfoEntityNormalizer;
 use Bnza\JobManagerBundle\Status\Status;
-use InvalidArgumentException;
-use Jawira\CaseConverter\CaseConverter;
+use Bnza\JobManagerBundle\Tests\AccessorsTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 use Symfony\Component\Serializer\Normalizer\PropertyNormalizer;
@@ -15,24 +14,19 @@ use Symfony\Component\Serializer\Serializer;
 
 class TaskInfoEntityNormalizerTest extends TestCase
 {
+    use AccessorsTrait;
+
     /**
      * @var Serializer
      */
     private $serializer;
 
     /**
-     * @var CaseConverter
-     */
-    private static $caseConverter;
-
-    /**
-     * undocumented function
-     *
      * @return void
      */
     public static function setUpBeforeClass()
     {
-        self::$caseConverter = new CaseConverter();
+        self::setupCaseConverter();
     }
     
     public function setUp()
@@ -68,18 +62,6 @@ class TaskInfoEntityNormalizerTest extends TestCase
         $this->assertEquals($data, $this->serializer->normalize($info));
     }
 
-    private function getByAccessor($object, $property)
-    {
-        $pascalProperty = self::$caseConverter->convert($property)->toPascal();
-        foreach (['get', 'is', 'has'] as $prefix) {
-            $method = $prefix.$pascalProperty;
-            if (method_exists($object, $method)) {
-                return $object->$method();
-            }
-        }
-        throw new InvalidArgumentException(sprintf('No accessor found for property %s in %s class', $property, get_class($object)));
-    }
-    
     private function getData(): array
     {
         return [

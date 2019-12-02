@@ -16,7 +16,7 @@ class Status extends StatusInfo implements StatusInterface
         $this->status |= self::RUNNING;
         return $this;
     }
-    
+
     public function setSkipped(): StatusInterface
     {
         $this->status |= self::SKIPPED;
