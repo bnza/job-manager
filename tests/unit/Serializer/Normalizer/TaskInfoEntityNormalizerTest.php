@@ -24,12 +24,12 @@ class TaskInfoEntityNormalizerTest extends TestCase
     /**
      * @return void
      */
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         self::setupCaseConverter();
     }
-    
-    public function setUp()
+
+    public function setUp(): void
     {
         $taskInfoNormalizer = new TaskInfoEntityNormalizer();
         $propertyNormalizer = new PropertyNormalizer(null, new CamelCaseToSnakeCaseNameConverter());

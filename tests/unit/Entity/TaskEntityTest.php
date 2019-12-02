@@ -21,12 +21,12 @@ class TaskEntityTest extends TestCase
      *
      * @return void
      */
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         self::setupCaseConverter();
     }
-    
-    public function setUp()
+
+    public function setUp(): void
     {
         $this->taskEntity = new TaskEntity();
     }

@@ -11,9 +11,10 @@
     "runner"
   ],
   "require-dev": {
-    "phpunit/phpunit": "~7",
+    "phpunit/phpunit": "~8",
     "friendsofphp/php-cs-fixer": "~2",
-    "phpmd/phpmd": "dev-master"
+    "phpmd/phpmd": "dev-master",
+    "matthiasnoback/symfony-dependency-injection-test": "^4.1"
   },
   "autoload": {
     "psr-4": {
@@ -30,6 +31,7 @@
     "ext-json": "*",
     "ext-posix": "*",
     "symfony/serializer": "~4.4",
+    "symfony/http-kernel": "~4.4",
     "jawira/case-converter": "~3.4"
   },
   "extra": {

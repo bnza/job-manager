@@ -1,0 +1,26 @@
+services:
+  _defaults:
+    autowire: false
+    autoconfigure: false
+    public: false
+
+  camel_case_to_snake_case_converter:
+    class: Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
+
+  case_converter_property_normalizer:
+    class: Symfony\Component\Serializer\Normalizer\PropertyNormalizer
+    tags: [serializer.normalizer]
+    arguments:
+      - ~
+      - '@camel_case_to_snake_case_converter'
+
+  bnza_job_manager_task_entity_json_serializer:
+    class: Symfony\Component\Serializer\Serializer
+    public: true
+    arguments:
+      -
+        - Bnza\JobManagerBundle\Serializer\Normalizer\TaskInfoEntityNormalizer
+        - Bnza\JobManagerBundle\Serializer\Normalizer\StatusNormalizer
+        - '@case_converter_property_normalizer'
+      -
+        - Symfony\Component\Serializer\Encoder\JsonEncoder

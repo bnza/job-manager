@@ -19,7 +19,7 @@ class StatusNormalizerTest extends TestCase
      *
      * @return void
      */
-    public function setup()
+    public function setUp(): void
     {
         $normalizer = new StatusNormalizer();
         $this->serializer = new Serializer([$normalizer]);
