@@ -1,6 +1,6 @@
 <?php
 
-namespace Bnza\JobManagerBundle\Tests\Status;
+namespace Bnza\JobManagerBundle\Tests\Unit\Status;
 
 use PHPUnit\Framework\TestCase;
 use Bnza\JobManagerBundle\Status\StatusInfo;

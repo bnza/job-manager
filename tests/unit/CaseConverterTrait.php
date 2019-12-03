@@ -1,6 +1,6 @@
 <?php
 
-namespace Bnza\JobManagerBundle\Tests;
+namespace Bnza\JobManagerBundle\Tests\Unit;
 
 use Jawira\CaseConverter\CaseConverter;
 
@@ -10,7 +10,7 @@ trait CaseConverterTrait
      * @var CaseConverter
      */
     private static $caseConverter;
-    
+
     /**
      * @return void
      */

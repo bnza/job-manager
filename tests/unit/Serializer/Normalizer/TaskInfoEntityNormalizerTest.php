@@ -1,12 +1,12 @@
 <?php
 
-namespace Bnza\JobManagerBundle\Tests\Serializer\Normalizer;
+namespace Bnza\JobManagerBundle\Tests\Unit\Serializer\Normalizer;
 
 use Bnza\JobManagerBundle\Entity\TaskInfoEntity;
 use Bnza\JobManagerBundle\Serializer\Normalizer\StatusNormalizer;
 use Bnza\JobManagerBundle\Serializer\Normalizer\TaskInfoEntityNormalizer;
 use Bnza\JobManagerBundle\Status\Status;
-use Bnza\JobManagerBundle\Tests\AccessorsTrait;
+use Bnza\JobManagerBundle\Tests\Unit\AccessorsTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 use Symfony\Component\Serializer\Normalizer\PropertyNormalizer;

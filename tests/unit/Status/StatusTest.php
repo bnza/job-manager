@@ -7,7 +7,7 @@
  * For full license information see the README.md file
  */
 
-namespace Bnza\JobManagerBundle\Tests\Status;
+namespace Bnza\JobManagerBundle\Tests\Unit\Status;
 
 use Bnza\JobManagerBundle\Status\Status;
 use PHPUnit\Framework\TestCase;

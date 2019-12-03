@@ -11,6 +11,7 @@
     "runner"
   ],
   "require-dev": {
+    "symfony/phpunit-bridge": "^4.4",
     "phpunit/phpunit": "~8",
     "friendsofphp/php-cs-fixer": "~2",
     "phpmd/phpmd": "dev-master",
@@ -23,7 +24,8 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Bnza\\JobManagerBundle\\Tests\\": "tests/unit/"
+      "Bnza\\JobManagerBundle\\Tests\\Unit\\": "tests/unit/",
+      "Bnza\\JobManagerBundle\\Tests\\Integration\\": "tests/integration/"
     }
   },
   "require": {

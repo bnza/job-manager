@@ -1,10 +1,10 @@
 <?php
 
-namespace Bnza\JobManagerBundle\Tests\Entity;
+namespace Bnza\JobManagerBundle\Tests\Unit\Entity;
 
 use Bnza\JobManagerBundle\Entity\TaskEntity;
 use Bnza\JobManagerBundle\Status\Status;
-use Bnza\JobManagerBundle\Tests\AccessorsTrait;
+use Bnza\JobManagerBundle\Tests\Unit\AccessorsTrait;
 use PHPUnit\Framework\TestCase;
 
 class TaskEntityTest extends TestCase

@@ -1,6 +1,6 @@
 <?php
 
-namespace Bnza\JobManagerBundle\Tests\Serializer\Normalizer;
+namespace Bnza\JobManagerBundle\Tests\Unit\Serializer\Normalizer;
 
 use Bnza\JobManagerBundle\Serializer\Normalizer\StatusNormalizer;
 use Bnza\JobManagerBundle\Status\Status;

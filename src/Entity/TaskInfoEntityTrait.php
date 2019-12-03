@@ -40,11 +40,11 @@ trait TaskInfoEntityTrait
      * @var array Task's steps
      */
     protected $steps = [];
-    
+
     /**
      * @inheritdoc
      */
-    public function getId(): string
+    public function getId(): ?string
     {
         return $this->id;
     }
@@ -52,7 +52,7 @@ trait TaskInfoEntityTrait
     /**
      * @inheritdoc
      */
-    public function getClass(): string
+    public function getClass(): ?string
     {
         return $this->class;
     }
@@ -60,7 +60,7 @@ trait TaskInfoEntityTrait
     /**
      * @inheritdoc
      */
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
@@ -76,7 +76,7 @@ trait TaskInfoEntityTrait
     /**
      * @inheritdoc
      */
-    public function getStartedAt(): float
+    public function getStartedAt(): ?float
     {
         return $this->startedAt;
     }
@@ -84,7 +84,7 @@ trait TaskInfoEntityTrait
     /**
      * @inheritdoc
      */
-    public function getStatus(): Status
+    public function getStatus(): ?Status
     {
         return $this->status;
     }

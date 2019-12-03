@@ -21,7 +21,7 @@ class JobManager implements EventSubscriberInterface
     {
         return [
             TaskEvents::CREATED => [
-              ['setTaskId', 200] //HIGH priority
+              ['setUpCreatedTask', 200] //HIGH priority
             ]
           ];
     }
@@ -56,12 +56,12 @@ class JobManager implements EventSubscriberInterface
     /**
      * Subscribed event callback
      *
-     * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
+     * @SuppressWarnings(PHPMD.UnusedPublicMethod)
      */
-    public function setTaskId(TaskCreatedEvent $event)
+    public function setUpCreatedTask(TaskCreatedEvent $event)
     {
         if (!$event->getTaskEntity()->getId()) {
-            $event->getTaskEntity->setId($this->generateId());
+            $event->getTaskEntity()->setId($this->generateId());
         }
     }
 }

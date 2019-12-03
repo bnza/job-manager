@@ -23,7 +23,7 @@ class TaskCreatedEvent extends Event
         $this->taskEntity = $taskEntity;
     }
 
-    public function getTaskEntity(): TaskEntity
+    public function getTaskEntity(): TaskEntityInterface
     {
         return $this->taskEntity;
     }

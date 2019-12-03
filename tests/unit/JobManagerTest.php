@@ -1,7 +1,10 @@
 <?php
 
-namespace Bnza\JobManagerBundle\Tests;
+namespace Bnza\JobManagerBundle\Tests\Unit;
 
+use Bnza\JobManagerBundle\Entity\TaskEntity;
+use Bnza\JobManagerBundle\Entity\TaskEntityInterface;
+use Bnza\JobManagerBundle\Event\TaskCreatedEvent;
 use Bnza\JobManagerBundle\JobManager;
 use Bnza\JobManagerBundle\Repository\TaskRepositoryInterface;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -44,5 +47,14 @@ class JobManagerTest extends TestCase
         $this->storedTaskRepository->expects($this->exactly(2))->method('exists')->will($this->onConsecutiveCalls(true, false));
         $this->activeTaskRepository->expects($this->exactly(3))->method('exists')->will($this->onConsecutiveCalls(true, false, false));
         $this->jobManager->generateId();
+    }
+
+    public function testSetId()
+    {
+        $entity = $this->getMockForAbstractClass(TaskEntityInterface::class);
+        $entity->expects($this->once())->method('setId');
+        $event = $this->createStub(TaskCreatedEvent::class);
+        $event->method('getTaskEntity')->willReturn($entity);
+        $this->jobManager->setUpCreatedTask($event);
     }
 }
