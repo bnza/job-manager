@@ -24,3 +24,9 @@ services:
         - '@case_converter_property_normalizer'
       -
         - Symfony\Component\Serializer\Encoder\JsonEncoder
+
+  bnza_job_manager:
+    class: Bnza\JobManagerBundle\JobManager
+    public: true
+    arguments:
+      - Bnza\

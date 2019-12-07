@@ -3,7 +3,7 @@
 namespace Bnza\JobManagerBundle;
 
 use Bnza\JobManagerBundle\Event\TaskCreatedEvent;
-use Bnza\JobManagerBundle\Repository\TaskRepositoryInterface;
+use Bnza\JobManagerBundle\Repository\JobRepository;
 use Bnza\JobManagerBundle\Task\TaskEvents;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -11,8 +11,10 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class JobManager implements EventSubscriberInterface
 {
-    private $activeTaskRepository;
-    private $storedTaskRepository;
+    /**
+     * @var JobRepository
+     */
+    private $jobRepository;
 
     /**
      * {@inheritDoc}
@@ -21,7 +23,7 @@ class JobManager implements EventSubscriberInterface
     {
         return [
             TaskEvents::CREATED => [
-              ['setUpCreatedTask', 200] //HIGH priority
+              ['onTaskCreated', 200] //HIGH priority
             ]
           ];
     }
@@ -31,10 +33,9 @@ class JobManager implements EventSubscriberInterface
      * @param TaskRepositoryInterface $storedTaskRepository
      * @param EventDispatcherInterface $dispatcher
      */
-    public function __construct(TaskRepositoryInterface $activeTaskRepository, TaskRepositoryInterface $storedTaskRepository, EventDispatcherInterface $dispatcher)
+    public function __construct(JobRepository $jobRepository, EventDispatcherInterface $dispatcher)
     {
-        $this->activeTaskRepository = $activeTaskRepository;
-        $this->storedTaskRepository = $storedTaskRepository;
+        $this->jobRepository = $jobRepository;
         $this->dispatcher = $dispatcher;
     }
 
@@ -46,8 +47,8 @@ class JobManager implements EventSubscriberInterface
     public function generateId(): string
     {
         $uuid = Uuid::uuid4()->toString();
-        $activeTaskExist = $this->activeTaskRepository->exists($uuid);
-        if (!$activeTaskExist && !$this->storedTaskRepository->exists($uuid)) {
+        if (!$this->jobRepository->existsUuid($uuid)) {
+            $this->jobRepository->lock($uuid);
             return $uuid;
         }
         return $this->generateId();
@@ -58,7 +59,7 @@ class JobManager implements EventSubscriberInterface
      *
      * @SuppressWarnings(PHPMD.UnusedPublicMethod)
      */
-    public function setUpCreatedTask(TaskCreatedEvent $event)
+    public function onTaskCreated(TaskCreatedEvent $event)
     {
         if (!$event->getTaskEntity()->getId()) {
             $event->getTaskEntity()->setId($this->generateId());

@@ -11,8 +11,7 @@ interface TaskRepositoryInterface
      */
     public function find(string $uuid): TaskInfoEntity;
 
-    /**
-     * @return bool
-     */
     public function exists(string $uuid): bool;
+
+    public function persist(TaskInfoInterface $taskInfo): void;
 }
