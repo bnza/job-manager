@@ -19,7 +19,7 @@ class TaskInfoEntityNormalizer implements DenormalizerInterface, NormalizerInter
 
     const SKIP = 'skip';
 
-    private function dataHasStatusArray($data): bool
+    private function dataHasStatusArray(array $data): bool
     {
         return array_key_exists('status', $data) && is_array($data['status']);
     }
@@ -54,7 +54,9 @@ class TaskInfoEntityNormalizer implements DenormalizerInterface, NormalizerInter
      */
     public function normalize($object, $format = null, array $context = [])
     {
-        // Skip first to PropertyNormalizer
+        /**
+         * @var array $data
+         */
         $data = $this->normalizer->normalize($object, self::SKIP, $context);
         $data['status'] = $this->normalizer->normalize($data['status'], Status::class, $context);
         return $data;

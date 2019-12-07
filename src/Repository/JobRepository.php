@@ -15,8 +15,8 @@ class JobRepository
     private $archivedTaskRepo;
 
     /**
-     * @param TaskRepositoryInteface $activeTaskRepo
-     * @param TaskRepository $archivedTaskRepo
+     * @param ActiveTaskRepositoryInterface $activeTaskRepo
+     * @param TaskRepositoryInterface $archivedTaskRepo
      */
     public function __construct(ActiveTaskRepositoryInterface $activeTaskRepo, TaskRepositoryInterface $archivedTaskRepo)
     {

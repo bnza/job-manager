@@ -11,7 +11,7 @@ class TaskCreatedEvent extends Event
     const NAME = TaskEvents::CREATED;
 
     /**
-     * @var TaskEntity
+     * @var TaskEntityInterface
      */
     protected $taskEntity;
 

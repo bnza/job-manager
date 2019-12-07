@@ -17,6 +17,11 @@ class JobManager implements EventSubscriberInterface
     private $jobRepository;
 
     /**
+     * @var EventDispatcherInterface
+     */
+    private $dispatcher;
+
+    /**
      * {@inheritDoc}
      */
     public static function getSubscribedEvents()
@@ -42,7 +47,7 @@ class JobManager implements EventSubscriberInterface
     /**
      * Returns a uuid4 string
      *
-     * @return void
+     * @return string
      */
     public function generateId(): string
     {
@@ -57,9 +62,8 @@ class JobManager implements EventSubscriberInterface
     /**
      * Subscribed event callback
      *
-     * @SuppressWarnings(PHPMD.UnusedPublicMethod)
      */
-    public function onTaskCreated(TaskCreatedEvent $event)
+    public function onTaskCreated(TaskCreatedEvent $event): void
     {
         if (!$event->getTaskEntity()->getUuid()) {
             $event->getTaskEntity()->setUuid($this->generateId());
