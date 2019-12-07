@@ -34,7 +34,7 @@ class TaskEntityTest extends TestCase
     public function propertyValuesProvider(): array
     {
         return [
-            ['id' , sha1(microtime())],
+            ['uuid' , sha1(microtime())],
             ['started_at' , microtime(true)],
             ['finished_at' , microtime(true) + 10],
             ['status' , new Status(mt_rand(0, 255))],

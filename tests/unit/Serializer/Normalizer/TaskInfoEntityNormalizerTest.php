@@ -65,7 +65,7 @@ class TaskInfoEntityNormalizerTest extends TestCase
     private function getData(): array
     {
         return [
-            'id' => sha1(microtime()),
+            'uuid' => sha1(microtime()),
             'class' => self::class,
             'started_at' => microtime(true),
             'finished_at' => null,

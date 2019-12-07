@@ -9,7 +9,7 @@ trait TaskInfoEntityTrait
     /**
      * @var string The Task id
      */
-    protected $id;
+    protected $uuid;
 
     /**
      * @var string Fully qualified Task's class name
@@ -44,9 +44,9 @@ trait TaskInfoEntityTrait
     /**
      * @inheritdoc
      */
-    public function getId(): ?string
+    public function getUuid(): ?string
     {
-        return $this->id;
+        return $this->uuid;
     }
 
     /**

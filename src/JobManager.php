@@ -61,8 +61,8 @@ class JobManager implements EventSubscriberInterface
      */
     public function onTaskCreated(TaskCreatedEvent $event)
     {
-        if (!$event->getTaskEntity()->getId()) {
-            $event->getTaskEntity()->setId($this->generateId());
+        if (!$event->getTaskEntity()->getUuid()) {
+            $event->getTaskEntity()->setUuid($this->generateId());
         }
     }
 }

@@ -15,7 +15,7 @@ interface TaskInfoEntityInterface
      *
      * @return null|string
      */
-    public function getId(): ?string;
+    public function getUuid(): ?string;
 
     /**
      * Returns the fully qualified Task class name

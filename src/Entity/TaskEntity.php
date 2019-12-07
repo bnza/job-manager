@@ -32,9 +32,9 @@ class TaskEntity implements TaskEntityInterface
         return $this;
     }
 
-    public function setId(string $id): TaskEntityInterface
+    public function setUuid(string $uuid): TaskEntityInterface
     {
-        $this->id = $id;
+        $this->uuid = $uuid;
         return $this;
     }
 

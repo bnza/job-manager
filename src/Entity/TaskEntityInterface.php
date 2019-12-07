@@ -14,7 +14,7 @@ interface TaskEntityInterface extends TaskInfoEntityInterface
 
     public function setClass(string $class): self;
 
-    public function setId(string $id): self;
+    public function setUuid(string $uuid): self;
 
     public function setStatus(Status $status): self;
 }

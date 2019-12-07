@@ -47,10 +47,10 @@ class JobManagerTest extends TestCase
         $this->jobManager->generateId();
     }
 
-    public function testSetId()
+    public function testSetUuid()
     {
         $entity = $this->getMockForAbstractClass(TaskEntityInterface::class);
-        $entity->expects($this->once())->method('setId');
+        $entity->expects($this->once())->method('setUuid');
         $event = $this->createStub(TaskCreatedEvent::class);
         $event->method('getTaskEntity')->willReturn($entity);
         $this->jobManager->onTaskCreated($event);
