@@ -12,7 +12,7 @@
   ],
   "require-dev": {
     "symfony/phpunit-bridge": "^4.4",
-    "phpunit/phpunit": "~8",
+    "phpunit/phpunit": "^8.3",
     "friendsofphp/php-cs-fixer": "~2",
     "phpmd/phpmd": "dev-master",
     "matthiasnoback/symfony-dependency-injection-test": "^4.1"
