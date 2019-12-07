@@ -51,7 +51,7 @@ class JobManagerTest extends TestCase
     {
         $entity = $this->getMockForAbstractClass(TaskEntityInterface::class);
         $entity->expects($this->once())->method('setUuid');
-        $event = $this->createStub(TaskCreatedEvent::class);
+        $event = $this->createMock(TaskCreatedEvent::class);
         $event->method('getTaskEntity')->willReturn($entity);
         $this->jobManager->onTaskCreated($event);
     }
