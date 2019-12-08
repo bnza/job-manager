@@ -3,15 +3,20 @@
 namespace Bnza\JobManagerBundle\Tests\Unit\Event;
 
 use Bnza\JobManagerBundle\Entity\TaskEntityInterface;
-use Bnza\JobManagerBundle\Event\TaskCreatedEvent;
+use Bnza\JobManagerBundle\Event\AbstractTaskEvent;
 use PHPUnit\Framework\TestCase;
 
-class TaskCreatedEventTest extends TestCase
+class AbstractTaskEventTest extends TestCase
 {
     public function testEventClass()
     {
         $entity = $this->getMockForAbstractClass(TaskEntityInterface::class);
-        $event = new TaskCreatedEvent($entity);
+        $event = $this
+            ->getMockBuilder(AbstractTaskEvent::class)
+            ->setConstructorArgs([$entity])
+            ->enableOriginalConstructor()
+            ->setMethods(null)
+            ->getMock();
         $this->assertEquals($entity, $event->getTaskEntity());
     }
 }

@@ -3,13 +3,10 @@
 namespace Bnza\JobManagerBundle\Event;
 
 use Bnza\JobManagerBundle\Entity\TaskEntityInterface;
-use Bnza\JobManagerBundle\Task\TaskEvents;
-use Symfony\Contracts\EventDispatcher\Event;
+use Symfony\Component\EventDispatcher\Event;
 
-class TaskCreatedEvent extends Event
+abstract class AbstractTaskEvent extends Event
 {
-    const NAME = TaskEvents::CREATED;
-
     /**
      * @var TaskEntityInterface
      */

@@ -53,8 +53,17 @@ interface TaskInfoEntityInterface
     public function getStatus(): ?Status;
 
     /**
-     * Returns the Task's steps iterable
-     * @return iterable
+     * @return iterable Task's steps iterable
      */
     public function getSteps(): iterable;
+
+    /**
+     * @return int The current step index (base 1 index)
+     */
+    public function getCurrentStepIndex(): int;
+
+    /**
+     * @return int The Task's steps number either subtask or unit task steps
+     */
+    public function getStepsCount(): int;
 }

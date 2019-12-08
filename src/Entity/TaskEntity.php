@@ -4,10 +4,8 @@ namespace Bnza\JobManagerBundle\Entity;
 
 use Bnza\JobManagerBundle\Status\Status;
 
-class TaskEntity implements TaskEntityInterface
+class TaskEntity extends TaskInfoEntity implements TaskEntityInterface
 {
-    use TaskInfoEntityTrait;
-
     public function setStartedAt(float $starteAt): TaskEntityInterface
     {
         $this->startedAt = $starteAt;

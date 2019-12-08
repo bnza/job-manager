@@ -73,7 +73,9 @@ class TaskInfoEntityNormalizerTest extends TestCase
             'status' => [
                 'value' => mt_rand(0, 255)
             ],
-            'steps' => []
+            'steps' => [],
+            'current_step_index' => 5,
+            'steps_count' => 10
         ];
     }
 

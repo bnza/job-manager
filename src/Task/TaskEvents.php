@@ -4,5 +4,6 @@ namespace Bnza\JobManagerBundle\Task;
 
 final class TaskEvents
 {
-    const CREATED = 'task.create';
+    const ATTACHED = 'task.attached';
+    const READY = 'task.ready';
 }

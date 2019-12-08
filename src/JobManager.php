@@ -2,14 +2,16 @@
 
 namespace Bnza\JobManagerBundle;
 
-use Bnza\JobManagerBundle\Event\TaskCreatedEvent;
+use Bnza\JobManagerBundle\Entity\TaskEntityFactoryInterface;
+use Bnza\JobManagerBundle\Entity\TaskEntityInterface;
+use Bnza\JobManagerBundle\Event\TaskInitializedEvent;
 use Bnza\JobManagerBundle\Repository\JobRepository;
 use Bnza\JobManagerBundle\Task\TaskEvents;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class JobManager implements EventSubscriberInterface
+class JobManager
 {
     /**
      * @var JobRepository
@@ -22,26 +24,20 @@ class JobManager implements EventSubscriberInterface
     private $dispatcher;
 
     /**
-     * {@inheritDoc}
+     * @var TaskEntityFactoryInterface
      */
-    public static function getSubscribedEvents()
-    {
-        return [
-            TaskEvents::CREATED => [
-              ['onTaskCreated', 200] //HIGH priority
-            ]
-          ];
-    }
+    private $taskFactory;
 
     /**
-     * @param TaskRepositoryInteface $activeTaskRepository
-     * @param TaskRepositoryInterface $storedTaskRepository
+     * @param JobRepository $jobRepository
      * @param EventDispatcherInterface $dispatcher
+     * @param TaskEntityFactoryInterface $taskFactory
      */
-    public function __construct(JobRepository $jobRepository, EventDispatcherInterface $dispatcher)
+    public function __construct(JobRepository $jobRepository, EventDispatcherInterface $dispatcher, TaskEntityFactoryInterface  $taskFactory)
     {
         $this->jobRepository = $jobRepository;
         $this->dispatcher = $dispatcher;
+        $this->taskFactory = $taskFactory;
     }
 
     /**
@@ -59,14 +55,15 @@ class JobManager implements EventSubscriberInterface
         return $this->generateId();
     }
 
-    /**
-     * Subscribed event callback
-     *
-     */
-    public function onTaskCreated(TaskCreatedEvent $event): void
+    public function registerTaskEntity(array $taskData = []): TaskEntityInterface
     {
-        if (!$event->getTaskEntity()->getUuid()) {
-            $event->getTaskEntity()->setUuid($this->generateId());
+        $taskEntity = $this->taskFactory->create($taskData);
+        if (!$taskEntity->getUuid()) {
+            $uuid = $this->generateId();
+            $taskEntity->setUuid($uuid);
+            $this->jobRepository->release($uuid);
         }
+        $this->jobRepository->persist($taskEntity);
+        return $taskEntity;
     }
 }

@@ -2,6 +2,8 @@
 
 namespace Bnza\JobManagerBundle\Repository;
 
+use Bnza\JobManagerBundle\Entity\TaskInfoEntityInterface;
+
 class JobRepository
 {
     /**
@@ -46,5 +48,18 @@ class JobRepository
     public function lock(string $uuid): bool
     {
         return $this->activeTaskRepo->lock($uuid);
+    }
+
+    public function release(string $uuid): bool
+    {
+        return $this->activeTaskRepo->release($uuid);
+    }
+
+    /**
+     * @return void
+     */
+    public function persist(TaskInfoEntityInterface $taskInfo): void
+    {
+        $this->activeTaskRepo->persist($taskInfo);
     }
 }

@@ -13,8 +13,12 @@ interface StatusInfoInterface
 
     public function isClean(): bool;
 
+    public function isAttached(): bool;
+
+    public function isReady(): bool;
+
     public function isRunning(): bool;
-    
+
     public function isSkipped(): bool;
 
     public function isSuccess(): bool;
